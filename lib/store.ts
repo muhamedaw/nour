@@ -21,6 +21,7 @@ export const useFloorStore = create<FloorStore>((set, get) => ({
           tableNumber,
           openedAt: new Date().toISOString(),
           status: "open",
+          items: [],
         },
       ],
     })),
