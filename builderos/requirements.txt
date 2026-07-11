@@ -1,0 +1,11 @@
+# BuilderOS runtime: ZERO third-party dependencies.
+# Everything (CLI, architect, secrets, docs) runs on the Python 3.8+ standard
+# library. This keeps BuilderOS 100% free and installable offline.
+#
+# The AI architect talks to a LOCAL, free Ollama model over HTTP (urllib) by
+# default. Install Ollama separately (https://ollama.com) and run e.g.:
+#     ollama pull llama3
+# Optional: set ANTHROPIC_API_KEY to use the Anthropic backend instead.
+#
+# Dev-only tooling (not needed to run BuilderOS):
+pytest>=7.0

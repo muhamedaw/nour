@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# BuilderOS generated artifacts
+PROJECT_DOCS.md
+CONTEXT_SUMMARY.md
+SESSION_LOG.md
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Knowledge graph (regenerable)
+graphify-out/

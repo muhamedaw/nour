@@ -1,0 +1,26 @@
+{
+  "description": "Maps a project idea to BuilderOS skills to auto-install. 'always' installs every session; 'match' installs when any pipe-separated keyword appears in the idea. Skills not listed here are still discoverable via description scoring against skills/index.json.",
+  "always": ["bos-patterns", "bos-codequality", "sparc-methodology", "swarm-orchestration"],
+  "match": {
+    "graphify|knowledge graph|understand codebase|map project|explore code|architecture question|how does this code work|codebase analysis": ["graphify"],
+    "frontend|front-end|ui|web|website|landing|page|site|dashboard|react|next|nextjs|vue|svelte|css|tailwind|design|portfolio|redesign|component": ["bos-frontend", "frontend-design"],
+    "api|backend|server|endpoint|rest|graphql|fastapi|express|microservice|webhook": ["bos-backend-api"],
+    "database|db |sql|postgres|sqlite|schema|migration|orm|prisma|redis|cache": ["bos-database"],
+    "mobile|ios|android|react native|expo|phone app": ["bos-mobile"],
+    "desktop|tauri|electron|windows app|mac app": ["bos-desktop"],
+    "docker|deploy|ci/cd|pipeline|devops|hosting|vps|kubernetes|container": ["bos-devops"],
+    "payment|stripe|subscription|billing|checkout|paywall|charge|sell|pricing": ["bos-payments"],
+    "scrape|scraping|crawl|extract data|parse html|spider": ["bos-scraping"],
+    "csv|pandas|machine learning| ml |model training|dataset|data analysis|embedding|llm|ai feature": ["bos-data-ml"],
+    "game|arcade|puzzle|platformer|phaser|godot": ["bos-game"],
+    "shop|store|ecommerce|e-commerce|marketplace|cart|product catalog|inventory": ["bos-ecommerce", "bos-payments"],
+    "chat|realtime|real-time|websocket|live update|notification|collaborative|presence": ["bos-realtime"],
+    "seo|ranking|google traffic|lighthouse|core web vitals|sitemap": ["bos-seo"],
+    "tdd|test-driven|unit test": ["test-driven-development"],
+    "debug|bug|broken|crash|not working": ["systematic-debugging"],
+    "roadmap|spec|architecture plan|brainstorm": ["writing-plans", "brainstorming"],
+    "mcp|model context protocol": ["mcp-builder"],
+    "claude artifact": ["web-artifacts-builder"],
+    "poster|generative art|visual art": ["canvas-design", "algorithmic-art"]
+  }
+}

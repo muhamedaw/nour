@@ -1,0 +1,19 @@
+{
+  "name": "Example API Service",
+  "directories": [
+    "app/api/v1",
+    "app/models",
+    "app/services",
+    "tests"
+  ],
+  "files": [
+    {
+      "path": "app/main.py",
+      "content": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/')\ndef read_root():\n    return {'Hello': 'World'}"
+    },
+    {
+      "path": "app/api/v1/endpoints.py",
+      "content": "from fastapi import APIRouter\n\nrouter = APIRouter()\n\n@router.get('/items')\ndef get_items():\n    return []"
+    }
+  ]
+}

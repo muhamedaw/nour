@@ -1,0 +1,1378 @@
+{
+ "1password": {
+  "name": "1password",
+  "description": "Set up and use 1Password CLI (op). Use when installing the CLI, enabling desktop app integration, signing in, and reading/injecting secrets for commands."
+ },
+ "3-statement-model": {
+  "name": "3-statement-model",
+  "description": "Build fully-integrated 3-statement models (IS, BS, CF) in Excel with working capital schedules, D&A roll-forwards, debt schedule, and the plugs that make cash and retained earnings tie. Pairs with excel-author."
+ },
+ "accelerate": {
+  "name": "huggingface-accelerate",
+  "description": "Simplest distributed training API. 4 lines to add distributed support to any PyTorch script. Unified API for DeepSpeed/FSDP/Megatron/DDP. Automatic device placement, mixed precision (FP16/BF16/FP8). Interactive config, single launch command. HuggingFace ecosystem standard."
+ },
+ "adversarial-ux-test": {
+  "name": "adversarial-ux-test",
+  "description": "Roleplay the most difficult, tech-resistant user for your product. Browse the app as that persona, find every UX pain point, then filter complaints through a pragmatism layer to separate real problems from noise. Creates actionable tickets from genuine issues only."
+ },
+ "agent-adaptive-coordinator": {
+  "name": "agent-adaptive-coordinator",
+  "description": "Agent skill for adaptive-coordinator - invoke with $agent-adaptive-coordinator"
+ },
+ "agent-agent": {
+  "name": "agent-agent",
+  "description": "Agent skill for agent - invoke with $agent-agent"
+ },
+ "agent-agentic-payments": {
+  "name": "agent-agentic-payments",
+  "description": "Agent skill for agentic-payments - invoke with $agent-agentic-payments"
+ },
+ "agent-analyze-code-quality": {
+  "name": "agent-analyze-code-quality",
+  "description": "Agent skill for analyze-code-quality - invoke with $agent-analyze-code-quality"
+ },
+ "agent-app-store": {
+  "name": "agent-app-store",
+  "description": "Agent skill for app-store - invoke with $agent-app-store"
+ },
+ "agent-arch-system-design": {
+  "name": "agent-arch-system-design",
+  "description": "Agent skill for arch-system-design - invoke with $agent-arch-system-design"
+ },
+ "agent-architecture": {
+  "name": "agent-architecture",
+  "description": "Agent skill for architecture - invoke with $agent-architecture"
+ },
+ "agent-authentication": {
+  "name": "agent-authentication",
+  "description": "Agent skill for authentication - invoke with $agent-authentication"
+ },
+ "agent-automation-smart-agent": {
+  "name": "agent-automation-smart-agent",
+  "description": "Agent skill for automation-smart-agent - invoke with $agent-automation-smart-agent"
+ },
+ "agent-base-template-generator": {
+  "name": "agent-base-template-generator",
+  "description": "Agent skill for base-template-generator - invoke with $agent-base-template-generator"
+ },
+ "agent-benchmark-suite": {
+  "name": "agent-benchmark-suite",
+  "description": "Agent skill for benchmark-suite - invoke with $agent-benchmark-suite"
+ },
+ "agent-byzantine-coordinator": {
+  "name": "agent-byzantine-coordinator",
+  "description": "Agent skill for byzantine-coordinator - invoke with $agent-byzantine-coordinator"
+ },
+ "agent-challenges": {
+  "name": "agent-challenges",
+  "description": "Agent skill for challenges - invoke with $agent-challenges"
+ },
+ "agent-code-analyzer": {
+  "name": "agent-code-analyzer",
+  "description": "Agent skill for code-analyzer - invoke with $agent-code-analyzer"
+ },
+ "agent-code-goal-planner": {
+  "name": "agent-code-goal-planner",
+  "description": "Agent skill for code-goal-planner - invoke with $agent-code-goal-planner"
+ },
+ "agent-code-review-swarm": {
+  "name": "agent-code-review-swarm",
+  "description": "Agent skill for code-review-swarm - invoke with $agent-code-review-swarm"
+ },
+ "agent-coder": {
+  "name": "agent-coder",
+  "description": "Agent skill for coder - invoke with $agent-coder"
+ },
+ "agent-collective-intelligence-coordinator": {
+  "name": "agent-collective-intelligence-coordinator",
+  "description": "Agent skill for collective-intelligence-coordinator - invoke with $agent-collective-intelligence-coordinator"
+ },
+ "agent-common": {
+  "name": "agent-common",
+  "description": "Shared preamble loaded by all cc10x agents — memory protocol, contract format, output rules."
+ },
+ "agent-consensus-coordinator": {
+  "name": "agent-consensus-coordinator",
+  "description": "Agent skill for consensus-coordinator - invoke with $agent-consensus-coordinator"
+ },
+ "agent-coordination": {
+  "name": "agent-coordination",
+  "description": "Agent spawning, lifecycle management, and coordination patterns. Manages 60+ agent types with specialized capabilities. Use when: spawning agents, coordinating multi-agent tasks, managing agent pools. Skip when: single-agent work, no coordination needed."
+ },
+ "agent-coordinator-swarm-init": {
+  "name": "agent-coordinator-swarm-init",
+  "description": "Agent skill for coordinator-swarm-init - invoke with $agent-coordinator-swarm-init"
+ },
+ "agent-crdt-synchronizer": {
+  "name": "agent-crdt-synchronizer",
+  "description": "Agent skill for crdt-synchronizer - invoke with $agent-crdt-synchronizer"
+ },
+ "agent-data-ml-model": {
+  "name": "agent-data-ml-model",
+  "description": "Agent skill for data-ml-model - invoke with $agent-data-ml-model"
+ },
+ "agent-dev-backend-api": {
+  "name": "agent-dev-backend-api",
+  "description": "Agent skill for dev-backend-api - invoke with $agent-dev-backend-api"
+ },
+ "agent-docs-api-openapi": {
+  "name": "agent-docs-api-openapi",
+  "description": "Agent skill for docs-api-openapi - invoke with $agent-docs-api-openapi"
+ },
+ "agent-github-modes": {
+  "name": "agent-github-modes",
+  "description": "Agent skill for github-modes - invoke with $agent-github-modes"
+ },
+ "agent-github-pr-manager": {
+  "name": "agent-github-pr-manager",
+  "description": "Agent skill for github-pr-manager - invoke with $agent-github-pr-manager"
+ },
+ "agent-goal-planner": {
+  "name": "agent-goal-planner",
+  "description": "Agent skill for goal-planner - invoke with $agent-goal-planner"
+ },
+ "agent-gossip-coordinator": {
+  "name": "agent-gossip-coordinator",
+  "description": "Agent skill for gossip-coordinator - invoke with $agent-gossip-coordinator"
+ },
+ "agent-hierarchical-coordinator": {
+  "name": "agent-hierarchical-coordinator",
+  "description": "Agent skill for hierarchical-coordinator - invoke with $agent-hierarchical-coordinator"
+ },
+ "agent-implementer-sparc-coder": {
+  "name": "agent-implementer-sparc-coder",
+  "description": "Agent skill for implementer-sparc-coder - invoke with $agent-implementer-sparc-coder"
+ },
+ "agent-issue-tracker": {
+  "name": "agent-issue-tracker",
+  "description": "Agent skill for issue-tracker - invoke with $agent-issue-tracker"
+ },
+ "agent-load-balancer": {
+  "name": "agent-load-balancer",
+  "description": "Agent skill for load-balancer - invoke with $agent-load-balancer"
+ },
+ "agent-matrix-optimizer": {
+  "name": "agent-matrix-optimizer",
+  "description": "Agent skill for matrix-optimizer - invoke with $agent-matrix-optimizer"
+ },
+ "agent-memory-coordinator": {
+  "name": "agent-memory-coordinator",
+  "description": "Agent skill for memory-coordinator - invoke with $agent-memory-coordinator"
+ },
+ "agent-mesh-coordinator": {
+  "name": "agent-mesh-coordinator",
+  "description": "Agent skill for mesh-coordinator - invoke with $agent-mesh-coordinator"
+ },
+ "agent-migration-plan": {
+  "name": "agent-migration-plan",
+  "description": "Agent skill for migration-plan - invoke with $agent-migration-plan"
+ },
+ "agent-multi-repo-swarm": {
+  "name": "agent-multi-repo-swarm",
+  "description": "Agent skill for multi-repo-swarm - invoke with $agent-multi-repo-swarm"
+ },
+ "agent-neural-network": {
+  "name": "agent-neural-network",
+  "description": "Agent skill for neural-network - invoke with $agent-neural-network"
+ },
+ "agent-ops-cicd-github": {
+  "name": "agent-ops-cicd-github",
+  "description": "Agent skill for ops-cicd-github - invoke with $agent-ops-cicd-github"
+ },
+ "agent-orchestrator-task": {
+  "name": "agent-orchestrator-task",
+  "description": "Agent skill for orchestrator-task - invoke with $agent-orchestrator-task"
+ },
+ "agent-pagerank-analyzer": {
+  "name": "agent-pagerank-analyzer",
+  "description": "Agent skill for pagerank-analyzer - invoke with $agent-pagerank-analyzer"
+ },
+ "agent-payments": {
+  "name": "agent-payments",
+  "description": "Agent skill for payments - invoke with $agent-payments"
+ },
+ "agent-performance-analyzer": {
+  "name": "agent-performance-analyzer",
+  "description": "Agent skill for performance-analyzer - invoke with $agent-performance-analyzer"
+ },
+ "agent-performance-benchmarker": {
+  "name": "agent-performance-benchmarker",
+  "description": "Agent skill for performance-benchmarker - invoke with $agent-performance-benchmarker"
+ },
+ "agent-performance-monitor": {
+  "name": "agent-performance-monitor",
+  "description": "Agent skill for performance-monitor - invoke with $agent-performance-monitor"
+ },
+ "agent-performance-optimizer": {
+  "name": "agent-performance-optimizer",
+  "description": "Agent skill for performance-optimizer - invoke with $agent-performance-optimizer"
+ },
+ "agent-planner": {
+  "name": "agent-planner",
+  "description": "Agent skill for planner - invoke with $agent-planner"
+ },
+ "agent-pr-manager": {
+  "name": "agent-pr-manager",
+  "description": "Agent skill for pr-manager - invoke with $agent-pr-manager"
+ },
+ "agent-production-validator": {
+  "name": "agent-production-validator",
+  "description": "Agent skill for production-validator - invoke with $agent-production-validator"
+ },
+ "agent-project-board-sync": {
+  "name": "agent-project-board-sync",
+  "description": "Agent skill for project-board-sync - invoke with $agent-project-board-sync"
+ },
+ "agent-pseudocode": {
+  "name": "agent-pseudocode",
+  "description": "Agent skill for pseudocode - invoke with $agent-pseudocode"
+ },
+ "agent-queen-coordinator": {
+  "name": "agent-queen-coordinator",
+  "description": "Agent skill for queen-coordinator - invoke with $agent-queen-coordinator"
+ },
+ "agent-quorum-manager": {
+  "name": "agent-quorum-manager",
+  "description": "Agent skill for quorum-manager - invoke with $agent-quorum-manager"
+ },
+ "agent-raft-manager": {
+  "name": "agent-raft-manager",
+  "description": "Agent skill for raft-manager - invoke with $agent-raft-manager"
+ },
+ "agent-refinement": {
+  "name": "agent-refinement",
+  "description": "Agent skill for refinement - invoke with $agent-refinement"
+ },
+ "agent-release-manager": {
+  "name": "agent-release-manager",
+  "description": "Agent skill for release-manager - invoke with $agent-release-manager"
+ },
+ "agent-release-swarm": {
+  "name": "agent-release-swarm",
+  "description": "Agent skill for release-swarm - invoke with $agent-release-swarm"
+ },
+ "agent-repo-architect": {
+  "name": "agent-repo-architect",
+  "description": "Agent skill for repo-architect - invoke with $agent-repo-architect"
+ },
+ "agent-researcher": {
+  "name": "agent-researcher",
+  "description": "Agent skill for researcher - invoke with $agent-researcher"
+ },
+ "agent-resource-allocator": {
+  "name": "agent-resource-allocator",
+  "description": "Agent skill for resource-allocator - invoke with $agent-resource-allocator"
+ },
+ "agent-reviewer": {
+  "name": "agent-reviewer",
+  "description": "Agent skill for reviewer - invoke with $agent-reviewer"
+ },
+ "agent-safla-neural": {
+  "name": "agent-safla-neural",
+  "description": "Agent skill for safla-neural - invoke with $agent-safla-neural"
+ },
+ "agent-sandbox": {
+  "name": "agent-sandbox",
+  "description": "Agent skill for sandbox - invoke with $agent-sandbox"
+ },
+ "agent-scout-explorer": {
+  "name": "agent-scout-explorer",
+  "description": "Agent skill for scout-explorer - invoke with $agent-scout-explorer"
+ },
+ "agent-security-manager": {
+  "name": "agent-security-manager",
+  "description": "Agent skill for security-manager - invoke with $agent-security-manager"
+ },
+ "agent-sona-learning-optimizer": {
+  "name": "agent-sona-learning-optimizer",
+  "description": "Agent skill for sona-learning-optimizer - invoke with $agent-sona-learning-optimizer"
+ },
+ "agent-sparc-coordinator": {
+  "name": "agent-sparc-coordinator",
+  "description": "Agent skill for sparc-coordinator - invoke with $agent-sparc-coordinator"
+ },
+ "agent-spec-mobile-react-native": {
+  "name": "agent-spec-mobile-react-native",
+  "description": "Agent skill for spec-mobile-react-native - invoke with $agent-spec-mobile-react-native"
+ },
+ "agent-specification": {
+  "name": "agent-specification",
+  "description": "Agent skill for specification - invoke with $agent-specification"
+ },
+ "agent-swarm": {
+  "name": "agent-swarm",
+  "description": "Agent skill for swarm - invoke with $agent-swarm"
+ },
+ "agent-swarm-issue": {
+  "name": "agent-swarm-issue",
+  "description": "Agent skill for swarm-issue - invoke with $agent-swarm-issue"
+ },
+ "agent-swarm-memory-manager": {
+  "name": "agent-swarm-memory-manager",
+  "description": "Agent skill for swarm-memory-manager - invoke with $agent-swarm-memory-manager"
+ },
+ "agent-swarm-pr": {
+  "name": "agent-swarm-pr",
+  "description": "Agent skill for swarm-pr - invoke with $agent-swarm-pr"
+ },
+ "agent-sync-coordinator": {
+  "name": "agent-sync-coordinator",
+  "description": "Agent skill for sync-coordinator - invoke with $agent-sync-coordinator"
+ },
+ "agent-tdd-london-swarm": {
+  "name": "agent-tdd-london-swarm",
+  "description": "Agent skill for tdd-london-swarm - invoke with $agent-tdd-london-swarm"
+ },
+ "agent-test-long-runner": {
+  "name": "agent-test-long-runner",
+  "description": "Agent skill for test-long-runner - invoke with $agent-test-long-runner"
+ },
+ "agent-tester": {
+  "name": "agent-tester",
+  "description": "Agent skill for tester - invoke with $agent-tester"
+ },
+ "agent-topology-optimizer": {
+  "name": "agent-topology-optimizer",
+  "description": "Agent skill for topology-optimizer - invoke with $agent-topology-optimizer"
+ },
+ "agent-trading-predictor": {
+  "name": "agent-trading-predictor",
+  "description": "Agent skill for trading-predictor - invoke with $agent-trading-predictor"
+ },
+ "agent-user-tools": {
+  "name": "agent-user-tools",
+  "description": "Agent skill for user-tools - invoke with $agent-user-tools"
+ },
+ "agent-v3-integration-architect": {
+  "name": "agent-v3-integration-architect",
+  "description": "Agent skill for v3-integration-architect - invoke with $agent-v3-integration-architect"
+ },
+ "agent-v3-memory-specialist": {
+  "name": "agent-v3-memory-specialist",
+  "description": "Agent skill for v3-memory-specialist - invoke with $agent-v3-memory-specialist"
+ },
+ "agent-v3-performance-engineer": {
+  "name": "agent-v3-performance-engineer",
+  "description": "Agent skill for v3-performance-engineer - invoke with $agent-v3-performance-engineer"
+ },
+ "agent-v3-queen-coordinator": {
+  "name": "agent-v3-queen-coordinator",
+  "description": "Agent skill for v3-queen-coordinator - invoke with $agent-v3-queen-coordinator"
+ },
+ "agent-v3-security-architect": {
+  "name": "agent-v3-security-architect",
+  "description": "Agent skill for v3-security-architect - invoke with $agent-v3-security-architect"
+ },
+ "agent-worker-specialist": {
+  "name": "agent-worker-specialist",
+  "description": "Agent skill for worker-specialist - invoke with $agent-worker-specialist"
+ },
+ "agent-workflow": {
+  "name": "agent-workflow",
+  "description": "Agent skill for workflow - invoke with $agent-workflow"
+ },
+ "agent-workflow-automation": {
+  "name": "agent-workflow-automation",
+  "description": "Agent skill for workflow-automation - invoke with $agent-workflow-automation"
+ },
+ "agentdb-advanced": {
+  "name": "AgentDB Advanced Features",
+  "description": "Master advanced AgentDB features including QUIC synchronization, multi-database management, custom distance metrics, hybrid search, and distributed systems integration. Use when building distributed AI systems, multi-agent coordination, or advanced vector search applications."
+ },
+ "agentdb-learning": {
+  "name": "AgentDB Learning Plugins",
+  "description": "Create and train AI learning plugins with AgentDB's 9 reinforcement learning algorithms. Includes Decision Transformer, Q-Learning, SARSA, Actor-Critic, and more. Use when building self-learning agents, implementing RL, or optimizing agent behavior through experience."
+ },
+ "agentdb-memory-patterns": {
+  "name": "AgentDB Memory Patterns",
+  "description": "Implement persistent memory patterns for AI agents using AgentDB. Includes session memory, long-term storage, pattern learning, and context management. Use when building stateful agents, chat systems, or intelligent assistants."
+ },
+ "agentdb-optimization": {
+  "name": "AgentDB Performance Optimization",
+  "description": "Optimize AgentDB performance with quantization (4-32x memory reduction), HNSW indexing (150x faster search), caching, and batch operations. Use when optimizing memory usage, improving search speed, or scaling to millions of vectors."
+ },
+ "agentdb-vector-search": {
+  "name": "AgentDB Vector Search",
+  "description": "Implement semantic vector search with AgentDB for intelligent document retrieval, similarity matching, and context-aware querying. Use when building RAG systems, semantic search engines, or intelligent knowledge bases."
+ },
+ "agentic-jujutsu": {
+  "name": "agentic-jujutsu",
+  "description": "Quantum-resistant, self-learning version control for AI agents with ReasoningBank intelligence and multi-agent coordination"
+ },
+ "agentmail": {
+  "name": "agentmail",
+  "description": "Give the agent its own dedicated email inbox via AgentMail. Send, receive, and manage email autonomously using agent-owned email addresses (e.g. hermes-agent@agentmail.to)."
+ },
+ "airtable": {
+  "name": "airtable",
+  "description": "Airtable REST API via curl. Records CRUD, filters, upserts."
+ },
+ "algorithmic-art": {
+  "name": "algorithmic-art",
+  "description": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations."
+ },
+ "antigravity-cli": {
+  "name": "antigravity-cli",
+  "description": "Operate the Antigravity CLI (agy): plugins, auth, sandbox."
+ },
+ "antivibe": {
+  "name": "antivibe",
+  "description": "Code learning and audit framework. Analyze any codebase — new, legacy, or AI-generated — and produce educational explanations or architectural audits. Use when the user wants to understand WHAT and WHY behind any code, not just accept it."
+ },
+ "apple-notes": {
+  "name": "apple-notes",
+  "description": "Manage Apple Notes via memo CLI: create, search, edit."
+ },
+ "apple-reminders": {
+  "name": "apple-reminders",
+  "description": "Apple Reminders via remindctl: add, list, complete."
+ },
+ "architecture": {
+  "name": "architecture",
+  "description": "Greenfield architecture design: map functionality flows, draw components, design APIs, classify dependencies, plan observability. For multi-component, API, schema, auth, or integration-heavy work. For retrofitting existing code, use codebase-hygiene instead."
+ },
+ "architecture-diagram": {
+  "name": "architecture-diagram",
+  "description": "Dark-themed SVG architecture/cloud/infra diagrams as HTML."
+ },
+ "arxiv": {
+  "name": "arxiv",
+  "description": "Search arXiv papers by keyword, author, category, or ID."
+ },
+ "ascii-art": {
+  "name": "ascii-art",
+  "description": "ASCII art: pyfiglet, cowsay, boxes, image-to-ascii."
+ },
+ "ascii-video": {
+  "name": "ascii-video",
+  "description": "ASCII video: convert video/audio to colored ASCII MP4/GIF."
+ },
+ "baoyu-article-illustrator": {
+  "name": "baoyu-article-illustrator",
+  "description": "Article illustrations: type × style × palette consistency."
+ },
+ "baoyu-comic": {
+  "name": "baoyu-comic",
+  "description": "Knowledge comics (知识漫画): educational, biography, tutorial."
+ },
+ "baoyu-infographic": {
+  "name": "baoyu-infographic",
+  "description": "Infographics: 21 layouts x 21 styles (信息图, 可视化)."
+ },
+ "bioinformatics": {
+  "name": "bioinformatics",
+  "description": "Gateway to 400+ bioinformatics skills from bioSkills and ClawBio. Covers genomics, transcriptomics, single-cell, variant calling, pharmacogenomics, metagenomics, structural biology, and more. Fetches domain-specific reference material on demand."
+ },
+ "blackbox": {
+  "name": "blackbox",
+  "description": "Delegate coding tasks to Blackbox AI CLI agent. Multi-model agent with built-in judge that runs tasks through multiple LLMs and picks the best result. Requires the blackbox CLI and a Blackbox AI API key."
+ },
+ "blender-mcp": {
+  "name": "blender-mcp",
+  "description": "Control Blender directly from Hermes via socket connection to the blender-mcp addon. Create 3D objects, materials, animations, and run arbitrary Blender Python (bpy) code. Use when user wants to create or modify anything in Blender."
+ },
+ "blogwatcher": {
+  "name": "blogwatcher",
+  "description": "Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool."
+ },
+ "bos-backend-api": {
+  "name": "bos-backend-api",
+  "description": "Backend API design patterns for REST/GraphQL services — FastAPI, Express, routing, validation, auth middleware, error contracts, pagination, versioning. Use when building any server, API, endpoint, or microservice."
+ },
+ "bos-codequality": {
+  "name": "bos-codequality",
+  "description": "BuilderOS code-quality guardrails to reduce bugs and overengineering. Use whenever writing, reviewing, or refactoring code."
+ },
+ "bos-data-ml": {
+  "name": "bos-data-ml",
+  "description": "Data pipelines and ML integration — pandas/polars processing, dataset hygiene, training loops, evaluation, local LLM/Ollama integration, embeddings. Use for data analysis, CSV processing, machine learning, training, or AI features."
+ },
+ "bos-database": {
+  "name": "bos-database",
+  "description": "Database schema design, migrations, indexing, and query patterns for PostgreSQL/SQLite/Redis. Use when a project stores data, needs a schema, models, ORM, SQL, migrations, or caching."
+ },
+ "bos-desktop": {
+  "name": "bos-desktop",
+  "description": "Desktop app patterns with Tauri (preferred) or Electron — window management, IPC, filesystem access, packaging, auto-update. Use when building any desktop, Windows, macOS, or Linux app."
+ },
+ "bos-devops": {
+  "name": "bos-devops",
+  "description": "DevOps patterns — Dockerfile, docker-compose, GitHub Actions CI/CD, environment config, deploying to VPS/Vercel/Fly. Use when containerizing, deploying, setting up CI, pipelines, or hosting."
+ },
+ "bos-ecommerce": {
+  "name": "bos-ecommerce",
+  "description": "E-commerce patterns — product catalog, cart, checkout flow, inventory, orders, admin. Use when building a store, shop, marketplace, product listing, or anything that sells items."
+ },
+ "bos-frontend": {
+  "name": "bos-frontend",
+  "description": "BuilderOS anti-slop frontend guidance for UI, landing pages, dashboards, and redesigns. Use for any user-facing interface."
+ },
+ "bos-game": {
+  "name": "bos-game",
+  "description": "Game development patterns — game loop, canvas/WebGL rendering, input mapping, collision, state machines, Phaser/Godot basics. Use when building any game, arcade, puzzle, platformer, or interactive simulation."
+ },
+ "bos-mobile": {
+  "name": "bos-mobile",
+  "description": "Mobile app patterns with React Native + Expo — navigation, offline storage, push notifications, release builds. Use when building any mobile, iOS, Android, or React Native app."
+ },
+ "bos-patterns": {
+  "name": "bos-patterns",
+  "description": "BuilderOS architectural patterns and infrastructure checklist. Use at the start of any project, when scaffolding, or when adding auth/data/frontend/AI layers."
+ },
+ "bos-payments": {
+  "name": "bos-payments",
+  "description": "Payment integration patterns — Stripe checkout, subscriptions, webhooks, idempotency, refunds, test mode. Use when a project charges money, sells, has subscriptions, billing, or a paywall."
+ },
+ "bos-realtime": {
+  "name": "bos-realtime",
+  "description": "Realtime feature patterns — WebSockets, Server-Sent Events, polling tradeoffs, presence, sync, reconnection. Use for chat, live updates, notifications, multiplayer, collaborative editing, or live dashboards."
+ },
+ "bos-scraping": {
+  "name": "bos-scraping",
+  "description": "Web scraping and data extraction patterns — HTTP fetching, HTML parsing, rate limiting, robots.txt, caching, resilient selectors. Use when extracting data from websites, crawling, parsing HTML, or automating data collection."
+ },
+ "bos-seo": {
+  "name": "bos-seo",
+  "description": "SEO and web performance patterns — meta tags, Open Graph, sitemap, structured data, Core Web Vitals, accessibility basics. Use when a site needs traffic, Google ranking, share previews, or lighthouse/performance improvements."
+ },
+ "brainstorming": {
+  "name": "brainstorming",
+  "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+ },
+ "brand-guidelines": {
+  "name": "brand-guidelines",
+  "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply."
+ },
+ "building": {
+  "name": "building",
+  "description": "Implementation skill for writing production code with TDD. Covers the RED-GREEN-REFACTOR cycle, false-RED detection, vertical slicing, scope escalation, test process discipline, and code generation patterns. Loaded by component-builder and bug-investigator."
+ },
+ "canvas": {
+  "name": "canvas",
+  "description": "Canvas LMS integration — fetch enrolled courses and assignments using API token authentication."
+ },
+ "canvas-design": {
+  "name": "canvas-design",
+  "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations."
+ },
+ "cc10x-router": {
+  "name": "cc10x-router",
+  "description": "THE ONLY ENTRY POINT FOR CC10X. Activate this skill for build, debug, review, and plan requests. Use when the user asks to implement, fix, review, plan, test, refactor, or continue code work. Trigger keywords: build, implement, create, write, add, review, audit, debug, fix, error, bug, broken, plan, design, architect, spec, brainstorm, test, refactor, optimize, update, change, research, cc10x, c10x. CRITICAL: Route and execute immediately. Do not stop at describing capabilities."
+ },
+ "chroma": {
+  "name": "chroma",
+  "description": "Open-source embedding database for AI applications. Store embeddings and metadata, perform vector and full-text search, filter by metadata. Simple 4-function API. Scales from notebooks to production clusters. Use for semantic search, RAG applications, or document retrieval. Best for local development and open-source projects."
+ },
+ "claims": {
+  "name": "claims",
+  "description": "Claims-based authorization for agents and operations. Grant, revoke, and verify permissions for secure multi-agent coordination. Use when: permission management, access control, secure operations, authorization checks. Skip when: open access, no security requirements, single-agent local work."
+ },
+ "claude-api": {
+  "name": "claude-api",
+  "description": "Reference for the Claude API / Anthropic SDK — model ids, pricing, params, streaming, tool use, MCP, agents, caching, token counting, model migration. TRIGGER — read BEFORE opening the target file; don't skip because it \"looks like a one-liner\" — whenever: the prompt names Claude/Anthropic in any form (Claude, Anthropic, Fable, Opus, Sonnet, Haiku, `anthropic`, `@anthropic-ai`, `claude-*`, `us.anthropic.*`, `[1m]`); the user asks about an LLM (pricing/model choice/limits/caching) — never answer from memory; OR the task is LLM-shaped with provider unstated (agent/MCP/tool-definition/multi-agent/RAG/LLM-judge/computer-use; generate/summarize/extract/classify/rewrite/converse over NL; debugging refusals/cutoffs/streaming/tool-calls/tokens). SKIP only when another provider is being worked on (overrides all triggers): OpenAI/GPT/Gemini/Llama/Mistral/Cohere/Ollama named in the query; OR `grep -rE 'openai|langchain_openai|google.generativeai|genai|mistralai|cohere|ollama'` over the project hits (run this grep FIRST if no provider named — don't Read the file)."
+ },
+ "claude-code": {
+  "name": "claude-code",
+  "description": "Delegate coding to Claude Code CLI (features, PRs)."
+ },
+ "claude-design": {
+  "name": "claude-design",
+  "description": "Design one-off HTML artifacts (landing, deck, prototype)."
+ },
+ "cli": {
+  "name": "inference-sh-cli",
+  "description": "Run 150+ AI apps via inference.sh CLI (infsh) — image generation, video creation, LLMs, search, 3D, social automation. Uses the terminal tool. Triggers: inference.sh, infsh, ai apps, flux, veo, image generation, video generation, seedream, seedance, tavily"
+ },
+ "clip": {
+  "name": "clip",
+  "description": "OpenAI's model connecting vision and language. Enables zero-shot image classification, image-text matching, and cross-modal retrieval. Trained on 400M image-text pairs. Use for image search, content moderation, or vision-language tasks without fine-tuning. Best for general-purpose image understanding."
+ },
+ "cloudflare-temporary-deploy": {
+  "name": "cloudflare-temporary-deploy",
+  "description": "Deploy a Worker live, no account, via wrangler --temporary."
+ },
+ "code-review": {
+  "name": "code-review",
+  "description": "Two-mode skill: (1) adversarial review — spec compliance + code quality + security, confidence-scored findings with file:line evidence; (2) receiving review — verify-before- agreeing discipline for acting on external/human review feedback."
+ },
+ "code-wiki": {
+  "name": "code-wiki",
+  "description": "Generate wiki docs + Mermaid diagrams for any codebase."
+ },
+ "codebase-hygiene": {
+  "name": "codebase-hygiene",
+  "description": "Two-mode skill: (1) find semantic duplicates — functions doing the same thing under different names, invisible to copy-paste detectors; (2) deepen shallow modules — thin wrappers and pass-through layers that spread complexity. Advisory and read-only; changes route through BUILD with full gates."
+ },
+ "codebase-inspection": {
+  "name": "codebase-inspection",
+  "description": "Inspect codebases w/ pygount: LOC, languages, ratios."
+ },
+ "codex": {
+  "name": "codex",
+  "description": "Delegate coding to OpenAI Codex CLI (features, PRs)."
+ },
+ "comfyui": {
+  "name": "comfyui",
+  "description": "Generate images, video, and audio with ComfyUI — install, launch, manage nodes/models, run workflows with parameter injection. Uses the official comfy-cli for lifecycle and direct REST/WebSocket API for execution."
+ },
+ "comps-analysis": {
+  "name": "comps-analysis",
+  "description": "Build comparable company analysis in Excel — operating metrics, valuation multiples, statistical benchmarking vs peer sets. Pairs with excel-author. Use for public-company valuation, IPO pricing, sector benchmarking, or outlier detection."
+ },
+ "computer-use": {
+  "name": "computer-use",
+  "description": "Drive the user's desktop in the background — clicking, typing, scrolling, dragging — without stealing the cursor, keyboard focus, or switching virtual desktops / Spaces. Cross-platform: macOS, Windows, Linux. Works with any tool-capable model. Load this skill whenever the `computer_use` tool is available."
+ },
+ "concept-diagrams": {
+  "name": "concept-diagrams",
+  "description": "Generate flat, minimal light/dark-aware SVG diagrams as standalone HTML files, using a unified educational visual language with 9 semantic color ramps, sentence-case typography, and automatic dark mode. Best suited for educational and non-software visuals — physics setups, chemistry mechanisms, math curves, physical objects (aircraft, turbines, smartphones, mechanical watches), anatomy, floor plans, cross-sections, narrative journeys (lifecycle of X, process of Y), hub-spoke system integrations (smart city, IoT), and exploded layer views. If a more specialized skill exists for the subject (dedicated software/cloud architecture, hand-drawn sketches, animated explainers, etc.), prefer that — otherwise this skill can also serve as a general-purpose SVG diagram fallback with a clean educational look. Ships with 15 example diagrams."
+ },
+ "creative-ideation": {
+  "name": "creative-ideation",
+  "description": "Generate ideas via named methods from creative practice."
+ },
+ "darwinian-evolver": {
+  "name": "darwinian-evolver",
+  "description": "Evolve prompts/regex/SQL/code with Imbue's evolution loop."
+ },
+ "dcf-model": {
+  "name": "dcf-model",
+  "description": "Build institutional-quality DCF valuation models in Excel — revenue projections, FCF build, WACC, terminal value, Bear/Base/Bull scenarios, 5x5 sensitivity tables. Pairs with excel-author. Use for intrinsic-value equity analysis."
+ },
+ "debugging": {
+  "name": "debugging",
+  "description": "Debugging discipline: feedback loop FIRST, root cause before fix, blast radius after fix. Covers the 10-rung construction ladder, LSP-powered tracing, hypothesis quality criteria, and four-phase investigation. Loaded by bug-investigator."
+ },
+ "design-md": {
+  "name": "design-md",
+  "description": "Author/validate/export Google's DESIGN.md token spec files."
+ },
+ "diff-driven-docs": {
+  "name": "diff-driven-docs",
+  "description": "Use when a BUILD phase completes, a commit is staged, or a PR is about to be created, and the diff has not yet been reflected in documentation. Also use when the user says \"update docs\", \"sync docs\", \"document this\", or asks whether documentation is up to date."
+ },
+ "dispatching-parallel-agents": {
+  "name": "dispatching-parallel-agents",
+  "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies"
+ },
+ "docker-management": {
+  "name": "docker-management",
+  "description": "Manage Docker containers, images, volumes, networks, and Compose stacks — lifecycle ops, debugging, cleanup, and Dockerfile optimization."
+ },
+ "dogfood": {
+  "name": "dogfood",
+  "description": "Exploratory QA of web apps: find bugs, evidence, reports."
+ },
+ "domain-intel": {
+  "name": "domain-intel",
+  "description": "Passive domain reconnaissance using Python stdlib. Subdomain discovery, SSL certificate inspection, WHOIS lookups, DNS records, domain availability checks, and bulk multi-domain analysis. No API keys required."
+ },
+ "drug-discovery": {
+  "name": "drug-discovery",
+  "description": "Pharmaceutical research assistant for drug discovery workflows. Search bioactive compounds on ChEMBL, calculate drug-likeness (Lipinski Ro5, QED, TPSA, synthetic accessibility), look up drug-drug interactions via OpenFDA, interpret ADMET profiles, and assist with lead optimization. Use for medicinal chemistry questions, molecule property analysis, clinical pharmacology, and open-science drug research."
+ },
+ "duckduckgo-search": {
+  "name": "duckduckgo-search",
+  "description": "Free web search via DuckDuckGo — text, news, images, videos. No API key needed. Prefer the `ddgs` CLI when installed; use the Python DDGS library only after verifying that `ddgs` is available in the current runtime."
+ },
+ "embeddings": {
+  "name": "embeddings",
+  "description": "Vector embeddings with HNSW indexing, sql.js persistence, and hyperbolic support. 75x faster with agentic-flow integration. Use when: semantic search, pattern matching, similarity queries, knowledge retrieval. Skip when: exact text matching, simple lookups, no semantic understanding needed."
+ },
+ "evm": {
+  "name": "evm",
+  "description": "Read-only EVM client: wallets, tokens, gas across 8 chains."
+ },
+ "excalidraw": {
+  "name": "excalidraw",
+  "description": "Hand-drawn Excalidraw JSON diagrams (arch, flow, seq)."
+ },
+ "excel-author": {
+  "name": "excel-author",
+  "description": "Build auditable Excel workbooks headless with openpyxl — blue/black/green cell conventions, formulas over hardcodes, named ranges, balance checks, sensitivity tables. Use for financial models, audit outputs, reconciliations."
+ },
+ "executing-plans": {
+  "name": "executing-plans",
+  "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints"
+ },
+ "faiss": {
+  "name": "faiss",
+  "description": "Facebook's library for efficient similarity search and clustering of dense vectors. Supports billions of vectors, GPU acceleration, and various index types (Flat, IVF, HNSW). Use for fast k-NN search, large-scale vector retrieval, or when you need pure similarity search without metadata. Best for high-performance applications."
+ },
+ "fastmcp": {
+  "name": "fastmcp",
+  "description": "Build, test, inspect, install, and deploy MCP servers with FastMCP in Python. Use when creating a new MCP server, wrapping an API or database as MCP tools, exposing resources or prompts, or preparing a FastMCP server for Claude Code, Cursor, or HTTP deployment."
+ },
+ "findmy": {
+  "name": "findmy",
+  "description": "Track Apple devices/AirTags via FindMy.app on macOS."
+ },
+ "finishing-a-development-branch": {
+  "name": "finishing-a-development-branch",
+  "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup"
+ },
+ "fitness-nutrition": {
+  "name": "fitness-nutrition",
+  "description": "Gym workout planner and nutrition tracker. Search 690+ exercises by muscle, equipment, or category via wger. Look up macros and calories for 380,000+ foods via USDA FoodData Central. Compute BMI, TDEE, one-rep max, macro splits, and body fat — pure Python, no pip installs. Built for anyone chasing gains, cutting weight, or just trying to eat better."
+ },
+ "flash-attention": {
+  "name": "optimizing-attention-flash",
+  "description": "Optimizes transformer attention with Flash Attention for 2-4x speedup and 10-20x memory reduction. Use when training/running transformers with long sequences (>512 tokens), encountering GPU memory issues with attention, or need faster inference. Supports PyTorch native SDPA, flash-attn library, H100 FP8, and sliding window attention."
+ },
+ "flow-nexus-neural": {
+  "name": "flow-nexus-neural",
+  "description": "Train and deploy neural networks in distributed E2B sandboxes with Flow Nexus"
+ },
+ "flow-nexus-platform": {
+  "name": "flow-nexus-platform",
+  "description": "Comprehensive Flow Nexus platform management - authentication, sandboxes, app deployment, payments, and challenges"
+ },
+ "flow-nexus-swarm": {
+  "name": "flow-nexus-swarm",
+  "description": "Cloud-based AI swarm deployment and event-driven workflow automation with Flow Nexus platform"
+ },
+ "frontend-design": {
+  "name": "frontend-design",
+  "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults."
+ },
+ "gif-search": {
+  "name": "gif-search",
+  "description": "Search/download GIFs from Tenor via curl + jq."
+ },
+ "github-auth": {
+  "name": "github-auth",
+  "description": "GitHub auth setup: HTTPS tokens, SSH keys, gh CLI login."
+ },
+ "github-automation": {
+  "name": "github-automation",
+  "description": "GitHub workflow automation, PR management, issue tracking, and code review coordination. Integrates with GitHub Actions and repository management. Use when: PR creation, code review, issue management, release automation, workflow setup. Skip when: local-only changes, non-GitHub repositories."
+ },
+ "github-code-review": {
+  "name": "github-code-review",
+  "description": "Comprehensive GitHub code review with AI-powered swarm coordination"
+ },
+ "github-issues": {
+  "name": "github-issues",
+  "description": "Create, triage, label, assign GitHub issues via gh or REST."
+ },
+ "github-multi-repo": {
+  "name": "github-multi-repo",
+  "description": "Multi-repository coordination, synchronization, and architecture management with AI swarm orchestration"
+ },
+ "github-pr-workflow": {
+  "name": "github-pr-workflow",
+  "description": "GitHub PR lifecycle: branch, commit, open, CI, merge."
+ },
+ "github-project-management": {
+  "name": "github-project-management",
+  "description": "Comprehensive GitHub project management with swarm-coordinated issue tracking, project board automation, and sprint planning"
+ },
+ "github-release-management": {
+  "name": "github-release-management",
+  "description": "Comprehensive GitHub release orchestration with AI swarm coordination for automated versioning, testing, deployment, and rollback management"
+ },
+ "github-repo-management": {
+  "name": "github-repo-management",
+  "description": "Clone/create/fork repos; manage remotes, releases."
+ },
+ "github-workflow-automation": {
+  "name": "github-workflow-automation",
+  "description": "Advanced GitHub Actions workflow automation with AI swarm coordination, intelligent CI/CD pipelines, and comprehensive repository management"
+ },
+ "gitnexus-explorer": {
+  "name": "gitnexus-explorer",
+  "description": "Index a codebase with GitNexus and serve an interactive knowledge graph via web UI + Cloudflare tunnel."
+ },
+ "godmode": {
+  "name": "godmode",
+  "description": "Jailbreak LLMs: Parseltongue, GODMODE, ULTRAPLINIAN."
+ },
+ "google-workspace": {
+  "name": "google-workspace",
+  "description": "Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python."
+ },
+ "graphify": {
+  "name": "graphify",
+  "description": "Use for any question about a codebase, its architecture, file relationships, or project content — especially when graphify-out/ exists, where the question should be treated as a graphify query first. Turns any input (code, docs, papers, images, videos) into a persistent knowledge graph with god nodes, community detection, and query/path/explain tools."
+ },
+ "grok": {
+  "name": "grok",
+  "description": "Delegate coding to xAI Grok Build CLI (features, PRs)."
+ },
+ "guidance": {
+  "name": "guidance",
+  "description": "Control LLM output with regex and grammars, guarantee valid JSON/XML/code generation, enforce structured formats, and build multi-step workflows with Guidance - Microsoft Research's constrained generation framework"
+ },
+ "heartmula": {
+  "name": "heartmula",
+  "description": "HeartMuLa: Suno-like song generation from lyrics + tags."
+ },
+ "here-now": {
+  "name": "here.now",
+  "description": "Publish static sites to {slug}.here.now and store private files in cloud Drives for agent-to-agent handoff."
+ },
+ "hermes-agent": {
+  "name": "hermes-agent",
+  "description": "Configure, extend, or contribute to Hermes Agent."
+ },
+ "hermes-agent-skill-authoring": {
+  "name": "hermes-agent-skill-authoring",
+  "description": "Author in-repo SKILL.md: frontmatter, validator, structure, and writing-quality principles."
+ },
+ "hermes-s6-container-supervision": {
+  "name": "hermes-s6-container-supervision",
+  "description": "Modify, debug, or extend the s6-overlay supervision tree inside the Hermes Agent Docker image — adding new services, debugging profile gateways, understanding the Architecture B main-program pattern."
+ },
+ "himalaya": {
+  "name": "himalaya",
+  "description": "Himalaya CLI: IMAP/SMTP email from terminal."
+ },
+ "hive-mind": {
+  "name": "hive-mind",
+  "description": "Byzantine fault-tolerant consensus and distributed coordination. Queen-led hierarchical swarm management with multiple consensus strategies. Use when: distributed coordination, fault-tolerant operations, multi-agent consensus, collective decision making. Skip when: single-agent tasks, simple operations, local-only work."
+ },
+ "hive-mind-advanced": {
+  "name": "hive-mind-advanced",
+  "description": "Advanced Hive Mind collective intelligence system for queen-led multi-agent coordination with consensus mechanisms and persistent memory"
+ },
+ "honcho": {
+  "name": "honcho",
+  "description": "Configure and use Honcho memory with Hermes -- cross-session user modeling, multi-profile peer isolation, observation config, dialectic reasoning, session summaries, and context budget enforcement. Use when setting up Honcho, troubleshooting memory, managing profiles with Honcho peers, or tuning observation, recall, and dialectic settings."
+ },
+ "hooks-automation": {
+  "name": "Hooks Automation",
+  "description": "Automated coordination, formatting, and learning from Claude Code operations using intelligent hooks with MCP integration. Includes pre$post task hooks, session management, Git integration, memory coordination, and neural pattern training for enhanced development workflows."
+ },
+ "huggingface-hub": {
+  "name": "huggingface-hub",
+  "description": "HuggingFace hf CLI: search/download/upload models, datasets."
+ },
+ "huggingface-tokenizers": {
+  "name": "huggingface-tokenizers",
+  "description": "Fast tokenizers optimized for research and production. Rust-based implementation tokenizes 1GB in <20 seconds. Supports BPE, WordPiece, and Unigram algorithms. Train custom vocabularies, track alignments, handle padding/truncation. Integrates seamlessly with transformers. Use when you need high-performance tokenization or custom tokenizer training."
+ },
+ "humanizer": {
+  "name": "humanizer",
+  "description": "Humanize text: strip AI-isms and add real voice."
+ },
+ "hyperframes": {
+  "name": "hyperframes",
+  "description": "Create HTML-based video compositions, animated title cards, social overlays, captioned talking-head videos, audio-reactive visuals, and shader transitions using HyperFrames. HTML is the source of truth for video. Use when the user wants a rendered MP4/WebM from an HTML composition, wants to animate text/logos/charts over media, needs captions synced to audio, wants TTS narration, or wants to convert a website into a video."
+ },
+ "hyperliquid": {
+  "name": "hyperliquid",
+  "description": "Hyperliquid market data, account history, trade review."
+ },
+ "imessage": {
+  "name": "imessage",
+  "description": "Send and receive iMessages/SMS via the imsg CLI on macOS."
+ },
+ "instructor": {
+  "name": "instructor",
+  "description": "Extract structured data from LLM responses with Pydantic validation, retry failed extractions automatically, parse complex JSON with type safety, and stream partial results with Instructor - battle-tested structured output library"
+ },
+ "internal-comms": {
+  "name": "internal-comms",
+  "description": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.)."
+ },
+ "jupyter-live-kernel": {
+  "name": "jupyter-live-kernel",
+  "description": "Iterative Python via live Jupyter kernel (hamelnb)."
+ },
+ "kanban-video-orchestrator": {
+  "name": "kanban-video-orchestrator",
+  "description": "Plan, set up, and monitor a multi-agent video production pipeline backed by Hermes Kanban. Use when the user wants to make ANY video — narrative film, product/marketing, music video, explainer, ASCII/terminal art, abstract/generative loop, comic, 3D, real-time/installation — and the work warrants decomposition into specialized profiles (writer, designer, animator, renderer, voice, editor, etc.) coordinated through a kanban board. Performs adaptive discovery to scope the brief, designs an appropriate team for the requested style, generates the setup script that creates Hermes profiles + initial kanban task, then helps monitor execution and intervene when tasks stall or fail. Routes scenes to whichever Hermes rendering / audio / design skill fits each beat (`ascii-video`, `manim-video`, `p5js`, `comfyui`, `touchdesigner-mcp`, `blender-mcp`, `pixel-art`, `baoyu-comic`, `claude-design`, `excalidraw`, `songsee`, `heartmula`, …) plus external APIs for TTS, image-gen, and image-to-video as needed."
+ },
+ "lambda-labs": {
+  "name": "lambda-labs-gpu-cloud",
+  "description": "Reserved and on-demand GPU cloud instances for ML training and inference. Use when you need dedicated GPU instances with simple SSH access, persistent filesystems, or high-performance multi-node clusters for large-scale training."
+ },
+ "lbo-model": {
+  "name": "lbo-model",
+  "description": "Build leveraged buyout models in Excel — sources & uses, debt schedule, cash sweep, exit multiple, IRR/MOIC sensitivity. Pairs with excel-author. Use for PE screening, sponsor-case valuation, or illustrative LBO in a pitch."
+ },
+ "llava": {
+  "name": "llava",
+  "description": "Large Language and Vision Assistant. Enables visual instruction tuning and image-based conversations. Combines CLIP vision encoder with Vicuna/LLaMA language models. Supports multi-turn image chat, visual question answering, and instruction following. Use for vision-language chatbots or image understanding tasks. Best for conversational image analysis."
+ },
+ "llm-wiki": {
+  "name": "llm-wiki",
+  "description": "Karpathy's LLM Wiki: build/query interlinked markdown KB."
+ },
+ "manim-video": {
+  "name": "manim-video",
+  "description": "Manim CE animations: 3Blue1Brown math/algo videos."
+ },
+ "maps": {
+  "name": "maps",
+  "description": "Geocode, POIs, routes, timezones via OpenStreetMap/OSRM."
+ },
+ "mcp-builder": {
+  "name": "mcp-builder",
+  "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK)."
+ },
+ "mcporter": {
+  "name": "mcporter",
+  "description": "Use the mcporter CLI to list, configure, auth, and call MCP servers/tools directly (HTTP or stdio), including ad-hoc servers, config edits, and CLI/type generation."
+ },
+ "meme-generation": {
+  "name": "meme-generation",
+  "description": "Generate real meme images by picking a template and overlaying text with Pillow. Produces actual .png meme files."
+ },
+ "memento-flashcards": {
+  "name": "memento-flashcards",
+  "description": "Spaced-repetition flashcard system. Create cards from facts or text, chat with flashcards using free-text answers graded by the agent, generate quizzes from YouTube transcripts, review due cards with adaptive scheduling, and export/import decks as CSV."
+ },
+ "memory-management": {
+  "name": "memory-management",
+  "description": "AgentDB memory system with HNSW vector search. Provides 150x-12,500x faster pattern retrieval, persistent storage, and semantic search capabilities for learning and knowledge management. Use when: need to store successful patterns, searching for similar solutions, semantic lookup of past work, learning from previous tasks, sharing knowledge between agents, building knowledge base. Skip when: no learning needed, ephemeral one-off tasks, external data sources available, read-only exploration."
+ },
+ "merger-model": {
+  "name": "merger-model",
+  "description": "Build accretion/dilution (merger) models in Excel — pro-forma P&L, synergies, financing mix, EPS impact. Pairs with excel-author. Use for M&A pitches, board materials, or deal evaluation."
+ },
+ "minecraft-modpack-server": {
+  "name": "minecraft-modpack-server",
+  "description": "Host modded Minecraft servers (CurseForge, Modrinth)."
+ },
+ "modal": {
+  "name": "modal-serverless-gpu",
+  "description": "Serverless GPU cloud platform for running ML workloads. Use when you need on-demand GPU access without infrastructure management, deploying ML models as APIs, or running batch jobs with automatic scaling."
+ },
+ "mpp-agent": {
+  "name": "mpp-agent",
+  "description": "Pay HTTP 402 APIs via Machine Payments Protocol (MPP)."
+ },
+ "nano-pdf": {
+  "name": "nano-pdf",
+  "description": "Edit PDF text/typos/titles via nano-pdf CLI (NL prompts)."
+ },
+ "nemo-curator": {
+  "name": "nemo-curator",
+  "description": "GPU-accelerated data curation for LLM training. Supports text/image/video/audio. Features fuzzy deduplication (16× faster), quality filtering (30+ heuristics), semantic deduplication, PII redaction, NSFW detection. Scales across GPUs with RAPIDS. Use for preparing high-quality training datasets, cleaning web data, or deduplicating large corpora."
+ },
+ "neural-training": {
+  "name": "neural-training",
+  "description": "Neural pattern training with SONA (Self-Optimizing Neural Architecture), MoE (Mixture of Experts), and EWC++ for knowledge consolidation. Use when: pattern learning, model optimization, knowledge transfer, adaptive routing. Skip when: simple tasks, no learning required, one-off operations."
+ },
+ "neuroskill-bci": {
+  "name": "neuroskill-bci",
+  "description": "Connect to a running NeuroSkill instance and incorporate the user's real-time cognitive and emotional state (focus, relaxation, mood, cognitive load, drowsiness, heart rate, HRV, sleep staging, and 40+ derived EXG scores) into responses. Requires a BCI wearable (Muse 2/S or OpenBCI) and the NeuroSkill desktop app running locally."
+ },
+ "node-inspect-debugger": {
+  "name": "node-inspect-debugger",
+  "description": "Debug Node.js via --inspect + Chrome DevTools Protocol CLI."
+ },
+ "notion": {
+  "name": "notion",
+  "description": "Notion API + ntn CLI: pages, databases, markdown, Workers."
+ },
+ "obliteratus": {
+  "name": "obliteratus",
+  "description": "OBLITERATUS: abliterate LLM refusals (diff-in-means)."
+ },
+ "obsidian": {
+  "name": "obsidian",
+  "description": "Read, search, create, and edit notes in the Obsidian vault."
+ },
+ "ocr-and-documents": {
+  "name": "ocr-and-documents",
+  "description": "Extract text from PDFs/scans (pymupdf, marker-pdf)."
+ },
+ "one-three-one-rule": {
+  "name": "one-three-one-rule",
+  "description": "Structured decision-making framework for technical proposals and trade-off analysis. When the user faces a choice between multiple approaches (architecture decisions, tool selection, refactoring strategies, migration paths), this skill produces a 1-3-1 format: one clear problem statement, three distinct options with pros/cons, and one concrete recommendation with definition of done and implementation plan. Use when the user asks for a \"1-3-1\", says \"give me options\", or needs help choosing between competing approaches."
+ },
+ "openclaw-migration": {
+  "name": "openclaw-migration",
+  "description": "Migrate a user's OpenClaw customization footprint into Hermes Agent. Imports Hermes-compatible memories, SOUL.md, command allowlists, user skills, and selected workspace assets from ~/.openclaw, then reports exactly what could not be migrated and why."
+ },
+ "opencode": {
+  "name": "opencode",
+  "description": "Delegate coding to OpenCode CLI (features, PR review)."
+ },
+ "openhands": {
+  "name": "openhands",
+  "description": "Delegate coding to OpenHands CLI (model-agnostic, LiteLLM)."
+ },
+ "openhue": {
+  "name": "openhue",
+  "description": "Control Philips Hue lights, scenes, rooms via OpenHue CLI."
+ },
+ "osint-investigation": {
+  "name": "osint-investigation",
+  "description": "Public-records OSINT investigation framework — SEC EDGAR filings, USAspending contracts, Senate lobbying, OFAC sanctions, ICIJ offshore leaks, NYC property records (ACRIS), OpenCorporates registries, CourtListener court records, Wayback Machine archives, Wikipedia + Wikidata, GDELT news monitoring. Entity resolution across sources, cross-link analysis, timing correlation, evidence chains. Python stdlib only."
+ },
+ "oss-forensics": {
+  "name": "oss-forensics",
+  "description": "Supply chain investigation, evidence recovery, and forensic analysis for GitHub repositories. Covers deleted commit recovery, force-push detection, IOC extraction, multi-source evidence collection, hypothesis formation/validation, and structured forensic reporting. Inspired by RAPTOR's 1800+ line OSS Forensics system."
+ },
+ "p5js": {
+  "name": "p5js",
+  "description": "p5.js sketches: gen art, shaders, interactive, 3D."
+ },
+ "page-agent": {
+  "name": "page-agent",
+  "description": "Embed alibaba/page-agent into your own web application — a pure-JavaScript in-page GUI agent that ships as a single <script> tag or npm package and lets end-users of your site drive the UI with natural language (\"click login, fill username as John\"). No Python, no headless browser, no extension required. Use this skill when the user is a web developer who wants to add an AI copilot to their SaaS / admin panel / B2B tool, make a legacy web app accessible via natural language, or evaluate page-agent against a local (Ollama) or cloud (Qwen / OpenAI / OpenRouter) LLM. NOT for server-side browser automation — point those users to Hermes' built-in browser tool instead."
+ },
+ "pair-programming": {
+  "name": "Pair Programming",
+  "description": "AI-assisted pair programming with multiple modes (driver$navigator$switch), real-time verification, quality monitoring, and comprehensive testing. Supports TDD, debugging, refactoring, and learning sessions. Features automatic role switching, continuous code review, security scanning, and performance optimization with truth-score verification."
+ },
+ "parallel-cli": {
+  "name": "parallel-cli",
+  "description": "Optional vendor skill for Parallel CLI — agent-native web search, extraction, deep research, enrichment, FindAll, and monitoring. Prefer JSON output and non-interactive flows."
+ },
+ "peft": {
+  "name": "peft-fine-tuning",
+  "description": "Parameter-efficient fine-tuning for LLMs using LoRA, QLoRA, and 25+ methods. Use when fine-tuning large models (7B-70B) with limited GPU memory, when you need to train <1% of parameters with minimal accuracy loss, or for multi-adapter serving. HuggingFace's official library integrated with transformers ecosystem."
+ },
+ "performance-analysis": {
+  "name": "performance-analysis",
+  "description": "Comprehensive performance analysis, bottleneck detection, and optimization recommendations for Claude Flow swarms"
+ },
+ "petdex": {
+  "name": "petdex",
+  "description": "Install and select animated petdex mascots for Hermes."
+ },
+ "pinecone": {
+  "name": "pinecone",
+  "description": "Managed vector database for production AI applications. Fully managed, auto-scaling, with hybrid search (dense + sparse), metadata filtering, and namespaces. Low latency (<100ms p95). Use for production RAG, recommendation systems, or semantic search at scale. Best for serverless, managed infrastructure."
+ },
+ "pinggy-tunnel": {
+  "name": "pinggy-tunnel",
+  "description": "Zero-install localhost tunnels over SSH via Pinggy."
+ },
+ "pixel-art": {
+  "name": "pixel-art",
+  "description": "Pixel art w/ era palettes (NES, Game Boy, PICO-8)."
+ },
+ "plan": {
+  "name": "plan",
+  "description": "Plan mode: write an actionable markdown plan to .hermes/plans/, no execution. Bite-sized tasks, exact paths, complete code."
+ },
+ "pokemon-player": {
+  "name": "pokemon-player",
+  "description": "Play Pokemon via headless emulator + RAM reads."
+ },
+ "polymarket": {
+  "name": "polymarket",
+  "description": "Query Polymarket: markets, prices, orderbooks, history."
+ },
+ "popular-web-designs": {
+  "name": "popular-web-designs",
+  "description": "54 real design systems (Stripe, Linear, Vercel) as HTML/CSS."
+ },
+ "powerpoint": {
+  "name": "powerpoint",
+  "description": "Create, read, edit .pptx decks, slides, notes, templates."
+ },
+ "pptx-author": {
+  "name": "pptx-author",
+  "description": "Build PowerPoint decks headless with python-pptx. Pairs with excel-author for model-backed decks where every number traces to a workbook cell. Use for pitch decks, IC memos, earnings notes."
+ },
+ "pretext": {
+  "name": "pretext",
+  "description": "Use when building creative browser demos with @chenglou/pretext — DOM-free text layout for ASCII art, typographic flow around obstacles, text-as-geometry games, kinetic typography, and text-powered generative art. Produces single-file HTML demos by default."
+ },
+ "python-debugpy": {
+  "name": "python-debugpy",
+  "description": "Debug Python: pdb REPL + debugpy remote (DAP)."
+ },
+ "pytorch-fsdp": {
+  "name": "pytorch-fsdp",
+  "description": "Expert guidance for Fully Sharded Data Parallel training with PyTorch FSDP - parameter sharding, mixed precision, CPU offloading, FSDP2"
+ },
+ "pytorch-lightning": {
+  "name": "pytorch-lightning",
+  "description": "High-level PyTorch framework with Trainer class, automatic distributed training (DDP/FSDP/DeepSpeed), callbacks system, and minimal boilerplate. Scales from laptop to supercomputer with same code. Use when you want clean training loops with built-in best practices."
+ },
+ "qdrant": {
+  "name": "qdrant-vector-search",
+  "description": "High-performance vector similarity search engine for RAG and semantic search. Use when building production RAG systems requiring fast nearest neighbor search, hybrid search with filtering, or scalable vector storage with Rust-powered performance."
+ },
+ "qmd": {
+  "name": "qmd",
+  "description": "Search personal knowledge bases, notes, docs, and meeting transcripts locally using qmd — a hybrid retrieval engine with BM25, vector search, and LLM reranking. Supports CLI and MCP integration."
+ },
+ "reasoningbank-agentdb": {
+  "name": "ReasoningBank with AgentDB",
+  "description": "Implement ReasoningBank adaptive learning with AgentDB's 150x faster vector database. Includes trajectory tracking, verdict judgment, memory distillation, and pattern recognition. Use when building self-learning agents, optimizing decision-making, or implementing experience replay systems."
+ },
+ "reasoningbank-intelligence": {
+  "name": "ReasoningBank Intelligence",
+  "description": "Implement adaptive learning with ReasoningBank for pattern recognition, strategy optimization, and continuous improvement. Use when building self-learning agents, optimizing workflows, or implementing meta-cognitive systems."
+ },
+ "receiving-code-review": {
+  "name": "receiving-code-review",
+  "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation"
+ },
+ "requesting-code-review": {
+  "name": "requesting-code-review",
+  "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements"
+ },
+ "research-paper-writing": {
+  "name": "research-paper-writing",
+  "description": "Write ML papers for NeurIPS/ICML/ICLR: design→submit."
+ },
+ "rest-graphql-debug": {
+  "name": "rest-graphql-debug",
+  "description": "Debug REST/GraphQL APIs: status codes, auth, schemas, repro."
+ },
+ "saelens": {
+  "name": "sparse-autoencoder-training",
+  "description": "Provides guidance for training and analyzing Sparse Autoencoders (SAEs) using SAELens to decompose neural network activations into interpretable features. Use when discovering interpretable features, analyzing superposition, or studying monosemantic representations in language models."
+ },
+ "scrapling": {
+  "name": "scrapling",
+  "description": "Web scraping with Scrapling - HTTP fetching, stealth browser automation, Cloudflare bypass, and spider crawling via CLI and Python."
+ },
+ "searxng-search": {
+  "name": "searxng-search",
+  "description": "Free meta-search via SearXNG — aggregates results from 70+ search engines. Self-hosted or use a public instance. No API key needed. Falls back automatically when the web search toolset is unavailable."
+ },
+ "security-audit": {
+  "name": "security-audit",
+  "description": "Comprehensive security scanning and vulnerability detection. Includes input validation, path traversal prevention, CVE detection, and secure coding pattern enforcement. Use when: authentication implementation, authorization logic, payment processing, user data handling, API endpoint creation, file upload handling, database queries, external API integration. Skip when: read-only operations on public data, internal development tooling, static documentation, styling changes."
+ },
+ "sherlock": {
+  "name": "sherlock",
+  "description": "OSINT username search across 400+ social networks. Hunt down social media accounts by username."
+ },
+ "shop": {
+  "name": "shop",
+  "description": "Shop catalog search, checkout, order tracking, returns."
+ },
+ "shopify": {
+  "name": "shopify",
+  "description": "Shopify Admin & Storefront GraphQL APIs via curl. Products, orders, customers, inventory, metafields."
+ },
+ "simplify-code": {
+  "name": "simplify-code",
+  "description": "Parallel 3-agent cleanup of recent code changes."
+ },
+ "simpo": {
+  "name": "simpo-training",
+  "description": "Simple Preference Optimization for LLM alignment. Reference-free alternative to DPO with better performance (+6.4 points on AlpacaEval 2.0). No reference model needed, more efficient than DPO. Use for preference alignment when want simpler, faster training than DPO/PPO."
+ },
+ "siyuan": {
+  "name": "siyuan",
+  "description": "SiYuan Note API for searching, reading, creating, and managing blocks and documents in a self-hosted knowledge base via curl."
+ },
+ "sketch": {
+  "name": "sketch",
+  "description": "Throwaway HTML mockups: 2-3 design variants to compare."
+ },
+ "skill-builder": {
+  "name": "Skill Builder",
+  "description": "Create new Claude Code Skills with proper YAML frontmatter, progressive disclosure structure, and complete directory organization. Use when you need to build custom skills for specific workflows, generate skill templates, or understand the Claude Skills specification."
+ },
+ "skill-creator": {
+  "name": "skill-creator",
+  "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy."
+ },
+ "slack-gif-creator": {
+  "name": "slack-gif-creator",
+  "description": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack."
+ },
+ "slime": {
+  "name": "slime-rl-training",
+  "description": "Provides guidance for LLM post-training with RL using slime, a Megatron+SGLang framework. Use when training GLM models, implementing custom data generation workflows, or needing tight Megatron-LM integration for RL scaling."
+ },
+ "solana": {
+  "name": "solana",
+  "description": "Query Solana blockchain data with USD pricing — wallet balances, token portfolios with values, transaction details, NFTs, whale detection, and live network stats. Uses Solana RPC + CoinGecko. No API key required."
+ },
+ "solana-auditor": {
+  "name": "solana-auditor",
+  "description": "Audit and research Solana smart contracts for security vulnerabilities and exploits. Use this skill whenever the user asks to audit, review, analyze, or security-test any Solana program — whether from a local repo, a deployed on-chain program, or an Anchor workspace. Also trigger when the user asks about Solana exploit patterns, vulnerability classes, CPI safety, PDA security, token validation, or wants to fuzz/test a Solana program. Covers the full audit lifecycle from reconnaissance through fuzzing to report generation. Even if the user just pastes Solana/Anchor code and asks \"is this safe?\", use this skill."
+ },
+ "songsee": {
+  "name": "songsee",
+  "description": "Audio spectrograms/features (mel, chroma, MFCC) via CLI."
+ },
+ "songwriting-and-ai-music": {
+  "name": "songwriting-and-ai-music",
+  "description": "Songwriting craft and Suno AI music prompts."
+ },
+ "sparc-methodology": {
+  "name": "sparc-methodology",
+  "description": "SPARC development workflow: Specification, Pseudocode, Architecture, Refinement, Completion. A structured approach for complex implementations that ensures thorough planning before coding. Use when: new feature implementation, complex implementations, architectural changes, system redesign, integration work, unclear requirements. Skip when: simple bug fixes, documentation updates, configuration changes, well-defined small tasks, routine maintenance."
+ },
+ "spike": {
+  "name": "spike",
+  "description": "Throwaway experiments to validate an idea before build."
+ },
+ "stable-diffusion": {
+  "name": "stable-diffusion-image-generation",
+  "description": "State-of-the-art text-to-image generation with Stable Diffusion models via HuggingFace Diffusers. Use when generating images from text prompts, performing image-to-image translation, inpainting, or building custom diffusion pipelines."
+ },
+ "stocks": {
+  "name": "stocks",
+  "description": "Stock quotes, history, search, compare, crypto via Yahoo."
+ },
+ "stream-chain": {
+  "name": "stream-chain",
+  "description": "Stream-JSON chaining for multi-agent pipelines, data transformation, and sequential workflows"
+ },
+ "stripe-link-cli": {
+  "name": "stripe-link-cli",
+  "description": "Agent payments via Stripe Link — cards, SPT, approvals."
+ },
+ "stripe-projects": {
+  "name": "stripe-projects",
+  "description": "Provision SaaS services + sync creds via Stripe Projects."
+ },
+ "subagent-driven-development": {
+  "name": "subagent-driven-development",
+  "description": "Use when executing implementation plans with independent tasks in the current session"
+ },
+ "swarm-advanced": {
+  "name": "swarm-advanced",
+  "description": "Advanced swarm orchestration patterns for research, development, testing, and complex distributed workflows"
+ },
+ "swarm-orchestration": {
+  "name": "swarm-orchestration",
+  "description": "Multi-agent swarm coordination for complex tasks. Uses hierarchical topology with specialized agents to break down and execute complex work across multiple files and modules. Use when: 3+ files need changes, new feature implementation, cross-module refactoring, API changes with tests, security-related changes, performance optimization across codebase, database schema changes. Skip when: single file edits, simple bug fixes (1-2 lines), documentation updates, configuration changes, quick exploration."
+ },
+ "systematic-debugging": {
+  "name": "systematic-debugging",
+  "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes"
+ },
+ "teams-meeting-pipeline": {
+  "name": "teams-meeting-pipeline",
+  "description": "Operate the Teams meeting summary pipeline via Hermes CLI — summarize meetings, inspect pipeline status, replay jobs, manage Microsoft Graph subscriptions."
+ },
+ "telephony": {
+  "name": "telephony",
+  "description": "Give Hermes phone capabilities without core tool changes. Provision and persist a Twilio number, send and receive SMS/MMS, make direct calls, and place AI-driven outbound calls through Bland.ai or Vapi."
+ },
+ "tensorrt-llm": {
+  "name": "tensorrt-llm",
+  "description": "Optimizes LLM inference with NVIDIA TensorRT for maximum throughput and lowest latency. Use for production deployment on NVIDIA GPUs (A100/H100), when you need 10-100x faster inference than PyTorch, or for serving models with quantization (FP8/INT4), in-flight batching, and multi-GPU scaling."
+ },
+ "test-driven-development": {
+  "name": "test-driven-development",
+  "description": "Use when implementing any feature or bugfix, before writing implementation code"
+ },
+ "theme-factory": {
+  "name": "theme-factory",
+  "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly."
+ },
+ "torchtitan": {
+  "name": "distributed-llm-pretraining-torchtitan",
+  "description": "Provides PyTorch-native distributed LLM pretraining using torchtitan with 4D parallelism (FSDP2, TP, PP, CP). Use when pretraining Llama 3.1, DeepSeek V3, or custom models at scale from 8 to 512+ GPUs with Float8, torch.compile, and distributed checkpointing."
+ },
+ "touchdesigner-mcp": {
+  "name": "touchdesigner-mcp",
+  "description": "Control a running TouchDesigner instance via twozero MCP — create operators, set parameters, wire connections, execute Python, build real-time visuals. 36 native tools."
+ },
+ "unbroker": {
+  "name": "unbroker",
+  "description": "Autonomously remove your info from data-broker sites."
+ },
+ "using-git-worktrees": {
+  "name": "using-git-worktrees",
+  "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback"
+ },
+ "using-superpowers": {
+  "name": "using-superpowers",
+  "description": "Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions"
+ },
+ "v3-cli-modernization": {
+  "name": "V3 CLI Modernization",
+  "description": "CLI modernization and hooks system enhancement for claude-flow v3. Implements interactive prompts, command decomposition, enhanced hooks integration, and intelligent workflow automation."
+ },
+ "v3-core-implementation": {
+  "name": "V3 Core Implementation",
+  "description": "Core module implementation for claude-flow v3. Implements DDD domains, clean architecture patterns, dependency injection, and modular TypeScript codebase with comprehensive testing."
+ },
+ "v3-ddd-architecture": {
+  "name": "V3 DDD Architecture",
+  "description": "Domain-Driven Design architecture for claude-flow v3. Implements modular, bounded context architecture with clean separation of concerns and microkernel pattern."
+ },
+ "v3-integration-deep": {
+  "name": "V3 Deep Integration",
+  "description": "Deep agentic-flow@alpha integration implementing ADR-001. Eliminates 10,000+ duplicate lines by building claude-flow as specialized extension rather than parallel implementation."
+ },
+ "v3-mcp-optimization": {
+  "name": "V3 MCP Optimization",
+  "description": "MCP server optimization and transport layer enhancement for claude-flow v3. Implements connection pooling, load balancing, tool registry optimization, and performance monitoring for sub-100ms response times."
+ },
+ "v3-memory-unification": {
+  "name": "V3 Memory Unification",
+  "description": "Unify 6+ memory systems into AgentDB with HNSW indexing for 150x-12,500x search improvements. Implements ADR-006 (Unified Memory Service) and ADR-009 (Hybrid Memory Backend)."
+ },
+ "v3-performance-optimization": {
+  "name": "V3 Performance Optimization",
+  "description": "Achieve aggressive v3 performance targets: 2.49x-7.47x Flash Attention speedup, 150x-12,500x search improvements, 50-75% memory reduction. Comprehensive benchmarking and optimization suite."
+ },
+ "v3-security-overhaul": {
+  "name": "V3 Security Overhaul",
+  "description": "Complete security architecture overhaul for claude-flow v3. Addresses critical CVEs (CVE-1, CVE-2, CVE-3) and implements secure-by-default patterns. Use for security-first v3 implementation."
+ },
+ "v3-swarm-coordination": {
+  "name": "V3 Swarm Coordination",
+  "description": "15-agent hierarchical mesh coordination for v3 implementation. Orchestrates parallel execution across security, core, and integration domains following 10 ADRs with 14-week timeline."
+ },
+ "verification-before-completion": {
+  "name": "verification-before-completion",
+  "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always"
+ },
+ "verification-quality": {
+  "name": "Verification & Quality Assurance",
+  "description": "Comprehensive truth scoring, code quality verification, and automatic rollback system with 0.95 accuracy threshold for ensuring high-quality agent outputs and codebase reliability."
+ },
+ "watchers": {
+  "name": "watchers",
+  "description": "Poll RSS, JSON APIs, and GitHub with watermark dedup."
+ },
+ "web-artifacts-builder": {
+  "name": "web-artifacts-builder",
+  "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts."
+ },
+ "web-pentest": {
+  "name": "web-pentest",
+  "description": "Authorized web application penetration testing — reconnaissance, vulnerability analysis, proof-based exploitation, and professional reporting. Adapts Shannon's \"No Exploit, No Report\" methodology with hard guardrails for scope, authorization, and aux-client leakage. Active testing against running applications you own or have written authorization to test."
+ },
+ "webapp-testing": {
+  "name": "webapp-testing",
+  "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs."
+ },
+ "whisper": {
+  "name": "whisper",
+  "description": "OpenAI's general-purpose speech recognition model. Supports 99 languages, transcription, translation to English, and language identification. Six model sizes from tiny (39M params) to large (1550M params). Use for speech-to-text, podcast transcription, or multilingual audio processing. Best for robust, multilingual ASR."
+ },
+ "worker-benchmarks": {
+  "name": "worker-benchmarks",
+  "description": "Run comprehensive worker system benchmarks and performance analysis"
+ },
+ "worker-integration": {
+  "name": "worker-integration",
+  "description": "Worker-Agent integration for intelligent task dispatch and performance tracking"
+ },
+ "workflow-automation": {
+  "name": "workflow-automation",
+  "description": "Workflow creation, execution, and template management. Automates complex multi-step processes with agent coordination. Use when: automating processes, creating reusable workflows, orchestrating multi-step tasks. Skip when: simple single-step tasks, ad-hoc operations."
+ },
+ "writing-plans": {
+  "name": "writing-plans",
+  "description": "Use when you have a spec or requirements for a multi-step task, before touching code"
+ },
+ "writing-skills": {
+  "name": "writing-skills",
+  "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment"
+ },
+ "xurl": {
+  "name": "xurl",
+  "description": "X/Twitter via xurl CLI: post, search, DM, media, v2 API."
+ },
+ "youtube-content": {
+  "name": "youtube-content",
+  "description": "YouTube transcripts to summaries, threads, blogs."
+ },
+ "yuanbao": {
+  "name": "yuanbao",
+  "description": "Yuanbao (元宝) groups: @mention users, query info/members."
+ }
+}

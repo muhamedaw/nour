@@ -1,0 +1,23 @@
+{
+  "description": "BuilderOS architect eval cases. Each intent is run through the architect; the produced blueprint is scored on structural + safety checks (no model required for offline scoring).",
+  "cases": [
+    {
+      "id": "todo-cli",
+      "intent": "a todo list cli app in python with add and list commands",
+      "expect_stack_any": ["python"],
+      "min_files": 1
+    },
+    {
+      "id": "rest-api",
+      "intent": "a small REST API with a health endpoint",
+      "expect_stack_any": ["python", "fastapi", "node", "express"],
+      "min_files": 1
+    },
+    {
+      "id": "static-site",
+      "intent": "a one page personal portfolio website",
+      "expect_stack_any": ["html", "css", "javascript", "next", "react"],
+      "min_files": 1
+    }
+  ]
+}

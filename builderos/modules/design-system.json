@@ -1,0 +1,24 @@
+{
+  "theme": {
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff",
+      "accent": "#3b82f6",
+      "background": "#ffffff",
+      "foreground": "#000000"
+    },
+    "spacing": {
+      "xs": "4px",
+      "sm": "8px",
+      "md": "16px",
+      "lg": "24px",
+      "xl": "32px"
+    },
+    "borderRadius": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "12px",
+      "full": "9999px"
+    }
+  }
+}

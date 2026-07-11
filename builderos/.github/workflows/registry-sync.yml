@@ -1,0 +1,28 @@
+name: Registry Auto-Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "TOOL_REGISTRY.md"
+      - "SKILLS_REGISTRY.md"
+      - "CLAUDE.md"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate registry format
+        run: |
+          echo "Checking TOOL_REGISTRY.md..."
+          grep -q "| Tool |" TOOL_REGISTRY.md && echo "OK" || echo "WARNING: Tool Registry format issue"
+          grep -q "| Skill |" SKILLS_REGISTRY.md && echo "OK" || echo "WARNING: Skills Registry format issue"
+
+      - name: Registry sync summary
+        run: |
+          echo "=== Registry Sync Complete ==="
+          echo "TOOL_REGISTRY entries: $(grep -c "^|" TOOL_REGISTRY.md || echo 0)"
+          echo "SKILLS_REGISTRY entries: $(grep -c "^|" SKILLS_REGISTRY.md || echo 0)"
+          echo "Last sync: $(date)"
