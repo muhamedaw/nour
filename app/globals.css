@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --area-snooker: #16a34a;
+  --area-cards: #2563eb;
+  --area-playstation: #7c3aed;
+  --status-open: #ef4444;
+  --status-free: #27272a;
+}
