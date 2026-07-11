@@ -9,3 +9,17 @@
   --status-open: #ef4444;
   --status-free: #27272a;
 }
+
+/* Tablet-first: make keyboard / screen-reader focus unmistakable on every
+ * interactive element. Without this, Tailwind's preflight strips the ring
+ * and AT users have no visible focus.
+ */
+:focus { outline: none; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
