@@ -25,6 +25,10 @@ data/
 .idea/
 *.swp
 
+# Local agent tool state (skill caches, not project source)
+.claude/
+.qwen/
+
 # OS
 .DS_Store
 Thumbs.db
