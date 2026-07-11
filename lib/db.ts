@@ -230,6 +230,33 @@ export function deleteSessionItem(sessionId: string, itemId: string): GroupSessi
   return getSessionById(sessionId);
 }
 
+export function replaceSessionItemsAndLabel(
+  sessionId: string,
+  items?: SessionItem[],
+  label?: string
+): GroupSession | null {
+  const session = getSessionById(sessionId);
+  if (!session) return null;
+
+  const tx = db.transaction(() => {
+    if (items) {
+      db.prepare("DELETE FROM session_items WHERE session_id = ?").run(sessionId);
+      const insert = db.prepare(
+        "INSERT INTO session_items (id, session_id, product_id, name, price, qty) VALUES (?, ?, ?, ?, ?, ?)"
+      );
+      for (const item of items) {
+        insert.run(crypto.randomUUID(), sessionId, item.productId, item.name, item.price, item.qty);
+      }
+    }
+    if (label !== undefined) {
+      db.prepare("UPDATE sessions SET label = ? WHERE id = ?").run(label, sessionId);
+    }
+  });
+  tx();
+
+  return getSessionById(sessionId);
+}
+
 export function closeSession(
   sessionId: string,
   closedAt: string,
@@ -311,6 +338,16 @@ export function updateProduct(
 
 export function deleteProduct(id: string): void {
   db.prepare("DELETE FROM products WHERE id = ?").run(id);
+}
+
+export function createCategory(name: string, order: number): Category {
+  const id = crypto.randomUUID();
+  db.prepare("INSERT INTO categories (id, name, order_index) VALUES (?, ?, ?)").run(id, name, order);
+  return { id, name, order };
+}
+
+export function deleteCategory(id: string): void {
+  db.prepare("DELETE FROM categories WHERE id = ?").run(id);
 }
 
 export default db;
