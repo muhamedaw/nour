@@ -13,6 +13,7 @@ import {
   saveEncryptedBackup,
 } from "@/lib/localdb";
 import { isUnlocked, setUnlocked } from "@/lib/localauth";
+import SplashIntro from "@/components/splash/SplashIntro";
 
 type Status = "loading" | "locked" | "reauth" | "unlocked";
 
@@ -31,6 +32,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,12 +99,11 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     setStatus("unlocked");
   };
 
-  if (status === "loading") {
-    return (
-      <main className="min-h-screen flex items-center justify-center" dir="rtl">
-        <p className="text-espresso-400 animate-pulse text-lg">جارٍ التحميل…</p>
-      </main>
-    );
+  // Splash plays for up to ~3s while the async init above runs behind it;
+  // real content never appears before both are ready, but never blocks
+  // longer than the splash's own cap either (see SplashIntro).
+  if (status === "loading" || !introDone) {
+    return <SplashIntro onDone={() => setIntroDone(true)} />;
   }
 
   if (status === "locked") {
