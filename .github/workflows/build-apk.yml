@@ -119,6 +119,16 @@ jobs:
       - name: Point Gradle at the Android SDK
         run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
+      # The gradlew wrapper's executable bit gets stripped when checked
+      # in from Windows (NTFS has no +x), so the file lands in the
+      # Linux runner as 644 and `./gradlew` errors with "Permission
+      # denied". This is a no-op on macOS / Linux contributors and
+      # a one-liner fix for Windows contributors. Run it here, not
+      # in the build step, so the failure mode is explicit.
+      - name: Make gradlew executable (Windows contributor fix)
+        working-directory: android
+        run: chmod +x ./gradlew
+
       - name: Build debug APK (Gradle)
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
