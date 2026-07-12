@@ -1,10 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initLocalDb, ensureStaffPasswordSeeded, checkStaffPassword, isDatabaseEmpty, hasEncryptedBackup, tryRestoreFromBackup, setCurrentStaffPassword, saveEncryptedBackup } from "@/lib/localdb";
+import {
+  initLocalDb,
+  ensureStaffPasswordSeeded,
+  checkStaffPassword,
+  isDatabaseEmpty,
+  hasEncryptedBackup,
+  tryRestoreFromBackup,
+  setCurrentStaffPassword,
+  getCurrentStaffPassword,
+  saveEncryptedBackup,
+} from "@/lib/localdb";
 import { isUnlocked, setUnlocked } from "@/lib/localauth";
 
-type Status = "loading" | "locked" | "unlocked";
+type Status = "loading" | "locked" | "reauth" | "unlocked";
 
 /**
  * Client-side replacement for the old middleware.ts + server session cookie.
@@ -28,7 +38,20 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       await initLocalDb();
       await ensureStaffPasswordSeeded();
       if (cancelled) return;
-      setStatus(isUnlocked() ? "unlocked" : "locked");
+      // `isUnlocked()` is a localStorage flag — survives process kill.
+      // `_currentPassword` is module memory — wiped on every process kill.
+      // After Android kills the WebView (low memory, swipe-away, etc.) and
+      // the user reopens the app, the unlock flag is still set but the
+      // password is gone. The close flow needs the password in memory to
+      // update the encrypted backup, so we re-prompt once per cold start
+      // (in addition to the fresh-install "locked" flow).
+      if (!isUnlocked()) {
+        setStatus("locked");
+      } else if (getCurrentStaffPassword() === null) {
+        setStatus("reauth");
+      } else {
+        setStatus("unlocked");
+      }
     })();
     return () => {
       cancelled = true;
@@ -119,6 +142,52 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
             className="px-6 py-3 rounded-2xl bg-copper-600 hover:bg-copper-500 disabled:opacity-60 text-espresso-50 font-bold min-h-[56px] transition-colors duration-200"
           >
             {restoring ? "جارٍ الاستعادة…" : busy ? "جارٍ التحقق…" : "دخول"}
+          </button>
+        </form>
+      </main>
+    );
+  }
+
+  if (status === "reauth") {
+    return (
+      <main dir="rtl" className="min-h-screen flex items-center justify-center p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-sm bg-espresso-900 border border-espresso-800 rounded-3xl p-6 flex flex-col gap-4"
+        >
+          <h1 className="font-display text-2xl font-bold text-center">
+            تأكيد كلمة المرور
+          </h1>
+          <p className="text-espresso-300 text-sm text-center">
+            أدخل كلمة المرور مرة واحدة لتفعيل النسخ الاحتياطي التلقائي
+            للجلسات.
+          </p>
+          {error && (
+            <p className="text-rust-400 text-sm text-center" role="alert">
+              {error}
+            </p>
+          )}
+          {restoreMsg && (
+            <p className="text-copper-300 text-sm text-center" role="status">
+              {restoreMsg}
+            </p>
+          )}
+          <input
+            type="password"
+            required
+            autoFocus
+            disabled={restoring}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="كلمة المرور"
+            className="bg-espresso-950 border border-espresso-700 rounded-2xl px-4 py-3 text-lg focus:border-copper-500 focus:outline-none min-h-[56px]"
+          />
+          <button
+            type="submit"
+            disabled={busy || restoring}
+            className="px-6 py-3 rounded-2xl bg-copper-600 hover:bg-copper-500 disabled:opacity-60 text-espresso-50 font-bold min-h-[56px] transition-colors duration-200"
+          >
+            {restoring ? "جارٍ الاستعادة…" : busy ? "جارٍ التحقق…" : "تأكيد"}
           </button>
         </form>
       </main>
