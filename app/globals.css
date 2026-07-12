@@ -3,6 +3,35 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ *
+ *  Phone-fit scale wrapper.
+ *
+ *  The app is designed at the Tailwind `lg` breakpoint (1024px). On a
+ *  tablet (≥1024px CSS px, portrait or landscape) this is a no-op and
+ *  renders 1:1. On a phone (360–430px) the whole UI is uniformly scaled
+ *  down via CSS `transform: scale(--app-scale)` so every component keeps
+ *  its original pixel sizes — no reflow, no per-component redesign,
+ *  text/buttons/numbers stay exactly as designed, just smaller-on-screen.
+ *
+ *  `--app-base-w` is set by an inline script in <head> (see app/layout.tsx)
+ *  to 1024px and `--app-scale` to `min(1, innerWidth/1024)`. Tablet → 1,
+ *  375px phone → 0.366, 414px phone → 0.404.
+ *
+ *  The wrapper is `margin-inline: auto` + `transform-origin: top center`
+ *  so the scaled content stays horizontally and vertically centered in
+ *  any viewport. `body { overflow-x: hidden }` blocks horizontal pan.
+ * ------------------------------------------------------------------ */
+:root {
+  --app-base-w: 1024px;
+  --app-scale: 1;
+}
+.app-shell {
+  width: var(--app-base-w);
+  margin-inline: auto;
+  transform: scale(var(--app-scale));
+  transform-origin: top center;
+}
+
+/* ------------------------------------------------------------------ *
  *  Atmosphere — a warm, tactile dark-roast surface instead of a flat
  *  fill. Two low-opacity radial glows (top-right copper, bottom-left
  *  deep rust) plus a fine noise grain, all fixed to the viewport so it
