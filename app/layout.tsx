@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Cairo, Tajawal, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AuthGate from "@/components/auth/AuthGate";
+import KeepScreenAwake from "@/components/KeepScreenAwake";
+import DailyReporter from "@/components/telegram/DailyReporter";
 import NavBar from "./NavBar";
 
 /**
@@ -36,8 +38,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Coffee Shop Floor",
-  description: "Floor management for snooker, cards, and playstation sessions",
+  title: "مقعى ترف — إدارة الطاولات",
+  description: "إدارة طاولات السنوكر والكوتشينة والبلايستيشن",
 };
 
 export const viewport: Viewport = {
@@ -58,6 +60,11 @@ export default function RootLayout({
       className={`${cairo.variable} ${tajawal.variable} ${jetbrainsMono.variable}`}
     >
       <body className="bg-espresso-950 text-espresso-100 min-h-screen antialiased font-sans overflow-x-hidden">
+        {/* Mounted OUTSIDE <AuthGate> so the wake lock is held even
+            while the auth check is running — staff shouldn't have to
+            re-enter the password because the screen dimmed. */}
+        <KeepScreenAwake />
+        <DailyReporter />
         <AuthGate>
           <NavBar />
           {children}

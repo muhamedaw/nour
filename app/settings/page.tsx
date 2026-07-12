@@ -1,8 +1,9 @@
 import BackupRestore from "@/components/settings/BackupRestore";
 import SettingsView from "@/components/settings/SettingsView";
+import TelegramSettings from "@/components/settings/TelegramSettings";
 
 export const metadata = {
-  title: "إعدادات المناطق | Coffee Shop",
+  title: "إعدادات المناطق | مقعى ترف",
 };
 
 export default function SettingsPage() {
@@ -17,6 +18,7 @@ export default function SettingsPage() {
       </header>
       <SettingsView />
       <BackupRestore />
+      <TelegramSettings />
     </main>
   );
 }
