@@ -15,6 +15,12 @@
  * pair it's handed. See components/telegram/DailyReporter.tsx and
  * components/settings/TelegramSettings.tsx.
  *
+ * Persistence of the report itself (CSV + JSON sidecar in
+ * Documents/reports/) lives in `./report-storage`. `runDailyReport`
+ * calls `saveReportLocally` *before* attempting the Telegram send —
+ * a Telegram failure never loses the local record, and a Telegram
+ * success patches the sidecar afterwards to record the message id.
+ *
  * Note on the bot token being in the bundle: this ships as a static-
  * exported APK. The bot token ends up in the JS bundle, which means
  * anyone with the APK can extract it. Accepted risk for v1 — a
@@ -26,6 +32,7 @@
 
 import { listHistory } from "@/lib/localdb";
 import type { GroupSession } from "@/lib/types";
+import { saveReportLocally, updateMetadata } from "./report-storage";
 
 // ------------------------------------------------------------------
 // Types
@@ -61,6 +68,10 @@ export interface RunResult {
   /** YYYY-MM-DD in local time — the calendar day the report covers. */
   date: string;
   rowCount: number;
+  /** True iff the CSV was written to Documents/reports/. The local
+   *  save happens regardless of Telegram success, so a Telegram
+   *  failure can still pair with `savedLocally: true`. */
+  savedLocally: boolean;
 }
 
 /** Subset of the Telegram Bot API response body we actually consume. */
@@ -423,6 +434,7 @@ export async function runDailyReport(
       message: "تم تشغيل تقرير آخر بالفعل — تم تجاهل هذه المحاولة.",
       date: window.date,
       rowCount: 0,
+      savedLocally: false,
     };
   }
   isRunning = true;
@@ -435,6 +447,7 @@ export async function runDailyReport(
         message: "لا توجد مبيعات أمس.",
         date: window.date,
         rowCount: 0,
+        savedLocally: false,
       };
     }
     const csv = buildCsv(sessions);
@@ -443,24 +456,57 @@ export async function runDailyReport(
       (sum, s) => sum + (s.billedTotal ?? 0),
       0,
     );
+    const sessionCount = sessions.length;
+    const csvRowCount = csv.split("\r\n").length - 1; // minus the BOM header line
+
+    // 1) Save locally FIRST, so a Telegram failure never loses the
+    //    record. The Telegram send below patches the sidecar
+    //    afterwards with the result.
+    const localSave = await saveReportLocally(window.date, csv, {
+      sessionCount,
+      totalRevenue,
+      csvRowCount,
+      telegramSent: false,
+    });
+    const savedLocally = localSave.ok;
+
+    // 2) Build the caption, then attempt the Telegram send.
     const caption =
       `📊 تقرير مبيعات ${window.date}\n` +
-      `عدد الجلسات: ${sessions.length}\n` +
+      `عدد الجلسات: ${sessionCount}\n` +
       `الإجمالي: ₪${totalRevenue.toFixed(2)}`;
     const result = await sendCsvDocument(config, filename, csv, caption);
+
+    // 3) Patch the sidecar with the Telegram result (best-effort —
+    //    a patch failure must not undo the local save).
     if (result.ok) {
+      void updateMetadata(window.date, {
+        telegramSent: true,
+        telegramMessageId: result.messageId,
+      });
       return {
         status: "sent",
-        message: "تم إرسال التقرير.",
+        message: savedLocally
+          ? "تم إرسال التقرير وحفظه محليًا."
+          : "تم إرسال التقرير (تعذّر الحفظ المحلي).",
         date: window.date,
-        rowCount: sessions.length,
+        rowCount: sessionCount,
+        savedLocally,
       };
+    }
+    // Telegram send failed — surface the failure, but keep the
+    // `savedLocally: true` flag so the UI can tell the user "the
+    // report IS on your device, just not on Telegram".
+    let suffix = "";
+    if (savedLocally) {
+      suffix = " (لكن التقرير محفوظ محليًا — يمكنك مشاركته يدويًا من قسم التقارير المحفوظة).";
     }
     return {
       status: "failed",
-      message: result.message,
+      message: `${result.message}${suffix}`,
       date: window.date,
-      rowCount: sessions.length,
+      rowCount: sessionCount,
+      savedLocally,
     };
   } finally {
     isRunning = false;

@@ -1,4 +1,5 @@
 import BackupRestore from "@/components/settings/BackupRestore";
+import SavedReports from "@/components/settings/SavedReports";
 import SettingsView from "@/components/settings/SettingsView";
 import TelegramSettings from "@/components/settings/TelegramSettings";
 
@@ -19,6 +20,7 @@ export default function SettingsPage() {
       <SettingsView />
       <BackupRestore />
       <TelegramSettings />
+      <SavedReports />
     </main>
   );
 }
