@@ -43,6 +43,10 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   // becomes visible/starts playing once `status` reaches "intro".
   useEffect(() => {
     if (status !== "intro" || !videoRef.current) return;
+    // Belt-and-suspenders: `loadeddata`/`canplay` can fire before React
+    // finishes attaching listeners on a tiny, instantly-cached local file,
+    // so also check readyState directly instead of relying on events alone.
+    if (videoRef.current.readyState >= 2) setVideoReady(true);
     videoRef.current.currentTime = 0;
     videoRef.current.play().catch(() => setVideoFailed(true));
   }, [status]);
@@ -127,6 +131,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       preload="auto"
       src="/turaf-intro.mp4"
       onLoadedData={() => setVideoReady(true)}
+      onCanPlay={() => setVideoReady(true)}
       onError={() => setVideoFailed(true)}
       style={{
         position: "fixed",
