@@ -18,7 +18,19 @@
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
             android:exported="true"
-            android:screenOrientation="landscape">
+            <!--
+                "sensor" (not "landscape") so the app follows the device
+                rotation. The configChanges list above already includes
+                "orientation" + "screenSize", so the activity is NOT
+                recreated on rotation — the WebView just receives a
+                window resize event and the existing Tailwind responsive
+                classes (md:*, lg:*) re-flow the layout. Both portrait
+                and landscape work; reverse-portrait + reverse-landscape
+                too. Locking to landscape was wrong for a staff-facing POS
+                that often needs to be held one-handed in portrait to scan
+                a product, then set down in landscape for the floor grid.
+            -->
+            android:screenOrientation="sensor">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
