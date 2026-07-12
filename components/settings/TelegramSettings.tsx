@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Preferences } from "@capacitor/preferences";
 import {
   discoverChatId,
@@ -8,6 +8,9 @@ import {
   sendTextMessage,
   type ReportLog,
 } from "@/lib/telegram/reporter";
+import TelegramSetupGuide, {
+  TELEGRAM_GUIDE_DIALOG_ID,
+} from "./TelegramSetupGuide";
 
 const KEY_BOT_TOKEN = "tg.botToken";
 const KEY_CHAT_ID = "tg.chatId";
@@ -24,6 +27,17 @@ export default function TelegramSettings(): JSX.Element {
   const [busy, setBusy] = useState<BusyKind>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const helpTriggerRef = useRef<HTMLButtonElement>(null);
+
+  /**
+   * Close the guide AND return focus to its trigger button, so
+   * keyboard / screen-reader users keep their place on the page.
+   */
+  const closeHelp = useCallback(() => {
+    setHelpOpen(false);
+    helpTriggerRef.current?.focus();
+  }, []);
 
   // Load existing config + log on mount.
   useEffect(() => {
@@ -97,7 +111,7 @@ export default function TelegramSettings(): JSX.Element {
     try {
       const r = await sendTextMessage(
         { botToken: botToken.trim(), chatId: chatId.trim() },
-        "اختبار من مقعى ترف — إذا وصلك هذا، فكل شيء يعمل بشكل سليم ✅",
+        "اختبار من مقهى ترف — إذا وصلك هذا، فكل شيء يعمل بشكل سليم ✅",
       );
       if (r.ok) {
         setSuccessMsg("تم إرسال رسالة الاختبار إلى تيليجرام.");
@@ -158,18 +172,37 @@ export default function TelegramSettings(): JSX.Element {
       className="bg-espresso-900 border border-espresso-800 rounded-3xl p-6 md:p-8 flex flex-col gap-5 shadow-xl"
       aria-labelledby="telegram-heading"
     >
-      <header className="flex flex-col gap-2">
-        <h2
-          id="telegram-heading"
-          className="font-display text-xl md:text-2xl font-extrabold text-copper-400"
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-2 flex-1 min-w-0">
+          <h2
+            id="telegram-heading"
+            className="font-display text-xl md:text-2xl font-extrabold text-copper-400"
+          >
+            تقرير تيليجرام اليومي
+          </h2>
+          <p className="text-sm text-espresso-300 leading-7">
+            كل يوم الساعة <span className="font-mono font-bold">6:00 صباحًا</span>،
+            يرسل التطبيق تلقائيًا تقريرًا بملف CSV يحتوي على مبيعات اليوم
+            السابق إلى محادثة تيليجرام خاصة بك عبر بوت.
+          </p>
+        </div>
+        <button
+          ref={helpTriggerRef}
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          aria-label="فتح دليل إعداد بوت تيليجرام"
+          aria-haspopup="dialog"
+          aria-controls={TELEGRAM_GUIDE_DIALOG_ID}
+          className="flex-shrink-0 min-h-[44px] px-3 md:px-4 rounded-2xl bg-espresso-800 hover:bg-espresso-700 text-copper-300 font-bold border border-espresso-700 flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-copper-500"
         >
-          تقرير تيليجرام اليومي
-        </h2>
-        <p className="text-sm text-espresso-300 leading-7">
-          كل يوم الساعة <span className="font-mono font-bold">6:00 صباحًا</span>،
-          يرسل التطبيق تلقائيًا تقريرًا بملف CSV يحتوي على مبيعات اليوم
-          السابق إلى محادثة تيليجرام خاصة بك عبر بوت.
-        </p>
+          <span
+            aria-hidden="true"
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-copper-600 text-espresso-950 text-sm font-extrabold"
+          >
+            ؟
+          </span>
+          <span className="text-sm">دليل الإعداد</span>
+        </button>
       </header>
 
       <ol className="text-sm text-espresso-200 leading-7 list-decimal pr-5 flex flex-col gap-2">
@@ -292,7 +325,7 @@ export default function TelegramSettings(): JSX.Element {
 
       <div className="border-t border-espresso-800 pt-4 flex flex-col gap-3">
         <h3 className="text-sm font-extrabold text-espresso-200">
-          السجل الأخير
+          السجلّ الأخير
         </h3>
         {lastRun && (
           <p className="text-xs text-espresso-400 font-mono" dir="ltr">
@@ -325,6 +358,8 @@ export default function TelegramSettings(): JSX.Element {
           </ul>
         )}
       </div>
+
+      <TelegramSetupGuide open={helpOpen} onClose={closeHelp} />
     </section>
   );
 }
