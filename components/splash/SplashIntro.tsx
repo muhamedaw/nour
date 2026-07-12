@@ -44,8 +44,7 @@ export default function SplashIntro({
       dir="rtl"
       className="min-h-screen flex items-center justify-center overflow-hidden"
       style={{
-        background:
-          "radial-gradient(circle at 50% 42%, #1d1510 0%, #140e0a 78%)",
+        background: "#000000",
         opacity: fadingOut ? 0 : 1,
         transition: "opacity 250ms ease-out",
       }}

@@ -139,6 +139,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         width: "100%",
         height: "100%",
         objectFit: "contain",
+        backgroundColor: "#000000",
         zIndex: status === "intro" ? 50 : -1,
         opacity: status === "intro" && videoReady ? 1 : 0,
         transition: "opacity 200ms ease-out",
