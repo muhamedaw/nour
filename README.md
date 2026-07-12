@@ -45,14 +45,86 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Scripts
 
-| Script          | Purpose                           |
-| --------------- | --------------------------------- |
-| `npm run dev`   | Start development server          |
-| `npm run build` | Build for production              |
-| `npm run start` | Start production server           |
-| `npm run lint`  | Run ESLint                        |
-| `npm run seed`  | Seed categories and products into data/floor.db |
-| `npm test`      | Run tests                         |
+| Script            | Purpose                                              |
+| ----------------- | ---------------------------------------------------- |
+| `npm run dev`     | Start development server                             |
+| `npm run build`   | Build for production                                 |
+| `npm run start`   | Start production server                              |
+| `npm run lint`    | Run ESLint                                           |
+| `npm run seed`    | Seed categories and products into data/floor.db      |
+| `npm test`        | Run tests                                            |
+| `npm run backup`  | Create a timestamped backup of the live database     |
+| `npm run restore` | Restore from a backup file (interactive safety flow) |
+| `npm run export:csv` | Export closed sessions to CSV for bookkeeping     |
+| `npm run verify-db` | Run SQLite integrity check on data/floor.db        |
+
+## Backups & Data Safety
+
+The entire business state lives in a single SQLite file (`data/floor.db`).
+Losing or corrupting that file means losing every session, sale, and product
+record permanently. The following tools provide a complete safety net.
+
+### Backup (`npm run backup`)
+
+Uses SQLite's own `.backup()` API (not a raw file copy) to produce a
+consistent snapshot even while the app is running with WAL journaling.
+
+- Copies `data/floor.db` → `data/backups/floor-<timestamp>.db`.
+- Keeps the most recent N backups (default 30, set `BACKUP_RETENTION` env
+  var to change).
+- **Recommended**: run at end-of-day at minimum. On Windows, schedule with
+  Task Scheduler; on Linux/macOS, use cron.
+
+### Restore (`npm run restore`)
+
+Restores the live database from a backup file. This is a destructive
+operation with built-in safety guards:
+
+1. **Dry run by default** — without `--yes`, prints what would happen and
+   exits without making changes.
+2. **Pre-restore backup** — before overwriting `data/floor.db`, the current
+   live DB is backed up to `data/backups/floor-pre-restore-<timestamp>.db`
+   so a bad restore is always recoverable.
+3. **Validation** — the target file is opened and checked for the expected
+   tables (`categories`, `products`, `sessions`, `session_items`) and a
+   readable `sessions` table. If anything looks wrong, the restore is
+   aborted with a clear error.
+
+```bash
+# Dry run — see what would happen
+npm run restore data/backups/floor-2026-07-11T22-00-00.db
+
+# Actually execute the restore
+npm run restore data/backups/floor-2026-07-11T22-00-00.db -- --yes
+```
+
+### Export CSV (`npm run export:csv`)
+
+Exports closed sessions to a flat CSV file for external bookkeeping in Excel
+or Google Sheets. One row per session-item line.
+
+```bash
+# Export today's closed sessions
+npm run export:csv
+
+# Export a specific date range
+npm run export:csv -- --from 2026-07-01 --to 2026-07-12
+```
+
+Output columns: `session_id`, `area`, `table_number`, `label`, `opened_at`,
+`closed_at`, `product_name`, `qty`, `unit_price`, `line_total`,
+`session_billed_total`.
+
+Files land in `data/exports/`.
+
+### Verify Database (`npm run verify-db`)
+
+Runs SQLite's `PRAGMA integrity_check` and reports PASS or FAIL. Fast and
+cheap — run this after an unclean shutdown or before trusting a backup.
+
+```bash
+npm run verify-db
+```
 
 ## Environment Variables
 

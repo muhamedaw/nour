@@ -25,10 +25,10 @@ export default function BillSummaryBar({
 }: BillSummaryBarProps) {
   return (
     <footer
-      className="fixed inset-x-0 bottom-0 z-30 px-4 md:px-6 pb-4 pt-3 bg-gradient-to-t from-neutral-950 via-neutral-950/95 to-transparent"
+      className="fixed inset-x-0 bottom-0 z-30 px-4 md:px-6 pb-4 pt-3 bg-gradient-to-t from-espresso-950 via-espresso-950/95 to-transparent"
       dir="rtl"
     >
-      <div className="mx-auto max-w-7xl rounded-3xl bg-neutral-900 border border-neutral-800 shadow-2xl shadow-black/40 p-4 md:p-5 flex flex-wrap items-center gap-4">
+      <div className="mx-auto max-w-7xl rounded-3xl bg-espresso-900 border border-espresso-800 shadow-2xl shadow-black/40 p-4 md:p-5 flex flex-wrap items-center gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 flex-1">
           <Stat label="عناصر" value={`${itemsCount}`} />
           <Stat
@@ -46,10 +46,10 @@ export default function BillSummaryBar({
         </div>
         <div className="flex items-center gap-3">
           <div className="text-left">
-            <div className="text-xs uppercase tracking-widest text-neutral-400">
+            <div className="text-xs uppercase tracking-widest text-espresso-300">
               إجمالي
             </div>
-            <div className="font-mono font-black text-3xl md:text-4xl text-white tabular-nums">
+            <div className="font-mono font-black text-3xl md:text-4xl text-espresso-50 tabular-nums">
               {fmtSAR(breakdown.total)}
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function BillSummaryBar({
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="min-h-[64px] px-6 md:px-8 rounded-2xl bg-red-600 hover:bg-red-500 disabled:opacity-60 text-white text-lg md:text-xl font-extrabold tracking-tight shadow-lg shadow-red-950/40 transition active:scale-[0.98]"
+            className="min-h-[64px] px-6 md:px-8 rounded-2xl bg-rust-600 hover:bg-rust-500 disabled:opacity-60 text-espresso-50 text-lg md:text-xl font-extrabold tracking-tight shadow-lg shadow-rust-950/40 transition active:scale-[0.98]"
           >
             إغلاق وحساب الفاتورة
           </button>
@@ -78,7 +78,7 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="text-xs uppercase tracking-widest text-neutral-400">
+      <div className="text-xs uppercase tracking-widest text-espresso-300">
         {label}
       </div>
       <div

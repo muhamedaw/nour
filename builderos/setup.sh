@@ -70,9 +70,10 @@ done
 if [ -n "$PY" ]; then
     "$PY" "$DEST/scripts/install_hooks.py" "$TARGET" || echo "note: hook install skipped."
     "$PY" "$DEST/scripts/build_skill_index.py" >/dev/null 2>&1 || true
+    # Lean by design: install only base skills now; the rest match per prompt.
     "$PY" "$DEST/scripts/install_skills.py" --always --project "$TARGET" >/dev/null 2>&1 || true
     SKILL_COUNT=$(ls -d "$DEST/skills"/*/ 2>/dev/null | wc -l | tr -d ' ')
-    echo "Skill library: $SKILL_COUNT skills bundled; base installed, rest auto-match per idea."
+    echo "Skill library: $SKILL_COUNT skills available; base installed, rest chosen per prompt (local or fetched)."
 else
     echo "note: python not found; skipped .claude/settings.json hooks and skills."
 fi

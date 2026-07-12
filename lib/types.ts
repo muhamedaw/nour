@@ -30,6 +30,7 @@ export interface GroupSession {
   status: "open" | "closed";
   items: SessionItem[];
   billedTotal?: number; // set on close
+  mergedInto?: string; // set when this session was merged into another (closed, billedTotal=0)
 }
 
 export interface AreaConfig {

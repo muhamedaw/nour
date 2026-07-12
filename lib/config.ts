@@ -5,7 +5,7 @@ const CARDS_TABLE_COUNT = 6;
 const PLAYSTATION_TABLE_COUNT = 4;
 
 export const AREA_CONFIG: AreaConfig[] = [
-  { area: "snooker", label: "Snooker", tableCount: SNOOKER_TABLE_COUNT, hourlyRate: 10 },
+  { area: "snooker", label: "Snooker", tableCount: SNOOKER_TABLE_COUNT, hourlyRate: 40 },
   { area: "cards", label: "Cards", tableCount: CARDS_TABLE_COUNT, hourlyRate: null },
   { area: "playstation", label: "PlayStation", tableCount: PLAYSTATION_TABLE_COUNT, hourlyRate: 8 },
 ];

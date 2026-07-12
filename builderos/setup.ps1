@@ -63,9 +63,10 @@ if ($null -eq $py) { $py = (Get-Command python3 -ErrorAction SilentlyContinue) }
 if ($null -ne $py) {
     & $py.Source (Join-Path $Dest "scripts\install_hooks.py") $Target
     & $py.Source (Join-Path $Dest "scripts\build_skill_index.py") | Out-Null
+    # Lean by design: install only base skills now; the rest match per prompt.
     & $py.Source (Join-Path $Dest "scripts\install_skills.py") "--always" "--project" $Target | Out-Null
     $skillCount = (Get-ChildItem -Path (Join-Path $Dest "skills") -Directory).Count
-    Write-Host "Skill library: $skillCount skills bundled; base installed, rest auto-match per idea." -ForegroundColor Green
+    Write-Host "Skill library: $skillCount skills available; base installed, rest chosen per prompt (local or fetched)." -ForegroundColor Green
 } else {
     Write-Host "note: python not found; skipped .claude/settings.json hooks and skills." -ForegroundColor Yellow
 }

@@ -3,7 +3,9 @@
   "always": ["bos-patterns", "bos-codequality", "sparc-methodology", "swarm-orchestration"],
   "match": {
     "graphify|knowledge graph|understand codebase|map project|explore code|architecture question|how does this code work|codebase analysis": ["graphify"],
-    "frontend|front-end|ui|web|website|landing|page|site|dashboard|react|next|nextjs|vue|svelte|css|tailwind|design|portfolio|redesign|component": ["bos-frontend", "frontend-design"],
+    "react|next|nextjs|next.js": ["react-best-practices", "composition-patterns"],
+    "vercel|deploy to vercel|edge function|serverless deploy": ["deploy-to-vercel", "vercel-optimize"],
+    "frontend|front-end|ui|web|website|landing|page|site|dashboard|vue|svelte|css|tailwind|design|portfolio|redesign|component": ["bos-frontend", "frontend-design", "web-design-guidelines"],
     "api|backend|server|endpoint|rest|graphql|fastapi|express|microservice|webhook": ["bos-backend-api"],
     "database|db |sql|postgres|sqlite|schema|migration|orm|prisma|redis|cache": ["bos-database"],
     "mobile|ios|android|react native|expo|phone app": ["bos-mobile"],

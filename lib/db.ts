@@ -1,8 +1,8 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
-import { AreaType, Category, GroupSession, Product, SessionItem } from "./types";
-import { SEED_CATEGORIES, SEED_PRODUCTS } from "./config";
+import { AreaConfig, AreaType, Category, GroupSession, Product, SessionItem } from "./types";
+import { AREA_CONFIG, SEED_CATEGORIES, SEED_PRODUCTS } from "./config";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "floor.db");
@@ -47,9 +47,23 @@ function createConnection(): Database.Database {
       price REAL NOT NULL,
       qty INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS area_settings (
+      area TEXT PRIMARY KEY,
+      label TEXT NOT NULL,
+      table_count INTEGER NOT NULL,
+      hourly_rate REAL
+    );
     CREATE INDEX IF NOT EXISTS idx_session_items_session ON session_items(session_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
   `);
+
+  // `sessions.merged_into` was added after the original schema shipped —
+  // `ALTER TABLE ADD COLUMN` has no `IF NOT EXISTS` in SQLite, so guard it
+  // manually against a DB file created before this column existed.
+  const sessionColumns = conn.prepare("PRAGMA table_info(sessions)").all() as { name: string }[];
+  if (!sessionColumns.some((c) => c.name === "merged_into")) {
+    conn.exec("ALTER TABLE sessions ADD COLUMN merged_into TEXT");
+  }
 
   // `OR IGNORE` makes this race-safe: Next's build process imports every
   // route module (and this module's top-level init) across several
@@ -60,9 +74,13 @@ function createConnection(): Database.Database {
   const insertProduct = conn.prepare(
     "INSERT OR IGNORE INTO products (id, category_id, name, price) VALUES (?, ?, ?, ?)"
   );
+  const insertAreaSettings = conn.prepare(
+    "INSERT OR IGNORE INTO area_settings (area, label, table_count, hourly_rate) VALUES (?, ?, ?, ?)"
+  );
   const seed = conn.transaction(() => {
     for (const c of SEED_CATEGORIES) insertCategory.run(c.id, c.name, c.order);
     for (const p of SEED_PRODUCTS) insertProduct.run(p.id, p.categoryId, p.name, p.price);
+    for (const a of AREA_CONFIG) insertAreaSettings.run(a.area, a.label, a.tableCount, a.hourlyRate);
   });
   seed();
 
@@ -102,6 +120,7 @@ interface SessionRow {
   closed_at: string | null;
   status: "open" | "closed";
   billed_total: number | null;
+  merged_into: string | null;
 }
 
 interface SessionItemRow {
@@ -126,6 +145,13 @@ interface CategoryRow {
   order_index: number;
 }
 
+interface AreaSettingsRow {
+  area: AreaType;
+  label: string;
+  table_count: number;
+  hourly_rate: number | null;
+}
+
 function rowToSession(row: SessionRow, items: SessionItemRow[]): GroupSession {
   return {
     id: row.id,
@@ -137,6 +163,7 @@ function rowToSession(row: SessionRow, items: SessionItemRow[]): GroupSession {
     status: row.status,
     items: items.map(rowToSessionItem),
     billedTotal: row.billed_total ?? undefined,
+    mergedInto: row.merged_into ?? undefined,
   };
 }
 
@@ -150,6 +177,10 @@ function rowToProduct(row: ProductRow): Product {
 
 function rowToCategory(row: CategoryRow): Category {
   return { id: row.id, name: row.name, order: row.order_index };
+}
+
+function rowToAreaSettings(row: AreaSettingsRow): AreaConfig {
+  return { area: row.area, label: row.label, tableCount: row.table_count, hourlyRate: row.hourly_rate };
 }
 
 function getItemsForSession(sessionId: string): SessionItemRow[] {
@@ -268,13 +299,83 @@ export function closeSession(
   return getSessionById(sessionId);
 }
 
+/** Moves an OPEN session to a different table number within its own area. */
+export function transferSession(sessionId: string, newTableNumber: number): GroupSession {
+  const tx = db.transaction(() => {
+    const session = getSessionById(sessionId);
+    if (!session) throw new Error("Session not found");
+    if (session.status !== "open") throw new Error("Cannot transfer a closed session");
+
+    const clash = db
+      .prepare(
+        "SELECT id FROM sessions WHERE area = ? AND table_number = ? AND status = 'open' AND id != ?"
+      )
+      .get(session.area, newTableNumber, sessionId) as { id: string } | undefined;
+    if (clash) throw new Error(`Table ${newTableNumber} already has an open session`);
+
+    db.prepare("UPDATE sessions SET table_number = ? WHERE id = ?").run(newTableNumber, sessionId);
+  });
+  tx();
+  return getSessionById(sessionId) as GroupSession;
+}
+
+/**
+ * Merges `fromSessionId`'s items into `intoSessionId` (same qty-merge rule
+ * as `addSessionItem`), then closes `fromSessionId` with billedTotal=0 and
+ * `merged_into` pointing at the target session.
+ */
+export function mergeSessions(intoSessionId: string, fromSessionId: string): GroupSession {
+  if (intoSessionId === fromSessionId) throw new Error("Cannot merge a session into itself");
+
+  const tx = db.transaction(() => {
+    const into = getSessionById(intoSessionId);
+    const from = getSessionById(fromSessionId);
+    if (!into) throw new Error("Target session not found");
+    if (!from) throw new Error("Source session not found");
+    if (into.status !== "open" || from.status !== "open") {
+      throw new Error("Both sessions must be open to merge");
+    }
+    if (into.area !== from.area) {
+      throw new Error("Cannot merge sessions from different areas");
+    }
+
+    for (const item of from.items) {
+      const existing = db
+        .prepare("SELECT * FROM session_items WHERE session_id = ? AND product_id = ?")
+        .get(intoSessionId, item.productId) as SessionItemRow | undefined;
+      if (existing) {
+        db.prepare("UPDATE session_items SET qty = qty + ? WHERE id = ?").run(item.qty, existing.id);
+      } else {
+        db.prepare(
+          "INSERT INTO session_items (id, session_id, product_id, name, price, qty) VALUES (?, ?, ?, ?, ?, ?)"
+        ).run(crypto.randomUUID(), intoSessionId, item.productId, item.name, item.price, item.qty);
+      }
+    }
+    db.prepare("DELETE FROM session_items WHERE session_id = ?").run(fromSessionId);
+    db.prepare(
+      "UPDATE sessions SET status = 'closed', closed_at = ?, billed_total = 0, merged_into = ? WHERE id = ?"
+    ).run(new Date().toISOString(), intoSessionId, fromSessionId);
+  });
+  tx();
+
+  return getSessionById(intoSessionId) as GroupSession;
+}
+
 export interface HistoryFilter {
   area?: AreaType;
   from?: string;
   to?: string;
+  /** Case-insensitive partial match against the session's customer label. */
+  label?: string;
+  limit?: number;
+  offset?: number;
 }
 
-export function listHistory(filter: HistoryFilter): GroupSession[] {
+const DEFAULT_HISTORY_LIMIT = 100;
+
+function buildHistoryClauses(
+  filter: Omit<HistoryFilter, "limit" | "offset">
+): { clauses: string[]; params: (string | number)[] } {
   const clauses = ["status = 'closed'"];
   const params: (string | number)[] = [];
   if (filter.area) {
@@ -289,10 +390,39 @@ export function listHistory(filter: HistoryFilter): GroupSession[] {
     clauses.push("closed_at <= ?");
     params.push(filter.to);
   }
+  if (filter.label) {
+    clauses.push("LOWER(label) LIKE LOWER(?) ESCAPE '\\'");
+    const escaped = filter.label.replace(/[\\%_]/g, "\\$&");
+    params.push(`%${escaped}%`);
+  }
+  return { clauses, params };
+}
+
+export function listHistory(filter: HistoryFilter): GroupSession[] {
+  const { clauses, params } = buildHistoryClauses(filter);
+  const limit = filter.limit ?? DEFAULT_HISTORY_LIMIT;
+  const offset = filter.offset ?? 0;
+  // `rowid DESC` tiebreaker: closed_at has millisecond precision, and two
+  // sessions can legitimately close within the same millisecond (synchronous
+  // in-process SQLite calls are easily sub-millisecond apart). Without a
+  // stable secondary key, ties sort arbitrarily — rows could shift between
+  // pages on repeated queries with identical filters, which breaks
+  // pagination's basic guarantee (a stable, repeatable ordering).
   const rows = db
-    .prepare(`SELECT * FROM sessions WHERE ${clauses.join(" AND ")} ORDER BY closed_at DESC`)
-    .all(...params) as SessionRow[];
+    .prepare(
+      `SELECT * FROM sessions WHERE ${clauses.join(" AND ")} ORDER BY closed_at DESC, rowid DESC LIMIT ? OFFSET ?`
+    )
+    .all(...params, limit, offset) as SessionRow[];
   return rows.map((r) => rowToSession(r, getItemsForSession(r.id)));
+}
+
+/** Total matching rows for `filter`, ignoring limit/offset — pairs with listHistory() for pagination. */
+export function countHistory(filter: Omit<HistoryFilter, "limit" | "offset">): number {
+  const { clauses, params } = buildHistoryClauses(filter);
+  const row = db
+    .prepare(`SELECT COUNT(*) as count FROM sessions WHERE ${clauses.join(" AND ")}`)
+    .get(...params) as { count: number };
+  return row.count;
 }
 
 // ---- catalog ----
@@ -348,6 +478,56 @@ export function createCategory(name: string, order: number): Category {
 
 export function deleteCategory(id: string): void {
   db.prepare("DELETE FROM categories WHERE id = ?").run(id);
+}
+
+// ---- area settings ----
+// DB-backed, editable replacement for the hardcoded lib/config.ts#AREA_CONFIG
+// constant (which remains only as seed data for first-run insertion above).
+
+export function getAreaSettings(area: AreaType): AreaConfig {
+  const row = db.prepare("SELECT * FROM area_settings WHERE area = ?").get(area) as
+    | AreaSettingsRow
+    | undefined;
+  if (!row) throw new Error(`No area settings found for area: ${area}`);
+  return rowToAreaSettings(row);
+}
+
+export function listAreaSettings(): AreaConfig[] {
+  const rows = db.prepare("SELECT * FROM area_settings ORDER BY rowid").all() as AreaSettingsRow[];
+  return rows.map(rowToAreaSettings);
+}
+
+export function updateAreaSettings(
+  area: AreaType,
+  fields: { tableCount?: number; hourlyRate?: number | null; label?: string }
+): AreaConfig {
+  const tx = db.transaction(() => {
+    const current = getAreaSettings(area);
+
+    if (fields.tableCount !== undefined && fields.tableCount < current.tableCount) {
+      const openAbove = db
+        .prepare(
+          "SELECT MAX(table_number) as maxTable FROM sessions WHERE area = ? AND status = 'open' AND table_number > ?"
+        )
+        .get(area, fields.tableCount) as { maxTable: number | null };
+      if (openAbove.maxTable !== null) {
+        throw new Error(
+          `Cannot reduce table count to ${fields.tableCount}: table ${openAbove.maxTable} has an open session`
+        );
+      }
+    }
+
+    const label = fields.label ?? current.label;
+    const tableCount = fields.tableCount ?? current.tableCount;
+    const hourlyRate = fields.hourlyRate !== undefined ? fields.hourlyRate : current.hourlyRate;
+
+    db.prepare(
+      "UPDATE area_settings SET label = ?, table_count = ?, hourly_rate = ? WHERE area = ?"
+    ).run(label, tableCount, hourlyRate, area);
+  });
+  tx();
+
+  return getAreaSettings(area);
 }
 
 export default db;

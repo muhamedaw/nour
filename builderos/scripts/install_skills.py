@@ -112,18 +112,31 @@ def install(skill_names, project_dir):
     return activated
 
 
+def all_skill_names():
+    """Every bundled skill dir that has a SKILL.md."""
+    names = []
+    for entry in sorted(os.listdir(SKILLS_DIR)):
+        if os.path.isfile(os.path.join(SKILLS_DIR, entry, "SKILL.md")):
+            names.append(entry)
+    return names
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Auto-install matching BuilderOS skills.")
     parser.add_argument("--idea", default="", help="Project idea / prompt text")
     parser.add_argument("--always", action="store_true", help="Install base skills only")
+    parser.add_argument("--all", action="store_true", help="Install the ENTIRE library")
     parser.add_argument("--project", default=".", help="Project root")
     parser.add_argument("--max", type=int, default=6, help="Max skills to install")
     args = parser.parse_args(argv)
 
-    selected = select_skills(args.idea, always_only=args.always, max_skills=args.max)
-    install(selected, args.project)
-    if selected:
-        print(",".join(selected))
+    if args.all:
+        selected = all_skill_names()
+    else:
+        selected = select_skills(args.idea, always_only=args.always, max_skills=args.max)
+    installed = install(selected, args.project)
+    print(f"{len(selected)} selected, {len(installed)} newly installed"
+          if args.all else ",".join(selected))
     return 0
 
 

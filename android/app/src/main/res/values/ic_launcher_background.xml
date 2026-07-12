@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Adaptive-icon background — deep emerald-950 to match the rest
+         of the app's dark + emerald visual language. Tune in tandem
+         with res/drawable/ic_launcher_foreground.xml. -->
+    <color name="ic_launcher_background">#052E16</color>
+</resources>

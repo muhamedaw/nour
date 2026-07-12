@@ -86,8 +86,8 @@ export default function ProductPicker({
                 "snap-start whitespace-nowrap px-6 py-3 rounded-full text-base font-semibold",
                 "transition-colors border-2 min-w-[96px] min-h-[48px]",
                 active
-                  ? "bg-white text-neutral-900 border-white"
-                  : "bg-neutral-900 text-neutral-200 border-neutral-700 hover:border-neutral-500",
+                  ? "bg-white text-espresso-900 border-white"
+                  : "bg-espresso-900 text-espresso-100 border-espresso-700 hover:border-espresso-400",
               ].join(" ")}
             >
               {c.name}
@@ -97,7 +97,7 @@ export default function ProductPicker({
       </nav>
 
       {visibleProducts.length === 0 ? (
-        <p className="text-neutral-500 text-center py-12">
+        <p className="text-espresso-400 text-center py-12">
           لا توجد منتجات في هذه الفئة.
         </p>
       ) : (
@@ -115,15 +115,15 @@ export default function ProductPicker({
                 className={[
                   "rounded-2xl border-2 p-4 flex flex-col gap-3",
                   q > 0
-                    ? "bg-neutral-800 border-emerald-500/60"
-                    : "bg-neutral-900 border-neutral-800",
+                    ? "bg-espresso-800 border-copper-500/60"
+                    : "bg-espresso-900 border-espresso-800",
                 ].join(" ")}
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-lg font-bold leading-tight">
                     {p.name}
                   </span>
-                  <span className="font-mono text-sm text-neutral-400">
+                  <span className="font-mono text-sm text-espresso-300">
                     {fmtSAR(p.price)}
                   </span>
                 </div>
@@ -137,8 +137,8 @@ export default function ProductPicker({
                       "w-16 h-16 rounded-2xl text-4xl font-black",
                       "transition active:scale-95",
                       q === 0
-                        ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
-                        : "bg-red-600/90 hover:bg-red-600 text-white",
+                        ? "bg-espresso-800 text-espresso-600 cursor-not-allowed"
+                        : "bg-rust-600/90 hover:bg-rust-600 text-espresso-50",
                     ].join(" ")}
                   >
                     −
@@ -153,7 +153,7 @@ export default function ProductPicker({
                     type="button"
                     onClick={() => inc(p)}
                     aria-label={`زيادة ${p.name}`}
-                    className="w-16 h-16 rounded-2xl text-4xl font-black bg-emerald-600 hover:bg-emerald-500 text-white transition active:scale-95"
+                    className="w-16 h-16 rounded-2xl text-4xl font-black bg-copper-600 hover:bg-copper-500 text-espresso-50 transition active:scale-95"
                   >
                     +
                   </button>

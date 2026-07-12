@@ -176,43 +176,43 @@ export default function ProductManager() {
     <div className="flex flex-col gap-6" dir="rtl">
       {loadError ? (
         <div
-          className="bg-red-600/10 border border-red-600/40 rounded-3xl p-6 text-center"
+          className="bg-rust-600/10 border border-rust-600/40 rounded-3xl p-6 text-center"
           role="status"
           dir="rtl"
         >
-          <p className="text-red-300 text-lg mb-3">تعذّر تحميل المنتجات.</p>
+          <p className="text-rust-300 text-lg mb-3">تعذّر تحميل المنتجات.</p>
           <button
             type="button"
             onClick={reload}
-            className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold min-h-[48px]"
+            className="px-5 py-3 rounded-2xl bg-rust-600 hover:bg-rust-500 text-espresso-50 font-bold min-h-[48px] transition-colors duration-200"
           >
             إعادة المحاولة
           </button>
         </div>
       ) : loading ? (
-        <p className="text-neutral-500 text-center py-12 text-lg animate-pulse">
+        <p className="text-espresso-400 text-center py-12 text-lg animate-pulse">
           جارٍ التحميل…
         </p>
       ) : categories.length === 0 ? (
-        <p className="text-neutral-500 text-center py-12 text-lg">
+        <p className="text-espresso-400 text-center py-12 text-lg">
           لا توجد فئات بعد. أضف فئة للبدء.
         </p>
       ) : null}
 
-      <section className="bg-neutral-900 border border-neutral-800 rounded-3xl p-5">
-        <h2 className="text-xl font-bold mb-3">إضافة فئة</h2>
+      <section className="bg-espresso-900 border border-espresso-800 rounded-3xl p-5">
+        <h2 className="font-display text-xl font-bold mb-3">إضافة فئة</h2>
         <div className="flex gap-2">
           <input
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
             placeholder="اسم الفئة…"
-            className="flex-1 bg-neutral-950 border border-neutral-700 rounded-2xl px-4 py-3 text-lg focus:border-emerald-500 focus:outline-none"
+            className="flex-1 bg-espresso-950 border border-espresso-700 rounded-2xl px-4 py-3 text-lg focus:border-copper-500 focus:outline-none"
           />
           <button
             type="button"
             onClick={addCategory}
             disabled={!newCatName.trim()}
-            className="px-6 py-3 rounded-2xl bg-emerald-600 disabled:opacity-50 hover:bg-emerald-500 text-white font-bold min-h-[56px]"
+            className="px-6 py-3 rounded-2xl bg-copper-600 disabled:opacity-50 hover:bg-copper-500 text-espresso-50 font-bold min-h-[56px] transition-colors duration-200"
           >
             إضافة
           </button>
@@ -227,14 +227,14 @@ export default function ProductManager() {
             return (
               <section
                 key={c.id}
-                className="bg-neutral-900 border border-neutral-800 rounded-3xl p-5"
+                className="bg-espresso-900 border border-espresso-800 rounded-3xl p-5"
               >
                 <header className="flex items-center justify-between gap-3 mb-3">
-                  <h3 className="text-lg font-extrabold">{c.name}</h3>
+                  <h3 className="font-display text-lg font-extrabold">{c.name}</h3>
                   <button
                     type="button"
                     onClick={() => removeCategory(c.id)}
-                    className="text-sm text-red-400 hover:text-red-300 px-2"
+                    className="text-sm text-rust-400 hover:text-rust-300 px-2 transition-colors duration-200"
                   >
                     حذف الفئة
                   </button>
@@ -242,7 +242,7 @@ export default function ProductManager() {
 
                 <ul className="flex flex-col gap-2 mb-3">
                   {items.length === 0 && (
-                    <li className="text-neutral-500 text-sm">
+                    <li className="text-espresso-400 text-sm">
                       لا توجد منتجات في هذه الفئة بعد.
                     </li>
                   )}
@@ -252,14 +252,14 @@ export default function ProductManager() {
                       return (
                         <li
                           key={p.id}
-                          className="bg-neutral-950 border border-emerald-600/50 rounded-2xl p-3 flex flex-col gap-2"
+                          className="bg-espresso-950 border border-copper-600/50 rounded-2xl p-3 flex flex-col gap-2"
                         >
                           <input
                             value={draft.name}
                             onChange={(e) =>
                               setDraft({ ...draft, name: e.target.value })
                             }
-                            className="bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-base focus:outline-none focus:border-emerald-500"
+                            className="bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-base focus:outline-none focus:border-copper-500"
                           />
                           <div className="flex items-center gap-2">
                             <input
@@ -274,19 +274,19 @@ export default function ProductManager() {
                                   price: Number(e.target.value) || 0,
                                 })
                               }
-                              className="flex-1 bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-base font-mono focus:outline-none focus:border-emerald-500"
+                              className="flex-1 bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-base font-mono focus:outline-none focus:border-copper-500"
                             />
                             <button
                               type="button"
                               onClick={saveEdit}
-                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold min-h-[48px]"
+                              className="px-4 py-2 rounded-xl bg-copper-600 hover:bg-copper-500 text-espresso-50 font-bold min-h-[48px] transition-colors duration-200"
                             >
                               حفظ
                             </button>
                             <button
                               type="button"
                               onClick={cancelEdit}
-                              className="px-4 py-2 rounded-xl bg-neutral-800 text-neutral-300 min-h-[48px]"
+                              className="px-4 py-2 rounded-xl bg-espresso-800 text-espresso-200 min-h-[48px]"
                             >
                               إلغاء
                             </button>
@@ -297,25 +297,25 @@ export default function ProductManager() {
                     return (
                       <li
                         key={p.id}
-                        className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3 flex items-center gap-3"
+                        className="bg-espresso-950 border border-espresso-800 rounded-2xl p-3 flex items-center gap-3"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{p.name}</div>
-                          <div className="text-sm font-mono text-neutral-400 tabular-nums">
+                          <div className="text-sm font-mono text-espresso-300 tabular-nums">
                             {fmtSAR(p.price)}
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => startEdit(p)}
-                          className="px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-sm min-h-[48px]"
+                          className="px-4 py-2 rounded-xl bg-espresso-800 hover:bg-espresso-700 text-sm min-h-[48px] transition-colors duration-200"
                         >
                           تعديل
                         </button>
                         <button
                           type="button"
                           onClick={() => removeProduct(p.id)}
-                          className="px-4 py-2 rounded-xl bg-red-600/80 hover:bg-red-600 text-sm text-white min-h-[48px]"
+                          className="px-4 py-2 rounded-xl bg-rust-600/80 hover:bg-rust-600 text-sm text-espresso-50 min-h-[48px] transition-colors duration-200"
                         >
                           حذف
                         </button>
@@ -325,14 +325,14 @@ export default function ProductManager() {
                 </ul>
 
                 {editingKey === `new:${c.id}` ? (
-                  <div className="bg-neutral-950 border border-emerald-600/50 rounded-2xl p-3 flex flex-col gap-2">
+                  <div className="bg-espresso-950 border border-copper-600/50 rounded-2xl p-3 flex flex-col gap-2">
                     <input
                       value={draft.name}
                       onChange={(e) =>
                         setDraft({ ...draft, name: e.target.value })
                       }
                       placeholder="اسم المنتج…"
-                      className="bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-base focus:outline-none focus:border-emerald-500"
+                      className="bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-base focus:outline-none focus:border-copper-500"
                     />
                     <div className="flex items-center gap-2">
                       <input
@@ -348,19 +348,19 @@ export default function ProductManager() {
                           })
                         }
                         placeholder="السعر"
-                        className="flex-1 bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-base font-mono focus:outline-none focus:border-emerald-500"
+                        className="flex-1 bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-base font-mono focus:outline-none focus:border-copper-500"
                       />
                       <button
                         type="button"
                         onClick={() => commitAdd(c.id)}
-                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold min-h-[48px]"
+                        className="px-4 py-2 rounded-xl bg-copper-600 hover:bg-copper-500 text-espresso-50 font-bold min-h-[48px] transition-colors duration-200"
                       >
                         إضافة
                       </button>
                       <button
                         type="button"
                         onClick={cancelEdit}
-                        className="px-4 py-2 rounded-xl bg-neutral-800 text-neutral-300 min-h-[48px]"
+                        className="px-4 py-2 rounded-xl bg-espresso-800 text-espresso-200 min-h-[48px]"
                       >
                         إلغاء
                       </button>
@@ -370,7 +370,7 @@ export default function ProductManager() {
                   <button
                     type="button"
                     onClick={() => addProduct(c.id)}
-                    className="w-full py-3 rounded-2xl border-2 border-dashed border-neutral-700 hover:border-emerald-500 text-neutral-300 hover:text-emerald-400 font-semibold min-h-[56px]"
+                    className="w-full py-3 rounded-2xl border-2 border-dashed border-espresso-700 hover:border-copper-500 text-espresso-200 hover:text-copper-400 font-semibold min-h-[56px] transition-colors duration-200"
                   >
                     + منتج جديد
                   </button>

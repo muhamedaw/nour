@@ -2,21 +2,24 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getAreaConfig } from "@/lib/config";
-import type { GroupSession } from "@/lib/types";
-import { fetchSessions } from "./api-client";
+import type { AreaConfig, GroupSession } from "@/lib/types";
+import { fetchAreasConfig, fetchSessions } from "./api-client";
 import FloorHeader from "./FloorHeader";
 import FloorTableButton from "./FloorTableButton";
 
 const POLL_MS = 5_000;
+const STATIC_CFG = getAreaConfig("snooker");
 
 /**
  * Snooker floor screen. Polls `GET /api/sessions?area=snooker&status=open`
  * every 5s — the locked team's API is the source of truth for cross-tablet
  * state. Local open/close actions go through `/api/sessions` so the next
- * poll reflects them automatically.
+ * poll reflects them automatically. Area settings (hourly rate) poll on the
+ * same cadence so a dashboard edit shows up here without a refresh.
  */
 export default function SnookerArea() {
-  const { tableCount, hourlyRate, label } = getAreaConfig("snooker");
+  const [cfg, setCfg] = useState<AreaConfig>(STATIC_CFG);
+  const { tableCount, hourlyRate, label } = cfg;
   const [open, setOpen] = useState<GroupSession[]>([]);
   const [loadStatus, setLoadStatus] = useState<"loading" | "ok" | "error">(
     "loading",
@@ -25,7 +28,10 @@ export default function SnookerArea() {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const list = await fetchSessions({ area: "snooker", status: "open" });
+      const [list, settings] = await Promise.all([
+        fetchSessions({ area: "snooker", status: "open" }),
+        fetchAreasConfig(),
+      ]);
       if (cancelled) return;
       if (list === null) {
         setLoadStatus("error");
@@ -33,6 +39,8 @@ export default function SnookerArea() {
         setOpen(list);
         setLoadStatus("ok");
       }
+      const match = settings?.find((a) => a.area === "snooker");
+      if (match) setCfg(match);
     };
     load();
     const id = setInterval(load, POLL_MS);
@@ -50,7 +58,7 @@ export default function SnookerArea() {
   return (
     <section
       aria-label="Snooker floor"
-      className="bg-neutral-950/60 border border-neutral-800 rounded-3xl p-5 md:p-6"
+      className="bg-espresso-950/60 border border-espresso-800 rounded-3xl p-5 md:p-6"
     >
       <FloorHeader
         area="snooker"

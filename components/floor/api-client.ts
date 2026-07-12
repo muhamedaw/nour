@@ -1,72 +1,38 @@
 "use client";
 
 import type {
+  AreaConfig,
   AreaType,
   Category,
   GroupSession,
   Product,
   SessionItem,
 } from "@/lib/types";
+import * as localdb from "@/lib/localdb";
+import { initLocalDb } from "@/lib/localdb";
 
 /**
- * Central fetch client for the locked team's API.
- * Endpoints assumed (REST):
- *   GET    /api/sessions                       → GroupSession[] | { sessions: GroupSession[] }
- *   GET    /api/sessions?area=X&status=open    → same shape
- *   POST   /api/sessions                       → GroupSession
- *   PATCH  /api/sessions/[id]                  → GroupSession
- *   POST   /api/sessions/[id]/close            → GroupSession (closed)
- *   GET    /api/history?area=X&from=Y&to=Z     → GroupSession[] | { sessions }
- *   GET    /api/products                       → { categories, products }
- *   POST   /api/products/categories            → Category
- *   DELETE /api/products/categories/[id]       → 204
- *   POST   /api/products                       → Product
- *   PATCH  /api/products/[id]                  → Product
- *   DELETE /api/products/[id]                  → 204
+ * Local data client — same exported function names/signatures as the old
+ * server-`fetch()`-based client, so every UI component that imports from
+ * here needed zero changes. Internals now call straight into lib/localdb/
+ * (sql.js + IndexedDB, synchronous once initLocalDb() resolves) instead of
+ * hitting a server that no longer exists — this is a fully offline app now.
  *
- * Every call degrades gracefully:
- *   • non-2xx          → console.warn + return null
- *   • network failure  → console.warn + return null
- *   • empty body       → treated as null
- *
- * The UI keeps working with local state while the API is being built;
- * nothing throws to the user.
+ * Error-shape conventions carried over unchanged:
+ *   • Functions that only ever succeeded/failed opaquely over the old API
+ *     (fetch*, create*, etc.) keep the `T | null` shape — `null` on any
+ *     thrown error, logged via console.warn.
+ *   • Functions that used to surface a server 400 (transfer / merge /
+ *     patch-area) keep the `{ ok: false, status, message }` shape — the
+ *     thrown Error's message becomes `message` so the UI's inline error
+ *     banners work unchanged.
  */
 
-const BASE = "/api";
-
-async function unwrap<T>(res: Response): Promise<T | null> {
-  if (!res.ok) {
-    if (typeof console !== "undefined") {
-      console.warn(`[api] ${res.url} → HTTP ${res.status}`);
-    }
-    return null;
-  }
-  if (res.status === 204) return null;
-  try {
-    return (await res.json()) as T;
-  } catch {
-    return null;
-  }
-}
-
-function queryString(params: Record<string, string | undefined>): string {
-  const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== "") qs.set(k, v);
-  }
-  const s = qs.toString();
-  return s ? `?${s}` : "";
+async function ready(): Promise<void> {
+  await initLocalDb();
 }
 
 /* ----------------------------- Sessions ----------------------------- */
-
-export type SessionsEnvelope = { sessions?: GroupSession[] } | GroupSession[];
-
-function normalizeSessions(env: SessionsEnvelope | null | undefined): GroupSession[] {
-  if (!env) return [];
-  return Array.isArray(env) ? env : env.sessions ?? [];
-}
 
 export interface FetchSessionsArgs {
   area?: AreaType;
@@ -76,19 +42,17 @@ export interface FetchSessionsArgs {
 export async function fetchSessions(
   args: FetchSessionsArgs = {},
 ): Promise<GroupSession[] | null> {
-  const url = `${BASE}/sessions${queryString({
-    area: args.area,
-    status: args.status,
-  })}`;
-  let res: Response;
   try {
-    res = await fetch(url, { cache: "no-store" });
+    await ready();
+    if (args.status === "closed") {
+      return localdb.listHistory({ area: args.area });
+    }
+    const open = localdb.listOpenSessions();
+    return args.area ? open.filter((s) => s.area === args.area) : open;
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] fetchSessions failed", err);
     return null;
   }
-  const data = await unwrap<SessionsEnvelope>(res);
-  return data === null ? null : normalizeSessions(data);
 }
 
 export async function openSessionRemote(
@@ -96,19 +60,17 @@ export async function openSessionRemote(
   tableNumber: number,
   label?: string,
 ): Promise<GroupSession | null> {
-  const url = `${BASE}/sessions`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ area, tableNumber, label }),
-    });
+    await ready();
+    const session = localdb.createSession(area, tableNumber);
+    if (label !== undefined && label !== session.label) {
+      return localdb.replaceSessionItemsAndLabel(session.id, undefined, label);
+    }
+    return session;
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] openSessionRemote failed", err);
     return null;
   }
-  return unwrap<GroupSession>(res);
 }
 
 export interface PatchSessionInput {
@@ -120,19 +82,13 @@ export async function patchSessionRemote(
   id: string,
   patch: PatchSessionInput,
 ): Promise<GroupSession | null> {
-  const url = `${BASE}/sessions/${encodeURIComponent(id)}`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(patch),
-    });
+    await ready();
+    return localdb.replaceSessionItemsAndLabel(id, patch.items, patch.label);
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] patchSessionRemote failed", err);
     return null;
   }
-  return unwrap<GroupSession>(res);
 }
 
 export interface CloseSessionInput {
@@ -145,19 +101,75 @@ export async function closeSessionRemote(
   id: string,
   payload: CloseSessionInput,
 ): Promise<GroupSession | null> {
-  const url = `${BASE}/sessions/${encodeURIComponent(id)}/close`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    await ready();
+    // Sync whatever items the UI has right before closing — covers the
+    // edge case where the last item change hadn't been persisted yet.
+    localdb.replaceSessionItemsAndLabel(id, payload.items);
+    return localdb.closeSession(id, payload.closedAt, payload.billedTotal);
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] closeSessionRemote failed", err);
     return null;
   }
-  return unwrap<GroupSession>(res);
+}
+
+/**
+ * Transfer a session to a different (free) table inside the same area.
+ * Mirrors the old 400-from-server shape: `transferSession()` throws with a
+ * human-readable message when the target table is occupied, and that
+ * message is surfaced inline in the modal same as before.
+ */
+export interface TransferOk {
+  ok: true;
+  session: GroupSession;
+}
+export interface TransferFail {
+  ok: false;
+  status: number;
+  message: string;
+}
+export async function transferSessionRemote(
+  id: string,
+  tableNumber: number,
+): Promise<TransferOk | TransferFail> {
+  try {
+    await ready();
+    const session = localdb.transferSession(id, tableNumber);
+    return { ok: true, session };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "تعذّر نقل الجلسة.";
+    console.warn("[localdb] transferSessionRemote failed", err);
+    return { ok: false, status: 400, message };
+  }
+}
+
+/**
+ * Merge another open session's items into this one. The other session
+ * gets closed locally with billedTotal=0; this call returns the absorbing
+ * session (with merged items).
+ */
+export interface MergeOk {
+  ok: true;
+  session: GroupSession;
+}
+export interface MergeFail {
+  ok: false;
+  status: number;
+  message: string;
+}
+export async function mergeSessionRemote(
+  id: string,
+  fromSessionId: string,
+): Promise<MergeOk | MergeFail> {
+  try {
+    await ready();
+    const session = localdb.mergeSessions(id, fromSessionId);
+    return { ok: true, session };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "تعذّر دمج الجلسة.";
+    console.warn("[localdb] mergeSessionRemote failed", err);
+    return { ok: false, status: 400, message };
+  }
 }
 
 /* ----------------------------- History ------------------------------ */
@@ -168,25 +180,25 @@ export interface HistoryArgs {
   from?: string;
   /** ISO timestamp upper bound (exclusive). */
   to?: string;
+  /** Case-insensitive partial match on session label. */
+  label?: string;
 }
 
 export async function fetchHistory(
   args: HistoryArgs = {},
 ): Promise<GroupSession[] | null> {
-  const url = `${BASE}/history${queryString({
-    area: args.area === "all" ? undefined : args.area,
-    from: args.from,
-    to: args.to,
-  })}`;
-  let res: Response;
   try {
-    res = await fetch(url, { cache: "no-store" });
+    await ready();
+    return localdb.listHistory({
+      area: args.area === "all" ? undefined : args.area,
+      from: args.from,
+      to: args.to,
+      label: args.label,
+    });
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] fetchHistory failed", err);
     return null;
   }
-  const data = await unwrap<SessionsEnvelope>(res);
-  return data === null ? null : normalizeSessions(data);
 }
 
 /* ----------------------------- Products ----------------------------- */
@@ -197,62 +209,44 @@ export interface ProductsResponse {
 }
 
 export interface FetchProductsOptions {
-  /** Optional AbortSignal — when aborted the in-flight fetch is cancelled. */
+  /** Kept for API-shape compatibility; there's no in-flight request to abort locally. */
   signal?: AbortSignal;
 }
 
 export async function fetchProducts(
-  opts: FetchProductsOptions = {},
+  _opts: FetchProductsOptions = {},
 ): Promise<ProductsResponse | null> {
-  const url = `${BASE}/products`;
-  let res: Response;
   try {
-    res = await fetch(url, { cache: "no-store", signal: opts.signal });
+    await ready();
+    return { categories: localdb.listCategories(), products: localdb.listProducts() };
   } catch (err) {
-    if ((err as Error)?.name === "AbortError") {
-      // Caller checks opts.signal?.aborted before mutating state. We return
-      // null so the caller can short-circuit if it forgot.
-      return null;
-    }
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] fetchProducts failed", err);
     return null;
   }
-  return unwrap<ProductsResponse>(res);
 }
 
 export async function createCategoryRemote(
   name: string,
   order: number,
 ): Promise<Category | null> {
-  const url = `${BASE}/products/categories`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, order }),
-    });
+    await ready();
+    return localdb.createCategory(name, order);
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] createCategoryRemote failed", err);
     return null;
   }
-  return unwrap<Category>(res);
 }
 
 export async function deleteCategoryRemote(id: string): Promise<boolean> {
-  const url = `${BASE}/products/categories/${encodeURIComponent(id)}`;
-  let res: Response;
   try {
-    res = await fetch(url, { method: "DELETE" });
+    await ready();
+    localdb.deleteCategory(id);
+    return true;
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] deleteCategoryRemote failed", err);
     return false;
   }
-  if (!res.ok) {
-    console.warn(`[api] ${url} → HTTP ${res.status}`);
-    return false;
-  }
-  return true;
 }
 
 export interface CreateProductInput {
@@ -264,19 +258,13 @@ export interface CreateProductInput {
 export async function createProductRemote(
   input: CreateProductInput,
 ): Promise<Product | null> {
-  const url = `${BASE}/products`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input),
-    });
+    await ready();
+    return localdb.createProduct(input.categoryId, input.name, input.price);
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] createProductRemote failed", err);
     return null;
   }
-  return unwrap<Product>(res);
 }
 
 export interface UpdateProductInput {
@@ -289,33 +277,63 @@ export async function updateProductRemote(
   id: string,
   patch: UpdateProductInput,
 ): Promise<Product | null> {
-  const url = `${BASE}/products/${encodeURIComponent(id)}`;
-  let res: Response;
   try {
-    res = await fetch(url, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(patch),
-    });
+    await ready();
+    return localdb.updateProduct(id, patch);
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] updateProductRemote failed", err);
     return null;
   }
-  return unwrap<Product>(res);
 }
 
 export async function deleteProductRemote(id: string): Promise<boolean> {
-  const url = `${BASE}/products/${encodeURIComponent(id)}`;
-  let res: Response;
   try {
-    res = await fetch(url, { method: "DELETE" });
+    await ready();
+    localdb.deleteProduct(id);
+    return true;
   } catch (err) {
-    console.warn(`[api] ${url} network error`, err);
+    console.warn("[localdb] deleteProductRemote failed", err);
     return false;
   }
-  if (!res.ok) {
-    console.warn(`[api] ${url} → HTTP ${res.status}`);
-    return false;
+}
+
+/* ----------------------------- Settings ----------------------------- */
+
+export async function fetchAreasConfig(): Promise<AreaConfig[] | null> {
+  try {
+    await ready();
+    return localdb.listAreaSettings();
+  } catch (err) {
+    console.warn("[localdb] fetchAreasConfig failed", err);
+    return null;
   }
-  return true;
+}
+
+export interface PatchAreaInput {
+  area: AreaType;
+  /** Optional fields to override. */
+  label?: string;
+  tableCount?: number;
+  hourlyRate?: number | null;
+}
+
+export type PatchAreaOk = { ok: true; area: AreaConfig };
+export type PatchAreaFail = { ok: false; status: number; message: string };
+
+export async function patchAreaConfig(
+  input: PatchAreaInput,
+): Promise<PatchAreaOk | PatchAreaFail> {
+  try {
+    await ready();
+    const area = localdb.updateAreaSettings(input.area, {
+      label: input.label,
+      tableCount: input.tableCount,
+      hourlyRate: input.hourlyRate,
+    });
+    return { ok: true, area };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "تعذّر حفظ الإعدادات.";
+    console.warn("[localdb] patchAreaConfig failed", err);
+    return { ok: false, status: 400, message };
+  }
 }

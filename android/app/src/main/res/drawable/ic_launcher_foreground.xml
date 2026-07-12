@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive-icon foreground — the Arabic letter "ن" (noor / light),
+  the brand mark, rendered in white on top of the deep-emerald
+  adaptive-icon background defined in
+  res/values/ic_launcher_background.xml.
+
+  Viewport is 108×108 with the safe zone defined by the official
+  Android adaptive-icon spec (~72×72 centred, ~18px margin all round).
+  Our glyph taps the safe zone without spilling over the rounded mask.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportHeight="108"
+    android:viewportWidth="108">
+
+    <!-- Soft inner halo so the glyph reads cleanly even against the
+         bright gradient some launchers apply around the icon. -->
+    <path
+        android:fillColor="#22FFFFFF"
+        android:pathData="M30,30 H78 A6,6 0 0 1 84,36 V72 A6,6 0 0 1 78,78 H30 A6,6 0 0 1 24,72 V36 A6,6 0 0 1 30,30 Z" />
+
+    <!-- Glyph "ن" hand-traced — sit between y=36 and y=72, centred on x=54. -->
+    <!-- Top serif/horizontal bar -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36,38 H72 A3,3 0 0 1 75,41 V44 A3,3 0 0 1 72,47 H36 A3,3 0 0 1 33,44 V41 A3,3 0 0 1 36,38 Z" />
+    <!-- Right vertical stem -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M62,44 H65 A3,3 0 0 1 68,47 V66 A3,3 0 0 1 65,69 H62 A3,3 0 0 1 59,66 V47 A3,3 0 0 1 62,44 Z" />
+    <!-- Left bowl — built from two arcs joined at the top serif -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36,44 H56 V47 H39 V52 H53 A4,4 0 0 1 57,56 V64 A5,5 0 0 1 52,69 H36 V66 H51 A2,2 0 0 0 53,64 V57 A1,1 0 0 0 52,56 H36 Z" />
+</vector>

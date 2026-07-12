@@ -2,24 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --area-snooker: #16a34a;
-  --area-cards: #2563eb;
-  --area-playstation: #7c3aed;
-  --status-open: #ef4444;
-  --status-free: #27272a;
+/* ------------------------------------------------------------------ *
+ *  Atmosphere — a warm, tactile dark-roast surface instead of a flat
+ *  fill. Two low-opacity radial glows (top-right copper, bottom-left
+ *  deep rust) plus a fine noise grain, all fixed to the viewport so it
+ *  reads as ambient room lighting rather than a page-scoped decoration.
+ * ------------------------------------------------------------------ */
+body {
+  background-color: theme("colors.espresso.950");
+  background-image:
+    radial-gradient(ellipse 900px 600px at 85% -10%, rgb(200 90 31 / 0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at -10% 110%, rgb(156 51 25 / 0.08), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-attachment: fixed, fixed, fixed;
 }
 
-/* Tablet-first: make keyboard / screen-reader focus unmistakable on every
- * interactive element. Without this, Tailwind's preflight strips the ring
- * and AT users have no visible focus.
- */
+/* Tabular figures everywhere numbers are the focal point — prices,
+ * timers, table numbers stay perfectly aligned as digits change. */
+.font-mono {
+  font-feature-settings: "tnum" 1, "cv01" 1;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Focus — unmistakable on every interactive element (tablet + kb/AT).
+ *  Tailwind preflight strips the native outline, so this is the only
+ *  focus indicator in the app; it must never be weaker than this.
+ * ------------------------------------------------------------------ */
 :focus { outline: none; }
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-[role="button"]:focus-visible {
-  outline: 3px solid #10b981;
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid theme("colors.copper.400");
   outline-offset: 2px;
   border-radius: 0.5rem;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Motion — respected globally. Purposeful, 150-300ms, ease-out by
+ *  default; killed entirely for anyone who's asked for less motion.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes reveal-scale {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-reveal-up {
+  animation: reveal-up 300ms theme("transitionTimingFunction.out") both;
+}
+.animate-reveal-scale {
+  animation: reveal-scale 220ms theme("transitionTimingFunction.out") both;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Print rules — used by /dashboard/report and the bill-confirm modal.
+ *  • Hide the sticky top nav (matches layout.tsx's "Top navigation" label).
+ *  • Hide any element tagged .no-print (chrome buttons, share preview).
+ *  • Force a clean A4-ish white surface so the report reads on paper.
+ *  • Avoid breaking cards across pages.
+ * ------------------------------------------------------------------ */
+@media print {
+  body {
+    background-image: none;
+  }
+  nav[aria-label="Top navigation"] {
+    display: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .print-area,
+  .print-area section {
+    page-break-inside: avoid;
+  }
+  @page {
+    margin: 1.27cm;
+  }
 }

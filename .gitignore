@@ -43,3 +43,25 @@ coverage/
 
 # Knowledge graph (regenerable via graphify)
 graphify-out/
+
+# Android / Capacitor build output. Without these, the first push to
+# GitHub would commit the entire Gradle cache + APK to the repo and
+# bloat it by ~5 GB. Also `local.properties` is per-machine (sdk.dir)
+# and must not be committed.
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/captures/
+android/*.iml
+android/app/release/
+android/app/debug/
+
+# Signing keystores for release builds. The directory may not exist
+# yet, but pre-emptively ignoring it prevents the classic mistake of
+# committing a *.jks / *.keystore file to a public repo and leaking
+# the upload key.
+android/keystores/
+*.jks
+*.keystore

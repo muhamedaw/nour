@@ -615,6 +615,10 @@
   "name": "comfyui",
   "description": "Generate images, video, and audio with ComfyUI — install, launch, manage nodes/models, run workflows with parameter injection. Uses the official comfy-cli for lifecycle and direct REST/WebSocket API for execution."
  },
+ "composition-patterns": {
+  "name": "vercel-composition-patterns",
+  "description": "React composition patterns that scale. Use when refactoring components with boolean prop proliferation, building flexible component libraries, or designing reusable APIs. Triggers on tasks involving compound components, render props, context providers, or component architecture. Includes React 19 API changes."
+ },
  "comps-analysis": {
   "name": "comps-analysis",
   "description": "Build comparable company analysis in Excel — operating metrics, valuation multiples, statistical benchmarking vs peer sets. Pairs with excel-author. Use for public-company valuation, IPO pricing, sector benchmarking, or outlier detection."
@@ -642,6 +646,10 @@
  "debugging": {
   "name": "debugging",
   "description": "Debugging discipline: feedback loop FIRST, root cause before fix, blast radius after fix. Covers the 10-rung construction ladder, LSP-powered tracing, hypothesis quality criteria, and four-phase investigation. Loaded by bug-investigator."
+ },
+ "deploy-to-vercel": {
+  "name": "deploy-to-vercel",
+  "description": "Deploy applications and websites to Vercel. Use when the user requests deployment actions like \"deploy my app\", \"deploy and give me the link\", \"push this live\", or \"create a preview deployment\"."
  },
  "design-md": {
   "name": "design-md",
@@ -1095,6 +1103,18 @@
   "name": "qmd",
   "description": "Search personal knowledge bases, notes, docs, and meeting transcripts locally using qmd — a hybrid retrieval engine with BM25, vector search, and LLM reranking. Supports CLI and MCP integration."
  },
+ "react-best-practices": {
+  "name": "vercel-react-best-practices",
+  "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements."
+ },
+ "react-native-skills": {
+  "name": "vercel-react-native-skills",
+  "description": "React Native and Expo best practices for building performant mobile apps. Use when building React Native components, optimizing list performance, implementing animations, or working with native modules. Triggers on tasks involving React Native, Expo, mobile performance, or native platform APIs."
+ },
+ "react-view-transitions": {
+  "name": "vercel-react-view-transitions",
+  "description": "Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+ },
  "reasoningbank-agentdb": {
   "name": "ReasoningBank with AgentDB",
   "description": "Implement ReasoningBank adaptive learning with AgentDB's 150x faster vector database. Includes trajectory tracking, verdict judgment, memory distillation, and pattern recognition. Use when building self-learning agents, optimizing decision-making, or implementing experience replay systems."
@@ -1315,6 +1335,14 @@
   "name": "V3 Swarm Coordination",
   "description": "15-agent hierarchical mesh coordination for v3 implementation. Orchestrates parallel execution across security, core, and integration domains following 10 ADRs with 14-week timeline."
  },
+ "vercel-cli-with-tokens": {
+  "name": "vercel-cli-with-tokens",
+  "description": "Deploy and manage projects on Vercel using token-based authentication. Use when working with Vercel CLI using access tokens rather than interactive login — e.g. \"deploy to vercel\", \"set up vercel\", \"add environment variables to vercel\"."
+ },
+ "vercel-optimize": {
+  "name": "vercel-optimize",
+  "description": "Use for Vercel cost and performance optimization on deployed projects, especially Next.js, SvelteKit, Nuxt, and limited Astro apps. Collect Vercel metrics, usage, project config, and code scan results first; investigate only metric-backed candidates; produce ranked recommendations grounded in verified files and version-aware Vercel/framework docs. Trigger for Vercel bill reduction, slow or expensive routes, caching opportunities, Function Invocations, Build Minutes, Fast Data Transfer, Core Web Vitals, Bot Management, Fluid compute, or cost breakdown requests."
+ },
  "verification-before-completion": {
   "name": "verification-before-completion",
   "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always"
@@ -1330,6 +1358,10 @@
  "web-artifacts-builder": {
   "name": "web-artifacts-builder",
   "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts."
+ },
+ "web-design-guidelines": {
+  "name": "web-design-guidelines",
+  "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
  },
  "web-pentest": {
   "name": "web-pentest",
@@ -1354,6 +1386,10 @@
  "workflow-automation": {
   "name": "workflow-automation",
   "description": "Workflow creation, execution, and template management. Automates complex multi-step processes with agent coordination. Use when: automating processes, creating reusable workflows, orchestrating multi-step tasks. Skip when: simple single-step tasks, ad-hoc operations."
+ },
+ "writing-guidelines": {
+  "name": "writing-guidelines",
+  "description": "Review docs/prose for Writing Guidelines compliance. Use when asked to \"review my docs\", \"check writing style\", \"audit prose\", \"review docs voice and tone\", or \"check this page against the writing handbook\"."
  },
  "writing-plans": {
   "name": "writing-plans",

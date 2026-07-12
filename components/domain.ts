@@ -3,11 +3,11 @@ import { getAreaConfig } from "@/lib/config";
 
 /* ---------- Helpers ---------- */
 
-/** Format SAR with 2 decimals. */
+/** Format ILS (shekel) with 2 decimals. Name kept as `fmtSAR` to avoid churning ~15 call sites. */
 export function fmtSAR(n: number): string {
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("ar-SA-u-nu-latn", {
     style: "currency",
-    currency: "SAR",
+    currency: "ILS",
     maximumFractionDigits: 2,
   }).format(n);
 }
@@ -26,12 +26,12 @@ export function fmtElapsed(ms: number): string {
 /* ---------- Theme tokens ---------- */
 
 /**
- * Tailwind class fragments per area — consistent across screens.
- *
- * NOTE: these mirror the `--area-snooker | --area-cards | --area-playstation`
- * CSS variables in `app/globals.css`. Tailwind utility classes are used
- * here (rather than `text-[var(--area-x)]`) because the palette needs
- * alpha channels (e.g. `emerald-600/40`) that the bare CSS vars can't.
+ * One accent (copper) for every area — the old build gave each area its
+ * own hero hue (emerald/blue/violet), which reads as three competing
+ * "primary" colors fighting for attention. Areas are told apart by icon +
+ * Arabic label instead (see AREA_ICON below); color is reserved for
+ * meaning that matters everywhere (interactive, busy, accent), not for
+ * area bookkeeping.
  */
 export const AREA_THEME: Record<
   AreaType,
@@ -39,27 +39,34 @@ export const AREA_THEME: Record<
     accent: string; // ring class
     accentBg: string; // strong fill
     badge: string; // small pill
-    focusRing: string; // focus-visible ring (per-area)
+    focusRing: string; // focus-visible ring
   }
 > = {
   snooker: {
-    accent: "ring-emerald-500/60",
-    accentBg: "bg-emerald-600",
-    badge: "bg-emerald-600/20 text-emerald-300 border-emerald-600/40",
-    focusRing: "focus-visible:ring-emerald-400",
+    accent: "ring-copper-500/60",
+    accentBg: "bg-copper-600",
+    badge: "bg-copper-600/20 text-copper-300 border-copper-600/40",
+    focusRing: "focus-visible:ring-copper-400",
   },
   cards: {
-    accent: "ring-blue-500/60",
-    accentBg: "bg-blue-600",
-    badge: "bg-blue-600/20 text-blue-300 border-blue-600/40",
-    focusRing: "focus-visible:ring-blue-400",
+    accent: "ring-copper-500/60",
+    accentBg: "bg-copper-600",
+    badge: "bg-copper-600/20 text-copper-300 border-copper-600/40",
+    focusRing: "focus-visible:ring-copper-400",
   },
   playstation: {
-    accent: "ring-violet-500/60",
-    accentBg: "bg-violet-600",
-    badge: "bg-violet-600/20 text-violet-300 border-violet-600/40",
-    focusRing: "focus-visible:ring-violet-400",
+    accent: "ring-copper-500/60",
+    accentBg: "bg-copper-600",
+    badge: "bg-copper-600/20 text-copper-300 border-copper-600/40",
+    focusRing: "focus-visible:ring-copper-400",
   },
+};
+
+/** Instantly-recognizable glyph per area — reads from arm's length faster than a color chip. */
+export const AREA_ICON: Record<AreaType, string> = {
+  snooker: "🎱",
+  cards: "🃏",
+  playstation: "🎮",
 };
 
 /* ---------- View helpers over the locked config + store ---------- */

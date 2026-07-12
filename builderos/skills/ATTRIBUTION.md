@@ -48,6 +48,13 @@
 - BuilderOS also adopts Hermes' learning-loop pattern (autonomous skill creation
   after complex tasks) natively via the Skill Forge phase in AUTONOMOUS_BUILD.md.
 
+## Vendored from vercel-labs/agent-skills — MIT License
+- Repository: https://github.com/vercel-labs/agent-skills
+- License: MIT (author: Vercel)
+- Skills: `react-best-practices`, `composition-patterns`, `react-native-skills`,
+  `react-view-transitions`, `deploy-to-vercel`, `vercel-cli-with-tokens`,
+  `vercel-optimize`, `web-design-guidelines`, `writing-guidelines`.
+
 All vendored skills are redistributed under their original licenses. BuilderOS
 auto-installs only the subset matching a given project idea, keeping per-session
 context small.

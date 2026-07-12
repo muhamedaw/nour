@@ -20,6 +20,8 @@ import ProductPicker from "./ProductPicker";
 import BillSummaryBar from "./BillSummaryBar";
 import SessionHeader from "./SessionHeader";
 import BillConfirmModal from "./BillConfirmModal";
+import TransferModal from "@/components/settings/TransferModal";
+import MergeModal from "@/components/settings/MergeModal";
 import { useNow } from "./useNow";
 
 export interface TimedSessionViewProps {
@@ -66,6 +68,8 @@ export default function TimedSessionView({
   const [closeErrorMessage, setCloseErrorMessage] = useState<string | null>(
     null,
   );
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [showMerge, setShowMerge] = useState(false);
 
   /* ------------ Live catalog from /api/products ------------ */
   const [catalog, setCatalog] = useState<{
@@ -184,25 +188,47 @@ export default function TimedSessionView({
         onLabelChange={setLabel}
       />
 
+      <section
+        className="mt-4 flex flex-wrap items-center gap-2"
+        aria-label="إجراءات الجلسة"
+      >
+        <button
+          type="button"
+          onClick={() => setShowTransfer(true)}
+          disabled={busy}
+          className="min-h-[48px] px-4 rounded-2xl bg-espresso-800 hover:bg-espresso-700 disabled:opacity-50 text-espresso-100 text-sm font-bold border border-espresso-700 transition-colors duration-200"
+        >
+          نقل الطاولة
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowMerge(true)}
+          disabled={busy}
+          className="min-h-[48px] px-4 rounded-2xl bg-espresso-800 hover:bg-espresso-700 disabled:opacity-50 text-espresso-100 text-sm font-bold border border-espresso-700 transition-colors duration-200"
+        >
+          دمج مع طاولة أخرى
+        </button>
+      </section>
+
       <section className="mt-6 flex flex-col gap-3">
-        <h3 className="text-xl font-bold">المنتجات</h3>
+        <h3 className="font-display text-xl font-bold">المنتجات</h3>
         {catalogState === "loading" || catalog === null ? (
-          <p className="text-neutral-500 text-center py-12 text-lg animate-pulse">
+          <p className="text-espresso-400 text-center py-12 text-lg animate-pulse">
             جارٍ تحميل المنتجات…
           </p>
         ) : catalogState === "error" ? (
           <div
-            className="bg-red-600/10 border border-red-600/40 rounded-3xl p-6 text-center"
+            className="bg-rust-600/10 border border-rust-600/40 rounded-3xl p-6 text-center"
             role="status"
             dir="rtl"
           >
-            <p className="text-red-300 text-lg mb-3">
+            <p className="text-rust-300 text-lg mb-3">
               تعذّر تحميل المنتجات.
             </p>
             <button
               type="button"
               onClick={loadCatalog}
-              className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold min-h-[48px]"
+              className="px-5 py-3 rounded-2xl bg-rust-600 hover:bg-rust-500 text-espresso-50 font-bold min-h-[48px] transition-colors duration-200"
             >
               إعادة المحاولة
             </button>
@@ -219,14 +245,14 @@ export default function TimedSessionView({
 
       {items.length > 0 && (
         <section className="mt-8">
-          <h3 className="text-xl font-bold mb-3">الطلب الحالي</h3>
+          <h3 className="font-display text-xl font-bold mb-3">الطلب الحالي</h3>
           <ul className="grid gap-2 md:grid-cols-2">
             {items.map((i) => (
               <li
                 key={i.productId}
-                className="flex items-center justify-between bg-neutral-900 border border-neutral-800 rounded-2xl px-4 py-3"
+                className="flex items-center justify-between bg-espresso-900 border border-espresso-800 rounded-2xl px-4 py-3"
               >
-                <span className="font-mono text-neutral-400 w-10 text-center">
+                <span className="font-mono text-espresso-300 w-10 text-center">
                   {i.qty}×
                 </span>
                 <span className="flex-1 px-3 font-medium">{i.name}</span>
@@ -259,6 +285,28 @@ export default function TimedSessionView({
           customerLabel={label}
           onCancel={cancelClose}
           onConfirm={performClose}
+        />
+      )}
+
+      {showTransfer && (
+        <TransferModal
+          area={area}
+          currentSessionId={sessionId}
+          currentTableNumber={tableNumber}
+          onClose={() => setShowTransfer(false)}
+        />
+      )}
+      {showMerge && (
+        <MergeModal
+          area={area}
+          currentSessionId={sessionId}
+          currentTableNumber={tableNumber}
+          onClose={() => setShowMerge(false)}
+          onSuccess={(absorbed) => {
+            // Patch local items so the merged products appear instantly
+            // without a route change / refetch.
+            if (absorbed.items) setItems(absorbed.items);
+          }}
         />
       )}
     </div>

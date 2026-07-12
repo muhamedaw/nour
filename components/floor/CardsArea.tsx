@@ -2,16 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getAreaConfig } from "@/lib/config";
-import type { GroupSession } from "@/lib/types";
-import { fetchSessions } from "./api-client";
+import type { AreaConfig, GroupSession } from "@/lib/types";
+import { fetchAreasConfig, fetchSessions } from "./api-client";
 import FloorHeader from "./FloorHeader";
 import FloorTableButton from "./FloorTableButton";
 
 const POLL_MS = 5_000;
+const STATIC_CFG = getAreaConfig("cards");
 
 /** Cards floor (rate=null → product-only). Same polling as the timed floors. */
 export default function CardsArea() {
-  const { tableCount, hourlyRate, label } = getAreaConfig("cards");
+  const [cfg, setCfg] = useState<AreaConfig>(STATIC_CFG);
+  const { tableCount, hourlyRate, label } = cfg;
   const [open, setOpen] = useState<GroupSession[]>([]);
   const [loadStatus, setLoadStatus] = useState<"loading" | "ok" | "error">(
     "loading",
@@ -20,7 +22,10 @@ export default function CardsArea() {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const list = await fetchSessions({ area: "cards", status: "open" });
+      const [list, settings] = await Promise.all([
+        fetchSessions({ area: "cards", status: "open" }),
+        fetchAreasConfig(),
+      ]);
       if (cancelled) return;
       if (list === null) {
         setLoadStatus("error");
@@ -28,6 +33,8 @@ export default function CardsArea() {
         setOpen(list);
         setLoadStatus("ok");
       }
+      const match = settings?.find((a) => a.area === "cards");
+      if (match) setCfg(match);
     };
     load();
     const id = setInterval(load, POLL_MS);
@@ -45,7 +52,7 @@ export default function CardsArea() {
   return (
     <section
       aria-label="Cards floor"
-      className="bg-neutral-950/60 border border-neutral-800 rounded-3xl p-5 md:p-6"
+      className="bg-espresso-950/60 border border-espresso-800 rounded-3xl p-5 md:p-6"
     >
       <FloorHeader
         area="cards"

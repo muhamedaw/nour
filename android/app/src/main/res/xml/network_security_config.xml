@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security config — defense-in-depth on top of
+  `android:usesCleartextTraffic="true"` declared in AndroidManifest.xml.
+
+  The launcher's whole world is LAN-only (the Next.js server runs on
+  a Pi/laptop behind the owner's WiFi). We permit cleartext HTTP only
+  for RFC1918 private ranges plus the carrier-grade NAT address space
+  and loopback. Anything else is denied — a misconfigured staff device
+  trying to reach a public host over plain HTTP fails fast instead of
+  silently exfiltrating.
+
+  NOTE: this file is referenced from AndroidManifest.xml's
+  android:networkSecurityConfig. changes to its location need a matching
+  manifest edit.
+-->
+<network-security-config>
+    <!-- Permitted cleartext destinations: loopback + RFC1918 + CGNAT.
+         WiFi AP gateways (192.168.0.1, 10.0.0.1, etc.) are covered by
+         the RFC1918 ranges. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <!-- RFC1918: 192.168.0.0/16 -->
+        <domain includeSubdomains="true">192.168.0.0</domain>
+        <!-- RFC1918: 10.0.0.0/8 -->
+        <domain includeSubdomains="true">10.0.0.0</domain>
+        <!-- RFC1918: 172.16.0.0/12 -->
+        <domain includeSubdomains="true">172.16.0.0</domain>
+        <!-- RFC6598 carrier-grade NAT: 100.64.0.0/10 -->
+        <domain includeSubdomains="true">100.64.0.0</domain>
+    </domain-config>
+
+    <!-- Default — for any host not covered above we still permit
+         HTTPS (Android allows it by default) but block cleartext. This
+         matches the existing capacitor.config.ts `server.cleartext` of
+         `true` PLUS the per-domain unmeter applied above: cleartext is
+         only enabled for LAN ranges. -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

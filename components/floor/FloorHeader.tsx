@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AREA_THEME, fmtSAR } from "@/components/domain";
+import { AREA_ICON, AREA_THEME, fmtSAR } from "@/components/domain";
 import type { AreaType } from "@/lib/types";
 
 export interface FloorHeaderProps {
@@ -21,7 +21,7 @@ function StatusChip({ status }: { status: "loading" | "ok" | "error" }) {
   if (status === "loading") {
     return (
       <span
-        className="px-3 py-1 rounded-full text-sm font-semibold border bg-neutral-800 text-neutral-300 border-neutral-700 animate-pulse"
+        className="px-3 py-1 rounded-full text-sm font-semibold border bg-espresso-800 text-espresso-200 border-espresso-700 animate-pulse"
         dir="rtl"
       >
         تحميل…
@@ -30,7 +30,7 @@ function StatusChip({ status }: { status: "loading" | "ok" | "error" }) {
   }
   return (
     <span
-      className="px-3 py-1 rounded-full text-sm font-semibold border bg-red-600/15 text-red-300 border-red-600/40"
+      className="px-3 py-1 rounded-full text-sm font-semibold border bg-rust-600/15 text-rust-300 border-rust-600/40"
       dir="rtl"
       role="status"
       aria-live="polite"
@@ -63,27 +63,25 @@ export default function FloorHeader({
       <div className="flex items-center gap-3 flex-wrap">
         <Link
           href="/"
-          className="text-neutral-400 hover:text-white transition px-3 py-2 rounded-xl border border-neutral-800 hover:border-neutral-600"
+          className="text-espresso-300 hover:text-espresso-50 transition-colors duration-200 px-3 py-2 rounded-xl border border-espresso-800 hover:border-copper-600"
         >
           ← رجوع للأرضية
         </Link>
         <span
           aria-hidden
-          className={[
-            "inline-block w-3 h-12 rounded-full ring-2",
-            theme.accent,
-            theme.accentBg,
-          ].join(" ")}
-        />
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+          className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-espresso-800 border border-espresso-700 text-2xl"
+        >
+          {AREA_ICON[area]}
+        </span>
+        <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-espresso-50">
           {display}
         </h2>
         <span
           className={[
             "px-3 py-1 rounded-full text-sm font-semibold border",
             busy
-              ? "bg-red-600/15 text-red-300 border-red-600/40"
-              : "bg-neutral-800 text-neutral-300 border-neutral-700",
+              ? "bg-rust-600/15 text-rust-300 border-rust-600/40"
+              : "bg-espresso-800 text-espresso-200 border-espresso-700",
           ].join(" ")}
           dir="rtl"
         >
