@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   initLocalDb,
   ensureStaffPasswordSeeded,
@@ -15,7 +15,7 @@ import {
 import { isUnlocked, setUnlocked } from "@/lib/localauth";
 import SplashIntro from "@/components/splash/SplashIntro";
 
-type Status = "loading" | "locked" | "reauth" | "unlocked";
+type Status = "loading" | "locked" | "reauth" | "intro" | "unlocked";
 
 /**
  * Client-side replacement for the old middleware.ts + server session cookie.
@@ -32,7 +32,20 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
-  const [introDone, setIntroDone] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // The intro video element is mounted from the very first render (below,
+  // outside every status branch) so it starts fetching/buffering the
+  // moment the app opens — by the time staff finish typing the password,
+  // it's already ready and plays instantly with no load delay. It only
+  // becomes visible/starts playing once `status` reaches "intro".
+  useEffect(() => {
+    if (status !== "intro" || !videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(() => setVideoFailed(true));
+  }, [status]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,18 +109,57 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     setBusy(false);
     setUnlocked();
     setPassword("");
-    setStatus("unlocked");
+    // Intro plays AFTER a successful password entry, not before — staff see
+    // the password form immediately on cold start with no delay, then the
+    // brand moment plays once while they're already committed to opening
+    // the app, right before the floor screen appears.
+    setStatus("intro");
   };
 
-  // Splash plays for up to ~3s while the async init above runs behind it;
-  // real content never appears before both are ready, but never blocks
-  // longer than the splash's own cap either (see SplashIntro).
-  if (status === "loading" || !introDone) {
-    return <SplashIntro onDone={() => setIntroDone(true)} />;
-  }
+  // Mounted from the component's very first render, regardless of status —
+  // see the preload effect above for why. Invisible and inert until the
+  // "intro" phase actually begins.
+  const introVideo = (
+    <video
+      ref={videoRef}
+      muted
+      playsInline
+      preload="auto"
+      src="/turaf-intro.mp4"
+      onLoadedData={() => setVideoReady(true)}
+      onError={() => setVideoFailed(true)}
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+        zIndex: status === "intro" ? 50 : -1,
+        opacity: status === "intro" && videoReady ? 1 : 0,
+        transition: "opacity 200ms ease-out",
+        pointerEvents: "none",
+      }}
+    />
+  );
 
-  if (status === "locked") {
-    return (
+  let body: React.ReactNode;
+
+  if (status === "loading") {
+    body = (
+      <main className="min-h-screen flex items-center justify-center" dir="rtl">
+        <p className="text-espresso-400 animate-pulse text-lg">جارٍ التحميل…</p>
+      </main>
+    );
+  } else if (status === "intro") {
+    body = (
+      <SplashIntro
+        onDone={() => setStatus("unlocked")}
+        videoReady={videoReady}
+        videoFailed={videoFailed}
+      />
+    );
+  } else if (status === "locked") {
+    body = (
       <main dir="rtl" className="min-h-screen flex items-center justify-center p-6">
         <form
           onSubmit={handleSubmit}
@@ -147,10 +199,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         </form>
       </main>
     );
-  }
-
-  if (status === "reauth") {
-    return (
+  } else if (status === "reauth") {
+    body = (
       <main dir="rtl" className="min-h-screen flex items-center justify-center p-6">
         <form
           onSubmit={handleSubmit}
@@ -193,7 +243,14 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         </form>
       </main>
     );
+  } else {
+    body = <>{children}</>;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {introVideo}
+      {body}
+    </>
+  );
 }
