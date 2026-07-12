@@ -1,6 +1,6 @@
 # APK Deployment Guide
 
-The Nour POS app is now a fully offline standalone Android app — no server,
+The مقهى ترف app is a fully offline standalone Android app — no server,
 no LAN setup needed.  Everything runs inside the APK.
 
 ---
@@ -8,15 +8,14 @@ no LAN setup needed.  Everything runs inside the APK.
 ## Architecture
 
 - **Next.js static export**: `next build` with `output: "export"` produces
-  a pure static site in `./out`.  All API routes, pages, and assets are
-  bundled as pre-rendered HTML + JS.
+  a pure static site in `./out`.  All pages and assets are bundled as
+  pre-rendered HTML + JS.
 - **Capacitor**: wraps the static export into a native Android WebView.
   The Capacitor config points `webDir` at `./out`.
-- **IndexedDB** (via `idb`): replaces the old SQLite backend.  All session
-  data, products, and settings are stored in the browser's IndexedDB on
-  the device — no network connection required, ever.
+- **sql.js + IndexedDB**: all session data, products, and settings are
+  stored locally on the device — no network connection required, ever.
 
-No Raspberry Pi, no old laptop, no LAN IP entry.  Install the APK and go.
+Install the APK and go.
 
 ---
 
@@ -56,7 +55,7 @@ npx cap add android
 1. Transfer the APK to the tablet (Google Drive, USB, email, etc.).
 2. Open the APK file on the tablet.
 3. If prompted, allow installation from unknown sources / file manager.
-4. Open the Nour POS app.
+4. Open the مقهى ترف app.
 
 No configuration needed.  The app opens directly to the floor view.
 
@@ -90,7 +89,7 @@ If the app crashes immediately after installation, try:
 1. **Reinstall**: uninstall the app, reboot the tablet, install again.
 2. **Clear storage**: if reinstalling doesn't help, the IndexedDB
    database may be corrupted.  Go to Android Settings → Apps →
-   Nour POS → Storage → Clear storage, then relaunch.
+   مقهى ترف → Storage → Clear storage, then relaunch.
 3. **Rebuild**: ensure you ran `next build` successfully before
    `cap sync` — a failed build produces a broken `./out`.
 

@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Arabic branding matches the rest of the app's RTL copy. -->
-    <string name="app_name">نور — أرضية الكوفي</string>
-    <string name="title_activity_main">نور — أرضية الكوفي</string>
-    <string name="package_name">com.nour.coffeeshop</string>
-    <!-- Capacitor uses this for the bundled custom URL scheme; matches
-         the new applicationId so a future `Capacitor.Plugins.App.openUrl`
-         call from inside the WebView lands on our own scheme. -->
-    <string name="custom_url_scheme">com.nour.coffeeshop</string>
+    <string name="app_name">مقهى ترف</string>
+    <string name="title_activity_main">مقهى ترف</string>
+    <string name="package_name">com.taraf.pos</string>
+    <string name="custom_url_scheme">com.taraf.pos</string>
 </resources>

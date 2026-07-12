@@ -1,7 +1,7 @@
 import HistoryList from "@/components/history/HistoryList";
 
 export const metadata = {
-  title: "سجل الفواتير | Coffee Shop",
+  title: "سجل الفواتير | مقهى ترف",
 };
 
 export default function HistoryPage() {

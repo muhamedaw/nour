@@ -1,7 +1,7 @@
 import EndOfDayReport from "@/components/dashboard/EndOfDayReport";
 
 export const metadata = {
-  title: "تقرير نهاية اليوم | Coffee Shop",
+  title: "تقرير نهاية اليوم | مقهى ترف",
 };
 
 export default function ReportPage() {

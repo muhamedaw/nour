@@ -10,6 +10,7 @@
  */
 import type { AreaConfig, AreaType, Category, GroupSession, Product, SessionItem } from "../types";
 import { exec, getDb, initLocalDb, queryAll, queryOne, replaceDatabase, transaction } from "./db";
+import { encryptBackup, decryptBackup } from "./encryption";
 
 export { initLocalDb, flushPersist, __setDbForTesting } from "./db";
 
@@ -485,4 +486,108 @@ export async function setStaffPassword(newPassword: string): Promise<void> {
   } else {
     exec("INSERT INTO app_meta (key, value) VALUES (?, ?)", [PASSWORD_HASH_KEY, hash]);
   }
+}
+
+// ---- password-protected auto-backup ----
+// Every session close triggers an encrypted whole-DB snapshot stored in
+// localStorage (survives reinstall via Android Auto Backup).  When the
+// app starts with an empty database and the user enters their password,
+// the backup is silently decrypted and restored — "enter password, get
+// all data back".
+//
+// The backup format in localStorage is a JSON object:
+//   { version: 1, createdAt: "ISO date", blob: "<base64 encrypted data>" }
+
+const BACKUP_LOCALSTORAGE_KEY = "taraf_encrypted_backup";
+
+// In-memory (NOT persisted) — stores the plaintext password after login so
+// closeSession can trigger an encrypted backup without the UI thread having
+// to thread the password through every component.
+let _currentPassword: string | null = null;
+
+export function setCurrentStaffPassword(password: string | null): void {
+  _currentPassword = password;
+}
+
+export function getCurrentStaffPassword(): string | null {
+  return _currentPassword;
+}
+
+interface BackupEnvelope {
+  version: 1;
+  createdAt: string;
+  blob: string; // base64-encoded encrypted Uint8Array
+}
+
+/** Export the full DB snapshot, encrypt with password, save to localStorage. */
+export async function saveEncryptedBackup(password: string): Promise<void> {
+  const bytes = getDb().export();
+  const encrypted = await encryptBackup(password, bytes);
+  const envelope: BackupEnvelope = {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    blob: uint8ArrayToBase64(encrypted),
+  };
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(BACKUP_LOCALSTORAGE_KEY, JSON.stringify(envelope));
+    }
+  } catch {
+    // localStorage may be full or unavailable — silently skip
+  }
+}
+
+/** Check if a backup exists in localStorage. */
+export function hasEncryptedBackup(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(BACKUP_LOCALSTORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/** Try to decrypt and restore the stored backup with the given password.  Returns true on success. */
+export async function tryRestoreFromBackup(password: string): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(BACKUP_LOCALSTORAGE_KEY);
+    if (!raw) return false;
+
+    const envelope: BackupEnvelope = JSON.parse(raw);
+    const encrypted = base64ToUint8Array(envelope.blob);
+    const plaintext = await decryptBackup(password, encrypted);
+    if (!plaintext) return false; // wrong password or corrupted
+
+    await replaceDatabase(plaintext);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Check whether the session table is empty (used to decide if restore is needed). */
+export function isDatabaseEmpty(): boolean {
+  const row = queryOne<{ c: number }>("SELECT COUNT(*) AS c FROM sessions");
+  return !row || row.c === 0;
+}
+
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  if (typeof btoa !== "undefined") return btoa(binary);
+  // fallback for older environments (shouldn't hit in practice)
+  return Buffer.from(binary, "binary").toString("base64");
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+  let binary: string;
+  if (typeof atob !== "undefined") {
+    binary = atob(base64);
+  } else {
+    binary = Buffer.from(base64, "base64").toString("binary");
+  }
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }

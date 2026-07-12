@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Capacitor 6 (Android target) config for the offline Coffee Shop POS.
+ * Capacitor 6 (Android target) config for the offline مقهى ترف POS.
  *
  * Architecture (locked — do not "improve"):
  *   • The Next.js app is fully self-contained inside the APK. There is
@@ -43,8 +43,8 @@ import type { CapacitorConfig } from "@capacitor/cli";
  *     tablet.
  */
 const config: CapacitorConfig = {
-  appId: "com.nour.coffeeshop",
-  appName: "نور — أرضية الكوفي",
+  appId: "com.taraf.coffeeshop",
+  appName: "مقهى ترف",
   webDir: "out",
   android: {
     webContentsDebuggingEnabled: true,

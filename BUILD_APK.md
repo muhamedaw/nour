@@ -1,4 +1,4 @@
-# Get the Nour POS APK on your Android
+# Get the مقهى ترف APK on your Android
 
 You don't need to install Android Studio, Java, or anything else. GitHub
 builds the APK for you in the cloud, for free. Takes about 10 minutes
@@ -13,7 +13,7 @@ If you don't have a GitHub account:
 Then create a new repository for this project:
 
 1. Go to **https://github.com/new**
-2. **Repository name:** `nour-pos` (or anything you like)
+2. **Repository name:** `taraf-pos` (or anything you like)
 3. **Visibility:** `Private` is fine — only you can see it.
 4. **DO NOT** tick "Add a README", "Add .gitignore", or "Choose a
    license". The repo must be empty.
@@ -22,7 +22,7 @@ Then create a new repository for this project:
 GitHub will show you a "Quick setup" page with a URL like:
 
 ```
-https://github.com/YOUR-USERNAME/nour-pos.git
+https://github.com/YOUR-USERNAME/taraf-pos.git
 ```
 
 Copy that URL — you'll need it in Step 2.
@@ -49,7 +49,7 @@ Token** (NOT your password — GitHub stopped accepting passwords in
 August 2021). To create a token:
 
 1. Go to **https://github.com/settings/tokens/new**
-2. **Note:** `nour-pos push`
+2. **Note:** `taraf-pos push`
 3. **Expiration:** 30 days (or whatever you prefer)
 4. **Scopes:** tick only `repo` (the first checkbox)
 5. Click **Generate token** → copy the token (it looks like
@@ -80,7 +80,7 @@ August 2021). To create a token:
    for your security, your phone is not allowed to install unknown
    apps from this source." Tap **Settings** → enable **Allow from this
    source** → go back → tap **Install**.
-6. The app is now on your phone. The icon says **نور — أرضية الكوفي**.
+6. The app is now on your phone. The icon says **مقهى ترف**.
 7. **First launch only:** Android will ask to allow access to
    storage / network — say **Allow** to both.
 

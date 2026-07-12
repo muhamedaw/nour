@@ -1,4 +1,4 @@
-# Coffee Shop Floor & Billing System — Full Plan (v1)
+# مقهى ترف — خطة النظام الكاملة
 
 > Planning doc only — written in this session per user instruction. Actual
 > coding happens in a **new session**, split across Claude Code, Minimax

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Explicit backup rules for Android Auto Backup (Google Drive).
+  
+  The app stores all data in sql.js serialized to IndexedDB, which lives
+  inside the WebView's local storage directory.  By default, Android's
+  auto-backup includes most of the app's private data directory, but
+  WebView storage paths can vary across Android versions.  These rules
+  ensure the sql.js backup blob and all IndexedDB files are captured.
+  
+  On reinstall (same device or new device with same Google account),
+  Android restores these files before the app first launches, so the
+  user's data survives uninstall + reinstall.
+  
+  Reference: https://developer.android.com/guide/topics/data/autobackup
+-->
+<full-backup-content>
+  <!-- WebView local storage (IndexedDB, localStorage) -->
+  <include domain="sharedpref" path="app_webview/" />
+  <include domain="file" path="app_webview/" />
+
+  <!-- sql.js export files if any -->
+  <include domain="database" path="." />
+  <include domain="file" path="." />
+  <include domain="sharedpref" path="." />
+</full-backup-content>

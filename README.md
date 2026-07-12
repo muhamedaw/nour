@@ -1,6 +1,6 @@
-﻿# nour — Coffee Shop Floor Management
+﻿# مقهى ترف — إدارة الطاولات
 
-A Next.js application for managing a coffee shop floor with three distinct areas:
+إدارة طاولات السنوكر والكوتشينة والبلايستيشن.
 Snooker, Cards, and PlayStation. Track active group sessions, manage product
 orders in real time, and bill customers when sessions close.
 

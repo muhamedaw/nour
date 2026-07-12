@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initLocalDb, ensureStaffPasswordSeeded, checkStaffPassword } from "@/lib/localdb";
+import { initLocalDb, ensureStaffPasswordSeeded, checkStaffPassword, isDatabaseEmpty, hasEncryptedBackup, tryRestoreFromBackup, setCurrentStaffPassword, saveEncryptedBackup } from "@/lib/localdb";
 import { isUnlocked, setUnlocked } from "@/lib/localauth";
 
 type Status = "loading" | "locked" | "unlocked";
@@ -19,6 +19,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,12 +40,35 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     if (busy) return;
     setBusy(true);
     setError(null);
+    setRestoreMsg(null);
     const ok = await checkStaffPassword(password);
-    setBusy(false);
     if (!ok) {
+      setBusy(false);
       setError("كلمة المرور غير صحيحة");
       return;
     }
+
+    // Store password in memory so closeSession can auto-backup
+    setCurrentStaffPassword(password);
+
+    // Check whether we need to restore from backup
+    if (isDatabaseEmpty() && hasEncryptedBackup()) {
+      setRestoring(true);
+      setRestoreMsg("جاري استعادة البيانات المحفوظة…");
+      const restored = await tryRestoreFromBackup(password);
+      setRestoring(false);
+      if (restored) {
+        setRestoreMsg("تم استعادة جميع البيانات!");
+        // Save a fresh backup so the timestamp reflects this restore
+        await saveEncryptedBackup(password);
+      } else {
+        setRestoreMsg("لم يتم العثور على نسخة احتياطية صالحة.");
+      }
+    } else if (isDatabaseEmpty()) {
+      // Fresh install, no backup — save the initial empty DB as backup
+      await saveEncryptedBackup(password);
+    }
+    setBusy(false);
     setUnlocked();
     setPassword("");
     setStatus("unlocked");
@@ -73,10 +98,16 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
               {error}
             </p>
           )}
+          {restoreMsg && (
+            <p className="text-copper-300 text-sm text-center" role="status">
+              {restoreMsg}
+            </p>
+          )}
           <input
             type="password"
             required
             autoFocus
+            disabled={restoring}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="كلمة المرور"
@@ -84,10 +115,10 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           />
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || restoring}
             className="px-6 py-3 rounded-2xl bg-copper-600 hover:bg-copper-500 disabled:opacity-60 text-espresso-50 font-bold min-h-[56px] transition-colors duration-200"
           >
-            {busy ? "جارٍ التحقق…" : "دخول"}
+            {restoring ? "جارٍ الاستعادة…" : busy ? "جارٍ التحقق…" : "دخول"}
           </button>
         </form>
       </main>

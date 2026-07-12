@@ -1,7 +1,7 @@
 import DashboardView from "@/components/dashboard/DashboardView";
 
 export const metadata = {
-  title: "لوحة التحكم | Coffee Shop",
+  title: "لوحة التحكم | مقهى ترف",
 };
 
 export default function DashboardPage() {

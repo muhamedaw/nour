@@ -3,6 +3,7 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -11,6 +12,26 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="true">
 
+        <!--
+            "sensor" (not "landscape") so the app follows the device
+            rotation. The configChanges list above already includes
+            "orientation" + "screenSize", so the activity is NOT
+            recreated on rotation — the WebView just receives a
+            window resize event and the existing Tailwind responsive
+            classes (md:*, lg:*) re-flow the layout. Both portrait
+            and landscape work; reverse-portrait + reverse-landscape
+            too. Locking to landscape was wrong for a staff-facing POS
+            that often needs to be held one-handed in portrait to scan
+            a product, then set down in landscape for the floor grid.
+
+            XML-comment placement: this comment is intentionally a
+            sibling of <activity>, NOT between its attributes. XML
+            doesn't allow comments between attributes of a single
+            element — the parser fails with "Element type 'activity'
+            must be followed by either attribute specifications, '>'
+            or '/>'." (lesson learned the hard way when this blocked
+            the first 3 CI builds).
+        -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name=".MainActivity"
@@ -18,18 +39,6 @@
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
             android:exported="true"
-            <!--
-                "sensor" (not "landscape") so the app follows the device
-                rotation. The configChanges list above already includes
-                "orientation" + "screenSize", so the activity is NOT
-                recreated on rotation — the WebView just receives a
-                window resize event and the existing Tailwind responsive
-                classes (md:*, lg:*) re-flow the layout. Both portrait
-                and landscape work; reverse-portrait + reverse-landscape
-                too. Locking to landscape was wrong for a staff-facing POS
-                that often needs to be held one-handed in portrait to scan
-                a product, then set down in landscape for the floor grid.
-            -->
             android:screenOrientation="sensor">
 
             <intent-filter>

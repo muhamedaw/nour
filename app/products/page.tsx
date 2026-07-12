@@ -1,7 +1,7 @@
 import ProductManager from "@/components/products/ProductManager";
 
 export const metadata = {
-  title: "إدارة المنتجات | Coffee Shop",
+  title: "إدارة المنتجات | مقهى ترف",
 };
 
 export default function ProductsPage() {

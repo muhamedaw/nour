@@ -106,7 +106,19 @@ export async function closeSessionRemote(
     // Sync whatever items the UI has right before closing — covers the
     // edge case where the last item change hadn't been persisted yet.
     localdb.replaceSessionItemsAndLabel(id, payload.items);
-    return localdb.closeSession(id, payload.closedAt, payload.billedTotal);
+    const result = localdb.closeSession(id, payload.closedAt, payload.billedTotal);
+
+    // Auto-backup: after every close, encrypt a full DB snapshot with the
+    // staff password and store it in localStorage.  On fresh install, the
+    // same password unlocks the backup and restores all data.
+    if (result) {
+      const currentPassword = localdb.getCurrentStaffPassword();
+      if (currentPassword) {
+        localdb.saveEncryptedBackup(currentPassword).catch(() => {});
+      }
+    }
+
+    return result;
   } catch (err) {
     console.warn("[localdb] closeSessionRemote failed", err);
     return null;

@@ -1,5 +1,5 @@
 /**
- * Coffee Shop POS — Next.js config.
+ * مقهى ترف POS — Next.js config.
  *
  * Fully offline now: no server, no API routes, no network calls. The app
  * runs entirely inside the WebView on the device, with lib/localdb/ (sql.js

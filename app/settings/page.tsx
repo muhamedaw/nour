@@ -4,7 +4,7 @@ import SettingsView from "@/components/settings/SettingsView";
 import TelegramSettings from "@/components/settings/TelegramSettings";
 
 export const metadata = {
-  title: "إعدادات المناطق | مقعى ترف",
+  title: "إعدادات المناطق | مقهى ترف",
 };
 
 export default function SettingsPage() {

@@ -75,7 +75,7 @@ export default function BackupRestore(): JSX.Element {
       });
       await Share.share({
         title: "Floor DB Backup",
-        text: "نسخة احتياطية من قاعدة بيانات نور",
+        text: "نسخة احتياطية من قاعدة بيانات مقهى ترف",
         url: written.uri,
         dialogTitle: "حفظ النسخة الاحتياطية",
       });

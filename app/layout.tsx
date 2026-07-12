@@ -38,7 +38,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "مقعى ترف — إدارة الطاولات",
+  title: "مقهى ترف — إدارة الطاولات",
   description: "إدارة طاولات السنوكر والكوتشينة والبلايستيشن",
 };
 
