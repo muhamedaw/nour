@@ -41,6 +41,7 @@ interface SessionRow {
   merged_into: string | null;
   players_json: string | null;
   time_adjustment_seconds: number;
+  split_snapshot_json: string | null;
 }
 
 interface SessionItemRow {
@@ -89,6 +90,9 @@ function rowToSession(row: SessionRow, items: SessionItemRow[]): GroupSession {
     mergedInto: row.merged_into ?? undefined,
     players: row.players_json ? (JSON.parse(row.players_json) as string[]) : undefined,
     timeAdjustmentSeconds: row.time_adjustment_seconds ?? 0,
+    splitSnapshot: row.split_snapshot_json
+      ? (JSON.parse(row.split_snapshot_json) as GroupSession["splitSnapshot"])
+      : undefined,
   };
 }
 
@@ -242,12 +246,24 @@ export function replaceSessionItemsAndLabel(
   return getSessionById(sessionId);
 }
 
-export function closeSession(sessionId: string, closedAt: string, billedTotal: number): GroupSession | null {
-  exec("UPDATE sessions SET status = 'closed', closed_at = ?, billed_total = ? WHERE id = ?", [
-    closedAt,
-    billedTotal,
-    sessionId,
-  ]);
+export function closeSession(
+  sessionId: string,
+  closedAt: string,
+  billedTotal: number,
+  splitSnapshot?: GroupSession["splitSnapshot"]
+): GroupSession | null {
+  if (splitSnapshot !== undefined) {
+    exec(
+      "UPDATE sessions SET status = 'closed', closed_at = ?, billed_total = ?, split_snapshot_json = ? WHERE id = ?",
+      [closedAt, billedTotal, JSON.stringify(splitSnapshot), sessionId]
+    );
+  } else {
+    exec("UPDATE sessions SET status = 'closed', closed_at = ?, billed_total = ? WHERE id = ?", [
+      closedAt,
+      billedTotal,
+      sessionId,
+    ]);
+  }
   return getSessionById(sessionId);
 }
 

@@ -36,6 +36,19 @@ export interface GroupSession {
   mergedInto?: string; // set when this session was merged into another (closed, billedTotal=0)
   players?: string[]; // optional list of player names, purely informational
   timeAdjustmentSeconds?: number; // cumulative manual time correction, +/-, default 0
+  // Serializable snapshot of components/session/bill.ts's SplitResult, taken
+  // at close time. Duplicated here (not imported) to keep lib/ independent
+  // of components/ — the shapes are structurally identical by convention.
+  splitSnapshot?: {
+    playerCount: number;
+    shares: {
+      index: number;
+      label: string;
+      individualTotal: number;
+      evenShare: number;
+      total: number;
+    }[];
+  };
 }
 
 export interface AreaConfig {

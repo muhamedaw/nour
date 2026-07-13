@@ -205,6 +205,7 @@ export function runMigrations(db: Database): void {
   addColumnIfMissing(db, "sessions", "players_json", "TEXT");
   addColumnIfMissing(db, "sessions", "time_adjustment_seconds", "INTEGER NOT NULL DEFAULT 0");
   addColumnIfMissing(db, "session_items", "assigned_player", "TEXT");
+  addColumnIfMissing(db, "sessions", "split_snapshot_json", "TEXT");
 }
 
 function columnExists(db: Database, table: string, column: string): boolean {
