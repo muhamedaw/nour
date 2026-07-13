@@ -88,7 +88,14 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: SCALE_RUNTIME }} />
       </head>
-      <body className="bg-espresso-950 text-espresso-100 min-h-screen antialiased font-sans overflow-x-hidden">
+      {/*
+        Body is a vertical flex column with `items-center` so the 1024px
+        `.app-shell` stays horizontally centered on phones EVEN when it
+        overflows the viewport. `margin-inline: auto` alone would resolve
+        to 0 margins and anchor the UI to the left edge; flex centering
+        handles symmetric overflow correctly.
+      */}
+      <body className="bg-espresso-950 text-espresso-100 min-h-screen antialiased font-sans overflow-x-hidden flex flex-col items-center">
         <div className="app-shell">
           {/* Mounted OUTSIDE <AuthGate> so the wake lock is held even
               while the auth check is running — staff shouldn't have to

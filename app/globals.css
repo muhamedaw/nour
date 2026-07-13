@@ -24,9 +24,14 @@
   --app-base-w: 1024px;
   --app-scale: 1;
 }
+/* `body` is a flex column with `align-items: center` (see app/layout.tsx)
+   so this element is horizontally centered EVEN when it overflows the
+   viewport (margin-inline: auto would otherwise resolve to 0 margins and
+   anchor the element to the left edge). `flex-shrink: 0` stops flex from
+   squishing the 1024px box before the scale transform applies. */
 .app-shell {
   width: var(--app-base-w);
-  margin-inline: auto;
+  flex-shrink: 0;
   transform: scale(var(--app-scale));
   transform-origin: top center;
 }
