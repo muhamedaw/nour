@@ -181,7 +181,7 @@ export default function ProductPicker({
                   <img
                     src={p.imageDataUrl}
                     alt=""
-                    className="w-full h-20 object-cover rounded-xl border border-espresso-800"
+                    className="w-full h-20 object-contain bg-espresso-900 rounded-xl border border-espresso-800"
                     loading="lazy"
                   />
                 )}

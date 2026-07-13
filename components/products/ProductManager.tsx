@@ -311,7 +311,7 @@ export default function ProductManager() {
                           <img
                             src={p.imageDataUrl}
                             alt=""
-                            className="w-12 h-12 object-cover rounded-xl border border-espresso-800 shrink-0"
+                            className="w-12 h-12 object-contain bg-espresso-900 rounded-xl border border-espresso-800 shrink-0"
                             loading="lazy"
                           />
                         ) : (
@@ -468,7 +468,7 @@ function ProductDraftForm({
             <img
               src={draft.imageDataUrl}
               alt=""
-              className="w-12 h-12 object-cover rounded-xl border border-espresso-800"
+              className="w-12 h-12 object-contain bg-espresso-900 rounded-xl border border-espresso-800"
             />
             <button
               type="button"
