@@ -38,17 +38,21 @@ export default function MergeModal({
   onSuccess,
 }: MergeModalProps) {
   const { label: areaLabel } = getAreaConfig(area);
-  const theme = AREA_THEME[area];
 
   const [sessions, setSessions] = useState<GroupSession[] | null>(null);
   const [picked, setPicked] = useState<GroupSession | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /* ------- Fetch area's open sessions (minus self) ------- */
+  /* ------- Fetch every open session across ALL areas (minus self) -------
+   * Cross-area merge: the localdb side no longer restricts merges to the
+   * same area, so this picker must list open sessions from snooker, cards,
+   * and playstation together.  Each donor row displays its own area label
+   * + theme so staff can tell apart "سنوكر · طاولة 5" from "كوتشينة · طاولة
+   * 3" without cross-referencing back to the src table. */
   useEffect(() => {
     let cancelled = false;
-    fetchSessions({ area, status: "open" }).then((list) => {
+    fetchSessions({ status: "open" }).then((list) => {
       if (cancelled) return;
       if (list === null) {
         setSessions([]);
@@ -59,7 +63,7 @@ export default function MergeModal({
     return () => {
       cancelled = true;
     };
-  }, [area, currentSessionId]);
+  }, [currentSessionId]);
 
   /* ------- Modal lifecycle: opener-restore + scroll-lock + initial focus ------- */
   useEffect(() => {
@@ -132,7 +136,6 @@ export default function MergeModal({
         <div className="flex-1 overflow-y-auto p-6">
           {picked === null ? (
             <DonorPicker
-              theme={theme}
               sessions={sessions}
               onPick={(s) => {
                 setError(null);
@@ -183,11 +186,9 @@ export default function MergeModal({
 /* --------------- Donor picker --------------- */
 
 function DonorPicker({
-  theme,
   sessions,
   onPick,
 }: {
-  theme: (typeof AREA_THEME)[AreaType];
   sessions: GroupSession[] | null;
   onPick: (s: GroupSession) => void;
 }) {
@@ -201,7 +202,7 @@ function DonorPicker({
   if (sessions.length === 0) {
     return (
       <p className="text-espresso-400 text-center py-12 text-lg">
-        لا توجد جلسات مفتوحة أخرى في هذه المنطقة.
+        لا توجد جلسات مفتوحة أخرى.
       </p>
     );
   }
@@ -210,30 +211,52 @@ function DonorPicker({
     <ul className="flex flex-col gap-2">
       {sessions.map((s) => (
         <li key={s.id}>
-          <button
-            type="button"
-            onClick={() => onPick(s)}
-            className="w-full bg-espresso-950 border border-espresso-800 hover:border-copper-500 hover:bg-espresso-800 transition rounded-2xl px-4 py-3 flex items-center gap-3 min-h-[64px] text-right"
-            dir="rtl"
-          >
-            <span
-              aria-hidden
-              className={["w-2 h-8 rounded-full", theme.accentBg].join(" ")}
-            />
-            <span className="font-mono font-bold text-2xl tabular-nums text-espresso-50 shrink-0">
-              {s.tableNumber}
-            </span>
-            <span className="flex-1 min-w-0 text-sm text-espresso-200 truncate">
-              {s.label?.trim() || "بدون اسم"}
-            </span>
-            <span className="text-xs text-espresso-400 tabular-nums">
-              {(s.items ?? []).reduce((n, i) => n + i.qty, 0)} منتج
-            </span>
-            <span className="text-copper-400 font-bold text-sm">دمج ←</span>
-          </button>
+          <DonorRow donor={s} onPick={onPick} />
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Per-donor row that resolves its OWN area label + theme accent. */
+function DonorRow({
+  donor,
+  onPick,
+}: {
+  donor: GroupSession;
+  onPick: (s: GroupSession) => void;
+}) {
+  const { label: donorAreaLabel } = getAreaConfig(donor.area);
+  const donorTheme = AREA_THEME[donor.area];
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(donor)}
+      className="w-full bg-espresso-950 border border-espresso-800 hover:border-copper-500 hover:bg-espresso-800 transition rounded-2xl px-4 py-3 flex items-center gap-3 min-h-[64px] text-right"
+      dir="rtl"
+    >
+      <span
+        aria-hidden
+        className={["w-2 h-12 rounded-full self-stretch", donorTheme.accentBg].join(
+          " ",
+        )}
+      />
+      <span className="flex flex-col items-start shrink-0 leading-none">
+        <span className="text-[10px] uppercase tracking-widest text-espresso-300 font-bold mb-1">
+          {donorAreaLabel}
+        </span>
+        <span className="font-mono font-bold text-2xl tabular-nums text-espresso-50">
+          {donor.tableNumber}
+        </span>
+      </span>
+      <span className="flex-1 min-w-0 text-sm text-espresso-200 truncate">
+        {donor.label?.trim() || "بدون اسم"}
+      </span>
+      <span className="text-xs text-espresso-400 tabular-nums">
+        {(donor.items ?? []).reduce((n, i) => n + i.qty, 0)} منتج
+      </span>
+      <span className="text-copper-400 font-bold text-sm">دمج ←</span>
+    </button>
   );
 }
 

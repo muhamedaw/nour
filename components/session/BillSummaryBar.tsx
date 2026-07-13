@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { fmtSAR } from "@/components/domain";
 import type { BillBreakdown } from "./bill";
 
@@ -15,6 +17,22 @@ export interface BillSummaryBarProps {
  * Bottom-pinned total bar shared by both session views.
  *  • Items count and product total (left side).
  *  • Final total on the right with a huge "إغلاق وحساب الفاتورة" CTA.
+ *
+ * Rendered through a React Portal into `document.body` so it lives outside
+ * `.app-shell`'s `transform: scale(var(--app-scale))` context (any CSS
+ * transform on an ancestor creates a new containing block for `position:
+ * fixed` descendants, pinning the bar to the scaled box bottom instead of
+ * to the real viewport).  Once outside, the same `--app-scale` is applied
+ * directly on the portaled root with `transform-origin: bottom center` so
+ * the bar still matches the visual sizing of everything else and stays
+ * glued to the bottom edge of the screen (not the top of the page).
+ *
+ * SSR/hydration: `document.body` only exists after mount, so the first
+ * render returns `null` (server + first client render agree) and the
+ * portal is created after a mount `useEffect`.  No flash because the
+ * parent `TimedSessionView` / `ProductOnlySessionView` are client
+ * components that don't paint their first frame until after hydration
+ * completes anyway.
  */
 export default function BillSummaryBar({
   breakdown,
@@ -23,10 +41,24 @@ export default function BillSummaryBar({
   onClose,
   busy,
 }: BillSummaryBarProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <footer
       className="fixed inset-x-0 bottom-0 z-30 px-4 md:px-6 pb-4 pt-3 bg-gradient-to-t from-espresso-950 via-espresso-950/95 to-transparent"
       dir="rtl"
+      style={{
+        // Re-apply the phone-fit scale that .app-shell normally provides.
+        // Reading the same CSS variable keeps the bar visually consistent
+        // with the rest of the UI without hardcoding any breakpoint.
+        transform: "scale(var(--app-scale))",
+        transformOrigin: "bottom center",
+      }}
     >
       <div className="mx-auto max-w-7xl rounded-3xl bg-espresso-900 border border-espresso-800 shadow-2xl shadow-black/40 p-4 md:p-5 flex flex-wrap items-center gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 flex-1">
@@ -63,7 +95,8 @@ export default function BillSummaryBar({
           </button>
         </div>
       </div>
-    </footer>
+    </footer>,
+    document.body,
   );
 }
 
