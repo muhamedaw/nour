@@ -207,7 +207,7 @@ export default function ProductPicker({
                     disabled={q === 0}
                     aria-label={`إنقاص ${p.name}`}
                     className={[
-                      "w-16 h-16 rounded-2xl text-4xl font-black",
+                      "w-16 h-16 rounded-2xl text-4xl font-black shrink-0",
                       "transition active:scale-95",
                       q === 0
                         ? "bg-espresso-800 text-espresso-600 cursor-not-allowed"
@@ -216,18 +216,37 @@ export default function ProductPicker({
                   >
                     −
                   </button>
-                  <span
-                    className="font-mono text-4xl font-black w-16 text-center tabular-nums"
-                    aria-live="polite"
-                  >
-                    {q}
-                  </span>
+                  {p.imageDataUrl ? (
+                    <div className="flex-1 flex items-center justify-center relative h-16">
+                      <img
+                        src={p.imageDataUrl}
+                        alt=""
+                        className="w-full h-full object-contain bg-espresso-900 rounded-xl border border-espresso-800"
+                        loading="lazy"
+                      />
+                      {q > 0 && (
+                        <span
+                          className="absolute top-1 right-1 bg-espresso-950/90 text-espresso-50 rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold"
+                          aria-live="polite"
+                        >
+                          {q}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span
+                      className="font-mono text-4xl font-black w-16 text-center tabular-nums flex-1"
+                      aria-live="polite"
+                    >
+                      {q}
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => inc(p)}
                     aria-label={`زيادة ${p.name}`}
                     className={[
-                      "w-16 h-16 rounded-2xl text-4xl font-black",
+                      "w-16 h-16 rounded-2xl text-4xl font-black shrink-0",
                       "transition active:scale-95",
                       isHighlight
                         ? "bg-rust-500 hover:bg-rust-400 text-espresso-50"

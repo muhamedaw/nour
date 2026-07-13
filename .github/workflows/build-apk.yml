@@ -1,55 +1,17 @@
 name: Build Android APK
 
-# ----------------------------------------------------------------------------
-# Builds the offline Nour POS APK (Capacitor 6 + Next.js static export +
-# Android Gradle) and uploads it as a downloadable workflow artifact.
-#
-# The build itself runs in CI; nothing is required on the user's local
-# machine. The downloaded `app-debug.apk` is the real, signed-with-debug-
-# key, installable Android application — no LAN server, no launcher.
-#
-# Triggers:
-#   • push to master / main        — auto-build on every code change
-#   • workflow_dispatch            — manual button in the Actions tab
-#   • pull_request                 — sanity build on every PR
-#
-# How to get the APK:
-#   1. Go to the Actions tab of the GitHub repo.
-#   2. Click the latest "Build Android APK" run.
-#   3. Scroll to the bottom → "Artifacts" section → download
-#      `app-debug-apk.zip`.
-#   4. Unzip on your laptop / phone → `app-debug.apk` is the installer.
-#   5. Transfer to Android (USB / email / Drive / Telegram) and tap to
-#      install. Android will ask you to enable "Install from unknown
-#      sources" the first time.
-#
-# This workflow intentionally builds a DEBUG APK (not a release APK):
-#   • It's signed with the standard Android debug keystore, so it
-#     installs without any signing setup.
-#   • It is NOT optimised / minified — the app loads slower than a
-#     release build but is functionally identical for testing.
-#   • For Play Store distribution, swap `assembleDebug` for
-#     `assembleRelease` and wire up a real signing key.
-# ----------------------------------------------------------------------------
+# Build the debug APK on every push to master (and on manual trigger)
+# so `git push` alone replaces the local tarball-upload step.
+# Artifact name: taref-pos-debug  → matches the on-Desktop naming.
 
 on:
   push:
-    branches: ["master", "main"]
-  pull_request:
-    branches: ["master", "main"]
+    branches: ["master"]
   workflow_dispatch:
-
-# One build at a time per branch is plenty for a single-dev project;
-# cancel in-flight builds on the same branch to save CI minutes.
-concurrency:
-  group: build-apk-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build-apk:
-    name: Build & upload APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -58,103 +20,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 22
+      - name: Setup Node 22 (matches project .nvmrc / engine)
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          cache: npm
 
-      - name: Setup JDK 17 (Temurin) + cache Gradle
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Next.js static-export build (APK_BUILD gates output: "export" in next.config.mjs)
+        run: APK_BUILD=1 npm run build
+
+      - name: Setup JDK 17 (required by Capacitor 6 + Gradle 8)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-          # Caches ~/.gradle/caches between runs — cuts warm builds
-          # from ~5 min to ~2 min. Independent of the Android SDK
-          # cache that setup-android handles.
-          cache: "gradle"
 
-      # Matches android/variables.gradle:
-      #   compileSdkVersion = 34
-      #   targetSdkVersion  = 34
-      #   minSdkVersion     = 22
-      - name: Setup Android SDK
+      - name: Setup Android SDK (cmdline-tools + platform 34 + build-tools 34)
         uses: android-actions/setup-android@v3
         with:
-          api-level: "34"
-          build-tools-version: "34.0.0"
-          # Caches the SDK + Gradle between runs so subsequent builds
-          # finish in ~5 min instead of ~15.
-          cache: true
+          cmdline-tools-version: "13114758"
+          packages: "platform-tools,platforms;android-34,build-tools;34.0.0"
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Accept SDK licenses (android-sdk-image requires this on fresh runners)
+        run: yes | sdkmanager --licenses
 
-      # APK_BUILD=1 flips on `output: "export"` in next.config.mjs so
-      # `next build` produces a static ./out/ directory instead of
-      # booting the Node.js API server. This is the half of the build
-      # that's specific to the standalone-APK target.
-      - name: Build static export (Next.js)
-        run: APK_BUILD=1 npm run build
-        env:
-          APK_BUILD: "1"
-
-      - name: Confirm ./out was produced
-        run: |
-          if [ ! -d out ]; then
-            echo "::error::Static export directory ./out not found — did next build succeed?"
-            exit 1
-          fi
-          echo "Static export contains $(ls out | wc -l) entries."
-
-      # Copies ./out into android/app/src/main/assets/public/ and updates
-      # the native plugin manifests. Must run AFTER `next build` and
-      # BEFORE `gradlew assembleDebug`.
-      - name: Capacitor sync (copy web bundle into Android project)
+      - name: Capacitor sync (copy ./out → android/app/src/main/assets/public)
         run: npx cap sync android
 
-      # Capacitor's gradle build looks for `sdk.dir` in
-      # android/local.properties. We write it here so we don't have to
-      # check the file into git (it's in .gitignore by convention).
-      - name: Point Gradle at the Android SDK
-        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-
-      # The gradlew wrapper's executable bit gets stripped when checked
-      # in from Windows (NTFS has no +x), so the file lands in the
-      # Linux runner as 644 and `./gradlew` errors with "Permission
-      # denied". This is a no-op on macOS / Linux contributors and
-      # a one-liner fix for Windows contributors. Run it here, not
-      # in the build step, so the failure mode is explicit.
-      - name: Make gradlew executable (Windows contributor fix)
+      - name: Gradle assembleDebug
         working-directory: android
-        run: chmod +x ./gradlew
+        run: ./gradlew --no-daemon assembleDebug
 
-      - name: Build debug APK (Gradle)
-        working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
-
-      - name: Verify APK exists
-        run: |
-          APK="android/app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$APK" ]; then
-            echo "::error::Expected APK not found at $APK"
-            exit 1
-          fi
-          SIZE_MB=$(du -m "$APK" | cut -f1)
-          echo "APK size: ${SIZE_MB} MB"
-
-      # Zipping the APK keeps the artifact's contents obvious on
-      # download (the user unzips and gets a single .apk file).
-      - name: Zip APK for upload
-        run: |
-          cd android/app/build/outputs/apk/debug
-          zip -j app-debug-apk.zip app-debug.apk
-          ls -lh app-debug-apk.zip
-
-      - name: Upload APK as workflow artifact
+      - name: Upload APK as downloadable artifact (30-day retention)
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug-apk.zip
+          name: taref-pos-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

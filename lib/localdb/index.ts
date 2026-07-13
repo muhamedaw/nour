@@ -632,10 +632,23 @@ interface BackupEnvelope {
   blob: string; // base64-encoded encrypted Uint8Array
 }
 
-/** Export the full DB snapshot, encrypt with password, save to localStorage. */
-export async function saveEncryptedBackup(password: string): Promise<void> {
+/**
+ * Export the full DB snapshot and encrypt it with `password`, returning the
+ * encrypted bytes as a Blob. Shared by `saveEncryptedBackup` (localStorage,
+ * on every session close) and `lib/cloud/backup.ts` (uploads the same blob
+ * to Supabase Storage on the hourly cloud-backup cycle) — one export+encrypt
+ * path, two destinations.
+ */
+export async function buildEncryptedBackupBlob(password: string): Promise<Blob> {
   const bytes = getDb().export();
   const encrypted = await encryptBackup(password, bytes);
+  return new Blob([encrypted as BlobPart], { type: "application/octet-stream" });
+}
+
+/** Export the full DB snapshot, encrypt with password, save to localStorage. */
+export async function saveEncryptedBackup(password: string): Promise<void> {
+  const blob = await buildEncryptedBackupBlob(password);
+  const encrypted = new Uint8Array(await blob.arrayBuffer());
   const envelope: BackupEnvelope = {
     version: 1,
     createdAt: new Date().toISOString(),
