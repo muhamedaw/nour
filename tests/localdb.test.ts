@@ -45,46 +45,10 @@ before(async () => {
   });
   testDb = new SQL.Database();
 
-  testDb.run(`
-    CREATE TABLE categories (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      order_index INTEGER NOT NULL
-    );
-    CREATE TABLE products (
-      id TEXT PRIMARY KEY,
-      category_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      price REAL NOT NULL
-    );
-    CREATE TABLE sessions (
-      id TEXT PRIMARY KEY,
-      area TEXT NOT NULL,
-      table_number INTEGER NOT NULL,
-      label TEXT,
-      opened_at TEXT NOT NULL,
-      closed_at TEXT,
-      status TEXT NOT NULL,
-      billed_total REAL,
-      merged_into TEXT
-    );
-    CREATE TABLE session_items (
-      id TEXT PRIMARY KEY,
-      session_id TEXT NOT NULL,
-      product_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      price REAL NOT NULL,
-      qty INTEGER NOT NULL
-    );
-    CREATE TABLE area_settings (
-      area TEXT PRIMARY KEY,
-      label TEXT NOT NULL,
-      table_count INTEGER NOT NULL,
-      hourly_rate REAL
-    );
-    CREATE INDEX idx_session_items_session ON session_items(session_id);
-    CREATE INDEX idx_sessions_status ON sessions(status);
-  `);
+  // Use the real migration logic instead of hand-duplicating CREATE TABLE —
+  // this keeps the test schema in sync whenever new columns are added.
+  const { runMigrations } = await import("../lib/localdb");
+  runMigrations(testDb);
 
   const insertCategory = (id: string, name: string, order: number) =>
     testDb.run("INSERT INTO categories (id, name, order_index) VALUES (?, ?, ?)", [id, name, order]);
@@ -513,5 +477,106 @@ describe("localdb area settings", () => {
     const updated = localdb.updateAreaSettings("playstation", { tableCount: 6, label: "PS5" });
     assert.equal(updated.tableCount, 6);
     assert.equal(updated.label, "PS5");
+  });
+});
+
+describe("localdb new columns", () => {
+  it("createProduct with imageDataUrl and highlightFlag round-trips", () => {
+    const p = localdb.createProduct("cat-drinks", "Photo Coffee", 3);
+    assert.equal(p.imageDataUrl, undefined);
+    assert.equal(p.highlightFlag, false);
+
+    const raw = rawGet<{ image_data_url: string | null; highlight_flag: number }>(
+      "SELECT image_data_url, highlight_flag FROM products WHERE id = ?", [p.id]
+    );
+    assert.equal(raw!.image_data_url, null);
+    assert.equal(raw!.highlight_flag, 0);
+  });
+
+  it("updateProduct sets imageDataUrl and highlightFlag", () => {
+    const p = localdb.createProduct("cat-drinks", "Editable", 4);
+    const updated = localdb.updateProduct(p.id, {
+      name: "Editable",
+      price: 4,
+      imageDataUrl: "data:image/png;base64,iVBORw0KGgo=",
+      highlightFlag: true,
+    });
+    assert.equal(updated!.imageDataUrl, "data:image/png;base64,iVBORw0KGgo=");
+    assert.equal(updated!.highlightFlag, true);
+
+    const raw = rawGet<{ image_data_url: string; highlight_flag: number }>(
+      "SELECT image_data_url, highlight_flag FROM products WHERE id = ?", [p.id]
+    );
+    assert.equal(raw!.image_data_url, "data:image/png;base64,iVBORw0KGgo=");
+    assert.equal(raw!.highlight_flag, 1);
+  });
+
+  it("updateProduct clears imageDataUrl and highlightFlag", () => {
+    const p = localdb.createProduct("cat-drinks", "Clearable", 5);
+    localdb.updateProduct(p.id, { imageDataUrl: "data:image/png;base64,abc=", highlightFlag: true });
+    const cleared = localdb.updateProduct(p.id, { imageDataUrl: null, highlightFlag: false });
+    assert.equal(cleared!.imageDataUrl, undefined);
+    assert.equal(cleared!.highlightFlag, false);
+  });
+
+  it("replaceSessionItemsAndLabel persists label and session-level columns", () => {
+    const s = localdb.createSession("playstation", 41);
+    const updated = localdb.replaceSessionItemsAndLabel(s.id, [
+      { productId: "prod-soda", name: "Soda", price: 2, qty: 1 },
+    ], "Player Group");
+
+    assert.equal(updated!.label, "Player Group");
+    // Check the session's new columns default correctly
+    const row = rawGet<{ players_json: string | null; time_adjustment_seconds: number }>(
+      "SELECT players_json, time_adjustment_seconds FROM sessions WHERE id = ?", [s.id]
+    );
+    assert.equal(row!.players_json, null);
+    assert.equal(row!.time_adjustment_seconds, 0);
+  });
+
+  it("assignedPlayer on session_items persists through merge", () => {
+    const into = localdb.createSession("snooker", 70);
+    const from = localdb.createSession("snooker", 71);
+
+    // Give into an item with assignedPlayer
+    localdb.addSessionItem(into.id, "prod-coffee", 1);
+    const intoItemId = rawGet<{ id: string }>(
+      "SELECT id FROM session_items WHERE session_id = ? AND product_id = 'prod-coffee'", [into.id]
+    )!.id;
+    testDb.run("UPDATE session_items SET assigned_player = ? WHERE id = ?", ["Ahmed", intoItemId]);
+
+    // Give from an item without assignedPlayer
+    localdb.addSessionItem(from.id, "prod-tea", 2);
+
+    const merged = localdb.mergeSessions(into.id, from.id);
+
+    // Both items should be present
+    assert.equal(merged.items.length, 2);
+
+    // Check assignedPlayer persisted on the into item
+    const rows = rawAll<{ product_id: string; assigned_player: string | null }>(
+      "SELECT product_id, assigned_player FROM session_items WHERE session_id = ? ORDER BY product_id",
+      [into.id]
+    );
+    const coffeeRow = rows.find((r) => r.product_id === "prod-coffee");
+    assert.equal(coffeeRow!.assigned_player, "Ahmed");
+
+    const teaRow = rows.find((r) => r.product_id === "prod-tea");
+    assert.equal(teaRow!.assigned_player, null);
+  });
+
+  it("assignedPlayer on session_items survives updateSessionItemQty", () => {
+    const s = localdb.createSession("snooker", 72);
+    localdb.addSessionItem(s.id, "prod-coffee", 2);
+    const itemId = rawGet<{ id: string }>(
+      "SELECT id FROM session_items WHERE session_id = ?", [s.id]
+    )!.id;
+    testDb.run("UPDATE session_items SET assigned_player = ? WHERE id = ?", ["Sami", itemId]);
+
+    localdb.updateSessionItemQty(s.id, itemId, 5);
+    const row = rawGet<{ assigned_player: string | null }>(
+      "SELECT assigned_player FROM session_items WHERE id = ?", [itemId]
+    );
+    assert.equal(row!.assigned_player, "Sami");
   });
 });

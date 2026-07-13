@@ -65,3 +65,7 @@ android/app/debug/
 android/keystores/
 *.jks
 *.keystore
+
+# Playwright e2e output (regenerable)
+test-results/
+playwright-report/
