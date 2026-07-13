@@ -34,6 +34,25 @@
   flex-shrink: 0;
   transform: scale(var(--app-scale));
   transform-origin: top center;
+  /* Compensate pre-transform so full-screen content (100vh min-heights,
+     `fixed inset-0` modals/overlays) still renders as exactly one real
+     viewport tall AFTER the scale shrinks it — without this, `min-h-screen`
+     and `fixed inset-0` both resolve against the true device viewport,
+     then get visually squashed by --app-scale, collapsing to a small
+     floating band near the top instead of filling/centering on the
+     screen (the reported "not centered / zoomed" bug). */
+  min-height: calc(100vh / var(--app-scale, 1));
+}
+
+/* `min-h-screen` (Tailwind's `min-height: 100vh`) resolves against the
+   REAL device viewport regardless of any ancestor's size — compensating
+   `.app-shell` alone (above) doesn't help a normal-flow child using it,
+   only `fixed` descendants. Full-screen content (login/splash/loading)
+   needs the same compensation applied directly to itself so it still
+   measures out to exactly one real viewport tall after the shell's
+   transform shrinks it back down. */
+.app-shell .min-h-screen {
+  min-height: calc(100vh / var(--app-scale, 1));
 }
 
 /* ------------------------------------------------------------------ *
