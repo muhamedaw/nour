@@ -145,7 +145,14 @@ export function __setDbForTesting(db: Database): void {
   dbInstance = db;
 }
 
-function runMigrations(db: Database): void {
+/**
+ * `CREATE TABLE IF NOT EXISTS` alone is a silent no-op against an already-
+ * persisted IndexedDB database from an existing install — it never adds a
+ * column to a table that already exists. Every schema change past the
+ * first release must go through `addColumnIfMissing` below instead, or it
+ * will work for fresh installs and crash for everyone already using the app.
+ */
+export function runMigrations(db: Database): void {
   db.run(`
     CREATE TABLE IF NOT EXISTS categories (
       id TEXT PRIMARY KEY,
@@ -190,6 +197,27 @@ function runMigrations(db: Database): void {
     CREATE INDEX IF NOT EXISTS idx_session_items_session ON session_items(session_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
   `);
+
+  // 6-feature update: manual time adjustment, player names, product photos,
+  // "individual item" flag, per-item player attribution.
+  addColumnIfMissing(db, "products", "image_data_url", "TEXT");
+  addColumnIfMissing(db, "products", "highlight_flag", "INTEGER NOT NULL DEFAULT 0");
+  addColumnIfMissing(db, "sessions", "players_json", "TEXT");
+  addColumnIfMissing(db, "sessions", "time_adjustment_seconds", "INTEGER NOT NULL DEFAULT 0");
+  addColumnIfMissing(db, "session_items", "assigned_player", "TEXT");
+}
+
+function columnExists(db: Database, table: string, column: string): boolean {
+  const result = db.exec(`PRAGMA table_info(${table})`);
+  if (result.length === 0) return false;
+  const nameIdx = result[0].columns.indexOf("name");
+  return result[0].values.some((row) => row[nameIdx] === column);
+}
+
+function addColumnIfMissing(db: Database, table: string, column: string, definition: string): void {
+  if (!columnExists(db, table, column)) {
+    db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
 }
 
 /** First-run seed — safe to call every init since it's all `INSERT OR IGNORE`. */

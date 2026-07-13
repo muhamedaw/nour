@@ -76,6 +76,8 @@ export async function openSessionRemote(
 export interface PatchSessionInput {
   items?: SessionItem[];
   label?: string;
+  players?: string[];
+  timeAdjustmentSeconds?: number;
 }
 
 export async function patchSessionRemote(
@@ -84,7 +86,13 @@ export async function patchSessionRemote(
 ): Promise<GroupSession | null> {
   try {
     await ready();
-    return localdb.replaceSessionItemsAndLabel(id, patch.items, patch.label);
+    return localdb.replaceSessionItemsAndLabel(
+      id,
+      patch.items,
+      patch.label,
+      patch.players,
+      patch.timeAdjustmentSeconds,
+    );
   } catch (err) {
     console.warn("[localdb] patchSessionRemote failed", err);
     return null;
@@ -265,6 +273,8 @@ export interface CreateProductInput {
   categoryId: string;
   name: string;
   price: number;
+  imageDataUrl?: string | null;
+  highlightFlag?: boolean;
 }
 
 export async function createProductRemote(
@@ -272,7 +282,10 @@ export async function createProductRemote(
 ): Promise<Product | null> {
   try {
     await ready();
-    return localdb.createProduct(input.categoryId, input.name, input.price);
+    return localdb.createProduct(input.categoryId, input.name, input.price, {
+      imageDataUrl: input.imageDataUrl,
+      highlightFlag: input.highlightFlag,
+    });
   } catch (err) {
     console.warn("[localdb] createProductRemote failed", err);
     return null;
@@ -283,6 +296,8 @@ export interface UpdateProductInput {
   name?: string;
   price?: number;
   categoryId?: string;
+  imageDataUrl?: string | null;
+  highlightFlag?: boolean;
 }
 
 export async function updateProductRemote(

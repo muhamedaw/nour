@@ -12,7 +12,7 @@ import type { AreaConfig, AreaType, Category, GroupSession, Product, SessionItem
 import { exec, getDb, initLocalDb, queryAll, queryOne, replaceDatabase, transaction } from "./db";
 import { encryptBackup, decryptBackup } from "./encryption";
 
-export { initLocalDb, flushPersist, __setDbForTesting } from "./db";
+export { initLocalDb, flushPersist, __setDbForTesting, runMigrations } from "./db";
 
 /** Whole-DB snapshot for the backup/restore flow (components/settings/BackupRestore.tsx). */
 export async function exportDatabaseSnapshot(): Promise<Blob> {
@@ -39,6 +39,8 @@ interface SessionRow {
   status: "open" | "closed";
   billed_total: number | null;
   merged_into: string | null;
+  players_json: string | null;
+  time_adjustment_seconds: number;
 }
 
 interface SessionItemRow {
@@ -48,6 +50,7 @@ interface SessionItemRow {
   name: string;
   price: number;
   qty: number;
+  assigned_player: string | null;
 }
 
 interface ProductRow {
@@ -55,6 +58,8 @@ interface ProductRow {
   category_id: string;
   name: string;
   price: number;
+  image_data_url: string | null;
+  highlight_flag: number;
 }
 
 interface CategoryRow {
@@ -82,15 +87,30 @@ function rowToSession(row: SessionRow, items: SessionItemRow[]): GroupSession {
     items: items.map(rowToSessionItem),
     billedTotal: row.billed_total ?? undefined,
     mergedInto: row.merged_into ?? undefined,
+    players: row.players_json ? (JSON.parse(row.players_json) as string[]) : undefined,
+    timeAdjustmentSeconds: row.time_adjustment_seconds ?? 0,
   };
 }
 
 function rowToSessionItem(row: SessionItemRow): SessionItem {
-  return { productId: row.product_id, name: row.name, price: row.price, qty: row.qty };
+  return {
+    productId: row.product_id,
+    name: row.name,
+    price: row.price,
+    qty: row.qty,
+    assignedPlayer: row.assigned_player ?? undefined,
+  };
 }
 
 function rowToProduct(row: ProductRow): Product {
-  return { id: row.id, categoryId: row.category_id, name: row.name, price: row.price };
+  return {
+    id: row.id,
+    categoryId: row.category_id,
+    name: row.name,
+    price: row.price,
+    imageDataUrl: row.image_data_url ?? undefined,
+    highlightFlag: !!row.highlight_flag,
+  };
 }
 
 function rowToCategory(row: CategoryRow): Category {
@@ -180,7 +200,9 @@ export function deleteSessionItem(sessionId: string, itemId: string): GroupSessi
 export function replaceSessionItemsAndLabel(
   sessionId: string,
   items?: SessionItem[],
-  label?: string
+  label?: string,
+  players?: string[],
+  timeAdjustmentSeconds?: number
 ): GroupSession | null {
   const session = getSessionById(sessionId);
   if (!session) return null;
@@ -190,13 +212,30 @@ export function replaceSessionItemsAndLabel(
       exec("DELETE FROM session_items WHERE session_id = ?", [sessionId]);
       for (const item of items) {
         exec(
-          "INSERT INTO session_items (id, session_id, product_id, name, price, qty) VALUES (?, ?, ?, ?, ?, ?)",
-          [crypto.randomUUID(), sessionId, item.productId, item.name, item.price, item.qty]
+          "INSERT INTO session_items (id, session_id, product_id, name, price, qty, assigned_player) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [
+            crypto.randomUUID(),
+            sessionId,
+            item.productId,
+            item.name,
+            item.price,
+            item.qty,
+            item.assignedPlayer ?? null,
+          ]
         );
       }
     }
     if (label !== undefined) {
       exec("UPDATE sessions SET label = ? WHERE id = ?", [label, sessionId]);
+    }
+    if (players !== undefined) {
+      exec("UPDATE sessions SET players_json = ? WHERE id = ?", [JSON.stringify(players), sessionId]);
+    }
+    if (timeAdjustmentSeconds !== undefined) {
+      exec("UPDATE sessions SET time_adjustment_seconds = ? WHERE id = ?", [
+        timeAdjustmentSeconds,
+        sessionId,
+      ]);
     }
   });
 
@@ -259,8 +298,16 @@ export function mergeSessions(intoSessionId: string, fromSessionId: string): Gro
         exec("UPDATE session_items SET qty = qty + ? WHERE id = ?", [item.qty, existing.id]);
       } else {
         exec(
-          "INSERT INTO session_items (id, session_id, product_id, name, price, qty) VALUES (?, ?, ?, ?, ?, ?)",
-          [crypto.randomUUID(), intoSessionId, item.productId, item.name, item.price, item.qty]
+          "INSERT INTO session_items (id, session_id, product_id, name, price, qty, assigned_player) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [
+            crypto.randomUUID(),
+            intoSessionId,
+            item.productId,
+            item.name,
+            item.price,
+            item.qty,
+            item.assignedPlayer ?? null,
+          ]
         );
       }
     }
@@ -347,33 +394,59 @@ export function listProducts(): Product[] {
   return rows.map(rowToProduct);
 }
 
-export function createProduct(categoryId: string, name: string, price: number): Product {
+export function createProduct(
+  categoryId: string,
+  name: string,
+  price: number,
+  options: { imageDataUrl?: string | null; highlightFlag?: boolean } = {}
+): Product {
   const id = crypto.randomUUID();
-  exec("INSERT INTO products (id, category_id, name, price) VALUES (?, ?, ?, ?)", [
+  const imageDataUrl = options.imageDataUrl ?? null;
+  const highlightFlag = options.highlightFlag ? 1 : 0;
+  exec(
+    "INSERT INTO products (id, category_id, name, price, image_data_url, highlight_flag) VALUES (?, ?, ?, ?, ?, ?)",
+    [id, categoryId, name, price, imageDataUrl, highlightFlag]
+  );
+  return {
     id,
     categoryId,
     name,
     price,
-  ]);
-  return { id, categoryId, name, price };
+    imageDataUrl: imageDataUrl ?? undefined,
+    highlightFlag: !!highlightFlag,
+  };
 }
 
 export function updateProduct(
   id: string,
-  fields: { name?: string; price?: number; categoryId?: string }
+  fields: {
+    name?: string;
+    price?: number;
+    categoryId?: string;
+    imageDataUrl?: string | null;
+    highlightFlag?: boolean;
+  }
 ): Product | null {
   const row = queryOne<ProductRow>("SELECT * FROM products WHERE id = ?", [id]);
   if (!row) return null;
   const name = fields.name ?? row.name;
   const price = fields.price ?? row.price;
   const categoryId = fields.categoryId ?? row.category_id;
-  exec("UPDATE products SET name = ?, price = ?, category_id = ? WHERE id = ?", [
+  const imageDataUrl = fields.imageDataUrl !== undefined ? fields.imageDataUrl : row.image_data_url;
+  const highlightFlag =
+    fields.highlightFlag !== undefined ? (fields.highlightFlag ? 1 : 0) : row.highlight_flag;
+  exec(
+    "UPDATE products SET name = ?, price = ?, category_id = ?, image_data_url = ?, highlight_flag = ? WHERE id = ?",
+    [name, price, categoryId, imageDataUrl, highlightFlag, id]
+  );
+  return {
+    id,
+    categoryId,
     name,
     price,
-    categoryId,
-    id,
-  ]);
-  return { id, categoryId, name, price };
+    imageDataUrl: imageDataUrl ?? undefined,
+    highlightFlag: !!highlightFlag,
+  };
 }
 
 export function deleteProduct(id: string): void {

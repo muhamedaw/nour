@@ -11,6 +11,8 @@ export interface Product {
   categoryId: string;
   name: string;
   price: number;
+  imageDataUrl?: string; // optional photo, client-resized base64 data URL
+  highlightFlag?: boolean; // vivid-color "individual item" product (e.g. cigarettes)
 }
 
 export interface SessionItem {
@@ -18,6 +20,7 @@ export interface SessionItem {
   name: string; // snapshot at time of add, survives later price edits
   price: number; // snapshot
   qty: number;
+  assignedPlayer?: string; // set = billed wholly to this player, excluded from the even split
 }
 
 export interface GroupSession {
@@ -31,6 +34,8 @@ export interface GroupSession {
   items: SessionItem[];
   billedTotal?: number; // set on close
   mergedInto?: string; // set when this session was merged into another (closed, billedTotal=0)
+  players?: string[]; // optional list of player names, purely informational
+  timeAdjustmentSeconds?: number; // cumulative manual time correction, +/-, default 0
 }
 
 export interface AreaConfig {
