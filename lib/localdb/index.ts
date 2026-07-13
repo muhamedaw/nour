@@ -301,8 +301,26 @@ export function mergeSessions(intoSessionId: string, fromSessionId: string): Gro
     if (into.status !== "open" || from.status !== "open") {
       throw new Error("Both sessions must be open to merge");
     }
-    if (into.area !== from.area) {
-      throw new Error("Cannot merge sessions from different areas");
+
+    // Merging across areas absorbs the donor's product items (below), but a
+    // time-tracked donor (e.g. a Snooker table) would otherwise have its
+    // accrued time cost silently vanish — it's not a line item, so the
+    // normal item-merge loop can't carry it over. Fold it in as one
+    // synthetic line item on the target, using the exact same elapsed-time
+    // formula as components/session/bill.ts's computeBill.
+    const donorArea = getAreaSettings(from.area);
+    const mergeTimestamp = Date.now();
+    let timeItem: { name: string; price: number } | null = null;
+    if (donorArea.hourlyRate !== null) {
+      const elapsedMs = Math.max(
+        0,
+        mergeTimestamp - new Date(from.openedAt).getTime() + (from.timeAdjustmentSeconds ?? 0) * 1000
+      );
+      const elapsedMinutes = Math.floor(elapsedMs / 60000);
+      const timeCost = Math.round((elapsedMinutes / 60) * donorArea.hourlyRate * 100) / 100;
+      if (timeCost > 0) {
+        timeItem = { name: `وقت ${donorArea.label} (${elapsedMinutes} د)`, price: timeCost };
+      }
     }
 
     for (const item of from.items) {
@@ -326,6 +344,12 @@ export function mergeSessions(intoSessionId: string, fromSessionId: string): Gro
           ]
         );
       }
+    }
+    if (timeItem) {
+      exec(
+        "INSERT INTO session_items (id, session_id, product_id, name, price, qty, assigned_player) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [crypto.randomUUID(), intoSessionId, crypto.randomUUID(), timeItem.name, timeItem.price, 1, null]
+      );
     }
     exec("DELETE FROM session_items WHERE session_id = ?", [fromSessionId]);
     exec(

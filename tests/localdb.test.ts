@@ -280,6 +280,40 @@ describe("localdb merge + transfer", () => {
     assert.throws(() => localdb.mergeSessions(s.id, s.id));
   });
 
+  it("mergeSessions allows merging across areas and folds the donor's accrued time into a synthetic item", () => {
+    const donor = localdb.createSession("snooker", 60); // hourlyRate 10
+    const target = localdb.createSession("cards", 61); // hourlyRate null
+    localdb.addSessionItem(donor.id, "prod-coffee", 1);
+
+    // Backdate the donor's opened_at 90 minutes so it has real accrued time.
+    const openedAt = new Date(Date.now() - 90 * 60_000).toISOString();
+    testDb.run("UPDATE sessions SET opened_at = ? WHERE id = ?", [openedAt, donor.id]);
+
+    const merged = localdb.mergeSessions(target.id, donor.id);
+
+    // Product item carried over as usual, plus one synthetic time-cost item.
+    assert.equal(merged.items.length, 2);
+    const timeItem = merged.items.find((i) => i.name.startsWith("وقت"));
+    assert.ok(timeItem, "expected a synthetic time-cost item on the target session");
+    assert.equal(timeItem!.name, "وقت Snooker (90 د)");
+    assert.equal(timeItem!.price, 15); // (90/60) * hourlyRate(10)
+    assert.equal(timeItem!.qty, 1);
+
+    const source = localdb.getSessionById(donor.id);
+    assert.equal(source!.status, "closed");
+    assert.equal(source!.mergedInto, target.id);
+  });
+
+  it("mergeSessions across areas skips the synthetic item when the donor's area has no hourly rate", () => {
+    const donor = localdb.createSession("cards", 62); // hourlyRate null
+    const target = localdb.createSession("snooker", 63); // hourlyRate 10
+    localdb.addSessionItem(donor.id, "prod-cards-deck", 1);
+
+    const merged = localdb.mergeSessions(target.id, donor.id);
+    assert.equal(merged.items.length, 1);
+    assert.ok(!merged.items.some((i) => i.name.startsWith("وقت")));
+  });
+
   it("transferSession moves an open session to a different table", () => {
     const s = localdb.createSession("snooker", 55);
     const transferred = localdb.transferSession(s.id, 56);
