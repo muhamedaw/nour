@@ -69,6 +69,29 @@ function argsForDate(
 }
 
 /**
+ * Signed mm:ss formatter for `timeAdjustmentSeconds` shown in history.
+ * Mirrors the shape of `fmtElapsed` from `components/domain.ts` but keeps
+ * the sign (Arabic-minus glyph for nicer mixed-direction typography) and
+ * appends a small Arabic unit "د" (دقيقة).
+ *
+ * Examples:
+ *   fmtSignedElapsed(300)  // "+5:00 د"
+ *   fmtSignedElapsed(-180) // "−3:00 د"
+ *   fmtSignedElapsed(3700) // "+1:01:40 د"
+ */
+function fmtSignedElapsed(seconds: number): string {
+  const sign = seconds >= 0 ? "+" : "\u2212"; // U+2212 Arabic minus glyph
+  const safe = Math.floor(Math.abs(seconds));
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const s = safe % 60;
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return h > 0
+    ? `${sign}${pad(h)}:${pad(m)}:${pad(s)} \u062f`
+    : `${sign}${pad(m)}:${pad(s)} \u062f`;
+}
+
+/**
  * Expandable list of closed sessions.
  *  • Top: area chips + date chips filter row.
  *  • Each row taps to expand into a bill breakdown (line items + total).
@@ -255,6 +278,12 @@ export default function HistoryList() {
                         ))}
                       </ul>
                     )}
+
+                    {/* Close-time annotations — players / time adjustment
+                       / split snapshot. Render only what the session
+                       actually carries; never recompute. */}
+                    <SessionExtras session={s} />
+
                     <div className="mt-4 pt-3 border-t border-espresso-800 flex items-center justify-between text-base">
                       <span className="text-espresso-300">الإجمالي</span>
                       <span className="font-mono font-black text-xl text-espresso-50">
@@ -372,5 +401,102 @@ function Chip({
     >
       {label}
     </button>
+  );
+}
+
+/**
+ * Close-time annotations shown beneath the items list, before the total.
+ * Reads three optional `GroupSession` fields — `players`, `timeAdjustmentSeconds`,
+ * `splitSnapshot` — and renders each only when populated.
+ *
+ * The split snapshot is rendered as-is: per-player label + total as stored
+ * at close time. We intentionally do NOT recompute via `computeSplit` here;
+ * the historical record is the historical record.
+ */
+function SessionExtras({ session }: { session: GroupSession }) {
+  const players = session.players ?? [];
+  const adj = session.timeAdjustmentSeconds ?? 0;
+  const snap = session.splitSnapshot;
+
+  // No annotations? Stay hidden so the empty-state reads cleanly.
+  if (players.length === 0 && adj === 0 && !snap) return null;
+
+  const playerCountLabel =
+    snap && (snap.playerCount === 1 ? "لاعب واحد" : `${snap.playerCount} لاعبين`);
+
+  return (
+    <div className="mt-4 flex flex-col gap-3">
+      {/* Players chip row */}
+      {players.length > 0 && (
+        <div>
+          <div className="text-xs uppercase tracking-widest text-espresso-300 mb-1.5">
+            اللاعبون
+          </div>
+          <ul
+            className="flex flex-wrap gap-1.5"
+            dir="rtl"
+            aria-label="قائمة اللاعبين"
+          >
+            {players.map((p, i) => (
+              <li
+                key={`${p}-${i}`}
+                className="px-3 py-1 rounded-full bg-espresso-800 border border-espresso-700 text-sm text-espresso-100"
+              >
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Time adjustment pill — signed mm:ss (HH:MM:SS if >= 1h) */}
+      {adj !== 0 && (
+        <span
+          className="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full bg-espresso-800 border border-espresso-700 text-sm text-espresso-100 font-mono tabular-nums"
+          title={
+            adj > 0
+              ? "تعديل يدوي موجب على وقت الجلسة"
+              : "تعديل يدوي سالب على وقت الجلسة"
+          }
+        >
+          <span className="text-espresso-300 text-xs uppercase tracking-widest">
+            تعديل وقت
+          </span>
+          <span dir="ltr">{fmtSignedElapsed(adj)}</span>
+        </span>
+      )}
+
+      {/* Stored split snapshot — render verbatim */}
+      {snap && snap.shares.length > 0 && (
+        <div>
+          <div className="text-xs uppercase tracking-widest text-espresso-300 mb-1.5">
+            تقسيم الفاتورة عند الإغلاق
+            {playerCountLabel ? (
+              <span className="text-espresso-400 ms-2">({playerCountLabel})</span>
+            ) : null}
+          </div>
+          <ul className="grid gap-1" aria-label="حساب كل لاعب وقت الإغلاق">
+            {snap.shares.map((share) => (
+              <li
+                key={share.index}
+                className="flex items-center justify-between bg-espresso-900 border border-espresso-800 rounded-2xl px-4 py-2 text-base"
+              >
+                <span className="flex-1 min-w-0 truncate font-bold">
+                  {share.label}
+                  {share.individualTotal > 0 && (
+                    <span className="ms-2 text-xs text-rust-300 font-mono">
+                      (شخصي)
+                    </span>
+                  )}
+                </span>
+                <span className="font-mono tabular-nums text-copper-300 font-bold">
+                  {fmtSAR(share.total)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
