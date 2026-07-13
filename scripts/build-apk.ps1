@@ -52,6 +52,77 @@ if (-not (Test-Path $OutDir)) {
 Write-Host "[2/4] Static export produced at $OutDir"
 Write-Host ""
 
+# --- Step OTA (optional): publish an OTA update bundle to Supabase --------
+# Zips ./out, hashes it, and uploads {version}.zip + a latest.json manifest
+# to the same Supabase Storage bucket the app's hourly cloud backup uses
+# (lib/cloud/backup.ts) — but under app-updates/, and authenticated with a
+# SEPARATE service_role key read only from .env.local (gitignored,
+# developer-machine only). This key must never reach the APK: it only runs
+# here, at build time, on the dev machine — the app itself only ever reads
+# the public, unauthenticated app-updates/latest.json (see lib/cloud/ota.ts)
+# with the low-privilege anon key used for backups, never this one.
+#
+# Skips silently (does not fail the APK build) if .env.local doesn't have
+# OTA publishing configured yet — this is an opt-in feature, not every dev
+# machine needs it wired up to produce a working APK.
+$EnvLocalPath = Join-Path $ProjectRoot ".env.local"
+$OtaEnv = @{}
+if (Test-Path $EnvLocalPath) {
+  Get-Content $EnvLocalPath | ForEach-Object {
+    if ($_ -match '^\s*#' -or $_ -notmatch '=') { return }
+    $parts = $_.Split('=', 2)
+    $OtaEnv[$parts[0].Trim()] = $parts[1].Trim()
+  }
+}
+$OtaUrl = $OtaEnv['SUPABASE_URL']
+$OtaBucket = $OtaEnv['SUPABASE_BUCKET']
+$OtaServiceKey = $OtaEnv['SUPABASE_SERVICE_ROLE_KEY']
+
+if ($OtaUrl -and $OtaBucket -and $OtaServiceKey) {
+  Write-Host "[OTA] Publishing update bundle to Supabase..."
+  # Timestamp-based version — always monotonically increasing across builds
+  # with zero coordination needed against package.json's version field,
+  # so an app on an older bundle always sees a strictly newer one here.
+  $Version = Get-Date -Format "yyyyMMddHHmmss"
+  $ZipPath = Join-Path $ProjectRoot "out-$Version.zip"
+
+  try {
+    if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
+    Compress-Archive -Path "$OutDir\*" -DestinationPath $ZipPath -Force
+    $Sha256 = (Get-FileHash -Path $ZipPath -Algorithm SHA256).Hash.ToLower()
+
+    $BaseUrl = $OtaUrl.TrimEnd('/')
+    $ZipObjectUrl = "$BaseUrl/storage/v1/object/$OtaBucket/app-updates/$Version.zip"
+    $PublicZipUrl = "$BaseUrl/storage/v1/object/public/$OtaBucket/app-updates/$Version.zip"
+    $ManifestObjectUrl = "$BaseUrl/storage/v1/object/$OtaBucket/app-updates/latest.json"
+
+    $Headers = @{
+      "apikey"        = $OtaServiceKey
+      "Authorization" = "Bearer $OtaServiceKey"
+      "x-upsert"      = "true"
+    }
+
+    Invoke-WebRequest -Uri $ZipObjectUrl -Method Put -Headers $Headers `
+      -ContentType "application/zip" -InFile $ZipPath | Out-Null
+
+    $Manifest = @{ version = $Version; url = $PublicZipUrl; sha256 = $Sha256 } | ConvertTo-Json -Compress
+    Invoke-WebRequest -Uri $ManifestObjectUrl -Method Put -Headers $Headers `
+      -ContentType "application/json" -Body $Manifest | Out-Null
+
+    Write-Host "  OK — published version $Version ($Sha256)"
+  } catch {
+    # OTA publishing failure must never fail the APK build itself — the
+    # debug APK is still valid even if the cloud manifest push failed.
+    Write-Warning "OTA publish failed: $($_.Exception.Message)"
+  } finally {
+    if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
+  }
+  Write-Host ""
+} else {
+  Write-Host "[OTA] Skipped — SUPABASE_URL / SUPABASE_BUCKET / SUPABASE_SERVICE_ROLE_KEY not set in .env.local"
+  Write-Host ""
+}
+
 # --- Step 3: Capacitor sync ----------------------------------------------
 Write-Host "[3/4] Running npx cap sync android..."
 $Sync = & npx.cmd cap sync android 2>&1

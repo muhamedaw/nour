@@ -99,7 +99,10 @@ async function putObject(
   }
 }
 
-async function parseSupabaseResponse(res: Response): Promise<SendResult> {
+/** Exported for unit testing the retry/error-mapping logic directly
+ *  against mocked Response objects, without needing a live network call
+ *  or a real sql.js DB (see tests/cloud-backup.test.ts). */
+export async function parseSupabaseResponse(res: Response): Promise<SendResult> {
   if (res.ok) return { ok: true };
   let message = `HTTP ${res.status}`;
   try {
@@ -118,7 +121,8 @@ async function parseSupabaseResponse(res: Response): Promise<SendResult> {
   };
 }
 
-function mapNetworkError(err: unknown): SendResult {
+/** Exported for unit testing — see parseSupabaseResponse's doc comment. */
+export function mapNetworkError(err: unknown): SendResult {
   const e = err as Error & { name?: string };
   if (e?.name === "AbortError") {
     return {
@@ -142,8 +146,8 @@ function mapNetworkError(err: unknown): SendResult {
 
 /** YYYY-MM-DD-HH in local time — one slot per hour, so the rolling
  *  history never grows past 24 objects (today's slots overwrite
- *  yesterday's same-hour slot). */
-function hourlySlot(now: Date = new Date()): string {
+ *  yesterday's same-hour slot). Exported for unit testing. */
+export function hourlySlot(now: Date = new Date()): string {
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");

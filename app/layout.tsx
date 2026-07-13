@@ -4,6 +4,8 @@ import "./globals.css";
 import AuthGate from "@/components/auth/AuthGate";
 import KeepScreenAwake from "@/components/KeepScreenAwake";
 import DailyReporter from "@/components/telegram/DailyReporter";
+import CloudBackupScheduler from "@/components/cloud/CloudBackupScheduler";
+import OtaUpdater from "@/components/cloud/OtaUpdater";
 import NavBar from "./NavBar";
 
 /**
@@ -102,6 +104,8 @@ export default function RootLayout({
               re-enter the password because the screen dimmed. */}
           <KeepScreenAwake />
           <DailyReporter />
+          <CloudBackupScheduler />
+          <OtaUpdater />
           <AuthGate>
             <NavBar />
             {children}
