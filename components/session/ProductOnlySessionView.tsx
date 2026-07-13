@@ -31,12 +31,18 @@ export interface ProductOnlySessionViewProps {
   initialItems: SessionItem[];
   /** Pre-existing customer label, if any. */
   initialLabel?: string;
+  initialPlayers?: string[];
+  /** Accepted but unused — Cards has no clock, so time adjustment is
+   *  never surfaced; kept in the contract so both views share the same
+   *  prop shape and DesktopTableClient can blindly spread. */
+  initialTimeAdjustmentSeconds?: number;
 }
 
 const ITEMS_DEBOUNCE_MS = 400;
 const LABEL_DEBOUNCE_MS = 600;
 
-/** Cards session view (rate=null). Same item/close + modal flow as Timed. */
+/** Cards session view (rate=null). Same item/close + modal flow as Timed,
+ *  minus the clock + time-adjust (Cards doesn't bill by time). */
 export default function ProductOnlySessionView({
   sessionId,
   area,
@@ -44,12 +50,14 @@ export default function ProductOnlySessionView({
   openedAt,
   initialItems,
   initialLabel,
+  initialPlayers,
 }: ProductOnlySessionViewProps) {
   const router = useRouter();
   const areaLabel = getAreaConfig(area).label;
 
   const [items, setItems] = useState<SessionItem[]>(initialItems);
   const [label, setLabel] = useState<string>(initialLabel ?? "");
+  const [players, setPlayers] = useState<string[]>(initialPlayers ?? []);
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closeErrorMessage, setCloseErrorMessage] = useState<string | null>(
@@ -67,8 +75,6 @@ export default function ProductOnlySessionView({
     "loading" | "ok" | "error"
   >("loading");
 
-  // Single-source-of-truth AbortController — referenced by a ref so a retry
-  // call can abort the previous in-flight request before starting a new one.
   const catalogCtrlRef = useRef<AbortController | null>(null);
 
   const loadCatalog = useCallback(() => {
@@ -124,6 +130,23 @@ export default function ProductOnlySessionView({
     return () => clearTimeout(handle);
   }, [label, sessionId, busy]);
 
+  const lastSyncedPlayers = useRef<string[]>(initialPlayers ?? []);
+  const playersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (busy) return;
+    const prev = lastSyncedPlayers.current;
+    const sameLen = prev.length === players.length;
+    const sameOrder = sameLen && players.every((p, i) => p === prev[i]);
+    if (sameOrder) return;
+    const handle = setTimeout(() => {
+      if (busy) return;
+      lastSyncedPlayers.current = players;
+      void patchSessionRemote(sessionId, { players });
+    }, LABEL_DEBOUNCE_MS);
+    playersTimerRef.current = handle;
+    return () => clearTimeout(handle);
+  }, [players, sessionId, busy]);
+
   const breakdown = useMemo(
     () => computeBill(items, openedAt, null, null),
     [items, openedAt],
@@ -147,6 +170,7 @@ export default function ProductOnlySessionView({
     setCloseErrorMessage(null);
     if (itemsTimerRef.current) clearTimeout(itemsTimerRef.current);
     if (labelTimerRef.current) clearTimeout(labelTimerRef.current);
+    if (playersTimerRef.current) clearTimeout(playersTimerRef.current);
     const result = await closeSessionRemote(sessionId, {
       items,
       billedTotal: breakdown.total,
@@ -171,6 +195,8 @@ export default function ProductOnlySessionView({
         elapsedMs={null}
         labelValue={label}
         onLabelChange={setLabel}
+        players={players}
+        onPlayersChange={setPlayers}
       />
 
       <section
@@ -224,6 +250,7 @@ export default function ProductOnlySessionView({
             products={catalog.products}
             items={items}
             onChange={setItems}
+            players={players}
           />
         )}
       </section>
@@ -240,7 +267,14 @@ export default function ProductOnlySessionView({
                 <span className="font-mono text-espresso-300 w-10 text-center">
                   {i.qty}×
                 </span>
-                <span className="flex-1 px-3 font-medium">{i.name}</span>
+                <span className="flex-1 px-3 font-medium">
+                  {i.name}
+                  {i.assignedPlayer && (
+                    <span className="mr-2 px-2 py-0.5 rounded-full bg-rust-700/60 text-rust-100 text-xs font-mono">
+                      {i.assignedPlayer}
+                    </span>
+                  )}
+                </span>
                 <span className="font-mono tabular-nums">
                   {fmtSAR(i.price * i.qty)}
                 </span>
@@ -268,6 +302,7 @@ export default function ProductOnlySessionView({
           busy={busy}
           errorMessage={closeErrorMessage}
           customerLabel={label}
+          players={players}
           onCancel={cancelClose}
           onConfirm={performClose}
         />

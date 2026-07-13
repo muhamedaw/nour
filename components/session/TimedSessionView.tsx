@@ -20,6 +20,7 @@ import ProductPicker from "./ProductPicker";
 import BillSummaryBar from "./BillSummaryBar";
 import SessionHeader from "./SessionHeader";
 import BillConfirmModal from "./BillConfirmModal";
+import TimeAdjustModal from "./TimeAdjustModal";
 import TransferModal from "@/components/settings/TransferModal";
 import MergeModal from "@/components/settings/MergeModal";
 import { useNow } from "./useNow";
@@ -34,6 +35,9 @@ export interface TimedSessionViewProps {
   initialItems: SessionItem[];
   /** Pre-existing customer label, if any. */
   initialLabel?: string;
+  initialPlayers?: string[];
+  /** Cumulative manual time correction in seconds (signed). 0 = none. */
+  initialTimeAdjustmentSeconds?: number;
 }
 
 const ITEMS_DEBOUNCE_MS = 400;
@@ -41,12 +45,14 @@ const LABEL_DEBOUNCE_MS = 600;
 
 /**
  * Snooker / PlayStation session view.
- *  • Live mm:ss clock.
+ *  • Live mm:ss clock (tappable → TimeAdjustModal).
  *  • Category picker with +/- qty (fed live from /api/products).
  *  • Items sync to /api/sessions/[id] (PATCH) on a 400 ms debounce.
- *  • "إغلاق وحساب الفاتورة" opens a BillConfirmModal so the staff can
- *    review the bill. The actual closeSessionRemote POST only fires on
- *    "تأكيد وإغلاق"; Cancel closes the modal with no API call.
+ *  • Customer label + players list sync on a 600 ms debounce.
+ *  • Time-adjust tap-patches immediately (rare + deliberate action).
+ *  • "إغلاق وحساب الفاتورة" opens a BillConfirmModal so staff can
+ *    review bill + split by N. The actual closeSessionRemote POST only
+ *    fires on "تأكيد وإغلاق"; Cancel closes the modal with no API call.
  */
 export default function TimedSessionView({
   sessionId,
@@ -56,6 +62,8 @@ export default function TimedSessionView({
   hourlyRate,
   initialItems,
   initialLabel,
+  initialPlayers,
+  initialTimeAdjustmentSeconds,
 }: TimedSessionViewProps) {
   const router = useRouter();
   const now = useNow(1000);
@@ -63,6 +71,10 @@ export default function TimedSessionView({
 
   const [items, setItems] = useState<SessionItem[]>(initialItems);
   const [label, setLabel] = useState<string>(initialLabel ?? "");
+  const [players, setPlayers] = useState<string[]>(initialPlayers ?? []);
+  const [timeAdjustSec, setTimeAdjustSec] = useState<number>(
+    initialTimeAdjustmentSeconds ?? 0,
+  );
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closeErrorMessage, setCloseErrorMessage] = useState<string | null>(
@@ -70,6 +82,9 @@ export default function TimedSessionView({
   );
   const [showTransfer, setShowTransfer] = useState(false);
   const [showMerge, setShowMerge] = useState(false);
+  const [showTimeAdjust, setShowTimeAdjust] = useState(false);
+  const [adjBusy, setAdjBusy] = useState(false);
+  const [adjError, setAdjError] = useState<string | null>(null);
 
   /* ------------ Live catalog from /api/products ------------ */
   const [catalog, setCatalog] = useState<{
@@ -80,8 +95,6 @@ export default function TimedSessionView({
     "loading" | "ok" | "error"
   >("loading");
 
-  // Single-source-of-truth AbortController — referenced by a ref so a retry
-  // call can abort the previous in-flight request before starting a new one.
   const catalogCtrlRef = useRef<AbortController | null>(null);
 
   const loadCatalog = useCallback(() => {
@@ -137,10 +150,69 @@ export default function TimedSessionView({
     return () => clearTimeout(handle);
   }, [label, sessionId, busy]);
 
-  const elapsedMs = now === null ? null : now - new Date(openedAt).getTime();
+  const lastSyncedPlayers = useRef<string[]>(initialPlayers ?? []);
+  const playersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (busy) return;
+    const prev = lastSyncedPlayers.current;
+    const sameLen = prev.length === players.length;
+    const sameOrder = sameLen && players.every((p, i) => p === prev[i]);
+    if (sameOrder) return;
+    const handle = setTimeout(() => {
+      if (busy) return;
+      lastSyncedPlayers.current = players;
+      void patchSessionRemote(sessionId, { players });
+    }, LABEL_DEBOUNCE_MS);
+    playersTimerRef.current = handle;
+    return () => clearTimeout(handle);
+  }, [players, sessionId, busy]);
+
+  /* ------------ Adjusted elapsed time ------------
+   * Same formula as `computeBill` so the on-screen clock and the bill
+   * never drift. Both branches use `(now - openedAtMs) + adjSec*1000`,
+   * clamped at 0. */
+  const elapsedMs =
+    now === null
+      ? null
+      : Math.max(
+          0,
+          now - new Date(openedAt).getTime() + timeAdjustSec * 1000,
+        );
+
   const breakdown = useMemo(
-    () => computeBill(items, openedAt, now, hourlyRate),
-    [items, openedAt, now, hourlyRate],
+    () => computeBill(items, openedAt, now, hourlyRate, timeAdjustSec),
+    [items, openedAt, now, hourlyRate, timeAdjustSec],
+  );
+
+  /* ------------ Tap-to-adjust time clock ------------
+   * Rare + deliberate → no debounce. Patch with the new cumulative
+   * total immediately. Optimistic update rolls back if the patch fails. */
+  const applyTimeAdjustment = useCallback(
+    async (newTotalSeconds: number) => {
+      setAdjError(null);
+      setAdjBusy(true);
+      // Cancel any pending debounced patches so they don't race the
+      // authoritative PATCH we're sending right now.
+      if (itemsTimerRef.current) clearTimeout(itemsTimerRef.current);
+      if (labelTimerRef.current) clearTimeout(labelTimerRef.current);
+      if (playersTimerRef.current) clearTimeout(playersTimerRef.current);
+      const previous = timeAdjustSec;
+      setTimeAdjustSec(newTotalSeconds);
+      const result = await patchSessionRemote(sessionId, {
+        timeAdjustmentSeconds: newTotalSeconds,
+      });
+      setAdjBusy(false);
+      if (!result) {
+        setAdjError(
+          "تعذّر حفظ تعديل الوقت. تأكّد من الاتصال وحاول مرة أخرى.",
+        );
+        // Roll back optimistic update.
+        setTimeAdjustSec(previous);
+        return;
+      }
+      setShowTimeAdjust(false);
+    },
+    [sessionId, timeAdjustSec],
   );
 
   /* ------------ Close flow: tap → modal → confirm → API ------------ */
@@ -161,6 +233,7 @@ export default function TimedSessionView({
     setCloseErrorMessage(null);
     if (itemsTimerRef.current) clearTimeout(itemsTimerRef.current);
     if (labelTimerRef.current) clearTimeout(labelTimerRef.current);
+    if (playersTimerRef.current) clearTimeout(playersTimerRef.current);
     const result = await closeSessionRemote(sessionId, {
       items,
       billedTotal: breakdown.total,
@@ -173,7 +246,6 @@ export default function TimedSessionView({
       );
       return;
     }
-    // Successful close — modal unmounts because the route changes.
     router.push("/history");
   }, [sessionId, items, breakdown, router]);
 
@@ -186,6 +258,14 @@ export default function TimedSessionView({
         elapsedMs={elapsedMs}
         labelValue={label}
         onLabelChange={setLabel}
+        players={players}
+        onPlayersChange={setPlayers}
+        onClockTap={() => {
+          if (adjBusy) return;
+          setAdjError(null);
+          setShowTimeAdjust(true);
+        }}
+        busy={adjBusy}
       />
 
       <section
@@ -195,7 +275,7 @@ export default function TimedSessionView({
         <button
           type="button"
           onClick={() => setShowTransfer(true)}
-          disabled={busy}
+          disabled={busy || adjBusy}
           className="min-h-[48px] px-4 rounded-2xl bg-espresso-800 hover:bg-espresso-700 disabled:opacity-50 text-espresso-100 text-sm font-bold border border-espresso-700 transition-colors duration-200"
         >
           نقل الطاولة
@@ -203,7 +283,7 @@ export default function TimedSessionView({
         <button
           type="button"
           onClick={() => setShowMerge(true)}
-          disabled={busy}
+          disabled={busy || adjBusy}
           className="min-h-[48px] px-4 rounded-2xl bg-espresso-800 hover:bg-espresso-700 disabled:opacity-50 text-espresso-100 text-sm font-bold border border-espresso-700 transition-colors duration-200"
         >
           دمج مع طاولة أخرى
@@ -239,6 +319,7 @@ export default function TimedSessionView({
             products={catalog.products}
             items={items}
             onChange={setItems}
+            players={players}
           />
         )}
       </section>
@@ -255,7 +336,14 @@ export default function TimedSessionView({
                 <span className="font-mono text-espresso-300 w-10 text-center">
                   {i.qty}×
                 </span>
-                <span className="flex-1 px-3 font-medium">{i.name}</span>
+                <span className="flex-1 px-3 font-medium">
+                  {i.name}
+                  {i.assignedPlayer && (
+                    <span className="mr-2 px-2 py-0.5 rounded-full bg-rust-700/60 text-rust-100 text-xs font-mono">
+                      {i.assignedPlayer}
+                    </span>
+                  )}
+                </span>
                 <span className="font-mono tabular-nums">
                   {fmtSAR(i.price * i.qty)}
                 </span>
@@ -283,8 +371,23 @@ export default function TimedSessionView({
           busy={busy}
           errorMessage={closeErrorMessage}
           customerLabel={label}
+          players={players}
           onCancel={cancelClose}
           onConfirm={performClose}
+        />
+      )}
+
+      {showTimeAdjust && (
+        <TimeAdjustModal
+          currentCumulativeSeconds={timeAdjustSec}
+          busy={adjBusy}
+          errorMessage={adjError}
+          onCancel={() => {
+            if (adjBusy) return;
+            setShowTimeAdjust(false);
+            setAdjError(null);
+          }}
+          onApply={applyTimeAdjustment}
         />
       )}
 
@@ -303,8 +406,6 @@ export default function TimedSessionView({
           currentTableNumber={tableNumber}
           onClose={() => setShowMerge(false)}
           onSuccess={(absorbed) => {
-            // Patch local items so the merged products appear instantly
-            // without a route change / refetch.
             if (absorbed.items) setItems(absorbed.items);
           }}
         />

@@ -35,6 +35,10 @@ type Status =
 
 /**
  * Entry component for the table/[id] route.
+ *
+ * Threads the session's `players` and `timeAdjustmentSeconds` into both
+ * timed + product-only views so the two state splits (time-adjust lives
+ * only on the timed view's clock) share a single shape.
  */
 export default function DesktopTableClient({ id }: { id: string }) {
   return <DesktopTableClientInner id={id} />;
@@ -96,7 +100,6 @@ function DesktopTableClientInner({ id: rawId }: { id: string }) {
         }
       }
       // Fall-through: either the listing call failed, or the open POST failed.
-      // Try once more — maybe the listing endpoint is flaky but open works.
       if (!cancelled) {
         const created = await openSessionRemote(
           decoded.area,
@@ -150,6 +153,8 @@ function DesktopTableClientInner({ id: rawId }: { id: string }) {
   const session = status.session;
   const initialItems = viewItems(session);
   const initialLabel = session.label ?? "";
+  const initialPlayers = session.players ?? [];
+  const initialTimeAdjustmentSeconds = session.timeAdjustmentSeconds ?? 0;
 
   if (hourlyRate === null) {
     return (
@@ -160,6 +165,8 @@ function DesktopTableClientInner({ id: rawId }: { id: string }) {
         openedAt={session.openedAt}
         initialItems={initialItems}
         initialLabel={initialLabel}
+        initialPlayers={initialPlayers}
+        initialTimeAdjustmentSeconds={initialTimeAdjustmentSeconds}
       />
     );
   }
@@ -172,6 +179,8 @@ function DesktopTableClientInner({ id: rawId }: { id: string }) {
       hourlyRate={hourlyRate}
       initialItems={initialItems}
       initialLabel={initialLabel}
+      initialPlayers={initialPlayers}
+      initialTimeAdjustmentSeconds={initialTimeAdjustmentSeconds}
     />
   );
 }
