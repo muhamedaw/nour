@@ -3,6 +3,7 @@ import CloudBackupSettings from "@/components/settings/CloudBackupSettings";
 import SavedReports from "@/components/settings/SavedReports";
 import SettingsView from "@/components/settings/SettingsView";
 import TelegramSettings from "@/components/settings/TelegramSettings";
+import TuyaSettings from "@/components/settings/TuyaSettings";
 
 export const metadata = {
   title: "إعدادات المناطق | مقهى ترف",
@@ -21,6 +22,7 @@ export default function SettingsPage() {
       <SettingsView />
       <BackupRestore />
       <TelegramSettings />
+      <TuyaSettings />
       <CloudBackupSettings />
       <SavedReports />
     </main>

@@ -14,6 +14,7 @@ const LINKS: NavLink[] = [
   { href: "/history", label: "السجل" },
   { href: "/products", label: "المنتجات" },
   { href: "/dashboard", label: "لوحة التحكم" },
+  { href: "/ac", label: "تكييف" },
   { href: "/settings", label: "الإعدادات" },
 ];
 
