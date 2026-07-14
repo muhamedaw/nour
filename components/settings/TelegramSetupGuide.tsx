@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import ModalPortal from "@/components/ModalPortal";
 
 interface Props {
   open: boolean;
@@ -93,13 +94,13 @@ export default function TelegramSetupGuide({
   if (!open) return null;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="tg-guide-title"
-      aria-describedby="tg-guide-desc"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
+    <ModalPortal
+      align="center"
+      backdropClassName="bg-black/70 backdrop-blur-sm"
+      paddingClassName="p-3 md:p-4"
+      ariaLabelledBy="tg-guide-title"
+      ariaDescribedBy="tg-guide-desc"
+      onBackdropClick={onClose}
     >
       <div
         ref={dialogRef}
@@ -311,7 +312,7 @@ export default function TelegramSetupGuide({
           </button>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import ModalPortal from "@/components/ModalPortal";
 import { fmtSAR } from "@/components/domain";
 import { computeSplit, type BillBreakdown } from "./bill";
 import type { SessionItem } from "@/lib/types";
@@ -181,13 +182,11 @@ export default function BillConfirmModal({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="bill-confirm-title"
-      dir="rtl"
-      className="fixed inset-0 z-50 bg-espresso-950/85 flex items-end md:items-center justify-center p-0 md:p-4 print:bg-transparent animate-reveal-up motion-reduce:animate-none"
-      onClick={(e) => {
+    <ModalPortal
+      align="sheet"
+      backdropClassName="bg-espresso-950/85 print:bg-transparent animate-reveal-up motion-reduce:animate-none"
+      ariaLabelledBy="bill-confirm-title"
+      onBackdropClick={(e) => {
         if (e.target === e.currentTarget && !busy) onCancel();
       }}
     >
@@ -457,6 +456,6 @@ export default function BillConfirmModal({
           </button>
         </footer>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

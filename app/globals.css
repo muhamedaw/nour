@@ -34,25 +34,47 @@
   flex-shrink: 0;
   transform: scale(var(--app-scale));
   transform-origin: top center;
-  /* Compensate pre-transform so full-screen content (100vh min-heights,
-     `fixed inset-0` modals/overlays) still renders as exactly one real
-     viewport tall AFTER the scale shrinks it — without this, `min-h-screen`
-     and `fixed inset-0` both resolve against the true device viewport,
-     then get visually squashed by --app-scale, collapsing to a small
-     floating band near the top instead of filling/centering on the
-     screen (the reported "not centered / zoomed" bug). */
-  min-height: calc(100vh / var(--app-scale, 1));
 }
 
 /* `min-h-screen` (Tailwind's `min-height: 100vh`) resolves against the
-   REAL device viewport regardless of any ancestor's size — compensating
-   `.app-shell` alone (above) doesn't help a normal-flow child using it,
-   only `fixed` descendants. Full-screen content (login/splash/loading)
-   needs the same compensation applied directly to itself so it still
-   measures out to exactly one real viewport tall after the shell's
-   transform shrinks it back down. */
+   REAL device viewport regardless of any ancestor's size — a normal-flow
+   child using it needs the same compensation applied directly to itself
+   so it still measures out to exactly one real viewport tall after the
+   shell's transform shrinks it back down. Scoped to `.min-h-screen`
+   specifically (not a blanket rule on `.app-shell` itself) — only
+   AuthGate's loading/locked/reauth states and SplashIntro use this class;
+   forcing it onto `.app-shell` unconditionally used to inflate EVERY
+   page's scrollable height by ~1/--app-scale (~2.5-2.9x on phones),
+   which read as "the page scrolls forever into a black void". */
 .app-shell .min-h-screen {
   min-height: calc(100vh / var(--app-scale, 1));
+}
+
+/* ModalPortal scale-canvas (components/ModalPortal.tsx) — same phone-fit
+   rescale trick as .app-shell itself, applied to a 1024px design-space box
+   portaled to document.body (same reason BillSummaryBar.tsx/OtaUpdater.tsx
+   portal their own fixed bars — see ModalPortal.tsx's header comment).
+   Default pivot is the box's own center (always-centered dialogs shrink
+   symmetrically). The --sheet variant is for dialogs that are a bottom
+   sheet on phones (items-end) and centered at md+ (md:items-center):
+   below the md breakpoint the pivot must be the BOTTOM edge so the sheet
+   stays flush with the real screen bottom as it shrinks. */
+.modal-portal-canvas {
+  transform-origin: center center;
+}
+@media (max-width: 767.98px) {
+  .modal-portal-canvas--sheet {
+    transform-origin: bottom center;
+  }
+}
+
+/* max-h-[92vh] on a dialog card resolves against the TRUE device viewport
+   (vh ignores ancestor transforms) — inside a scaled canvas this collapses
+   to ~92vh * --app-scale of real screen space (~34vh on a typical phone)
+   instead of the intended 92vh. Compensate exactly like the
+   .app-shell .min-h-screen rule above does for the same underlying reason. */
+.modal-portal-canvas .max-h-\[92vh\] {
+  max-height: calc(92vh / var(--app-scale, 1));
 }
 
 /* ------------------------------------------------------------------ *

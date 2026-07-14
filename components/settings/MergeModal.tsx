@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ModalPortal from "@/components/ModalPortal";
 import {
   fetchSessions,
   mergeSessionRemote,
@@ -101,13 +102,11 @@ export default function MergeModal({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="merge-modal-title"
-      dir="rtl"
-      className="fixed inset-0 z-50 bg-black/80 flex items-end md:items-center justify-center p-0 md:p-4"
-      onClick={(e) => {
+    <ModalPortal
+      align="sheet"
+      backdropClassName="bg-black/80"
+      ariaLabelledBy="merge-modal-title"
+      onBackdropClick={(e) => {
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
@@ -179,7 +178,7 @@ export default function MergeModal({
           </button>
         </footer>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

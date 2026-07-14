@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import ModalPortal from "@/components/ModalPortal";
 
 /**
  * Tap-to-adjust-time modal.
@@ -132,13 +133,11 @@ export default function TimeAdjustModal({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="time-adjust-title"
-      dir="rtl"
-      className="fixed inset-0 z-50 bg-espresso-950/85 flex items-end md:items-center justify-center p-0 md:p-4"
-      onClick={(e) => {
+    <ModalPortal
+      align="sheet"
+      backdropClassName="bg-espresso-950/85"
+      ariaLabelledBy="time-adjust-title"
+      onBackdropClick={(e) => {
         if (e.target === e.currentTarget && !busy) onCancel();
       }}
     >
@@ -275,6 +274,6 @@ export default function TimeAdjustModal({
           </button>
         </footer>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
