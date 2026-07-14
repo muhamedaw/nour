@@ -22,19 +22,19 @@
  */
 
 import { Preferences } from "@capacitor/preferences";
+import {
+  EMPTY_BODY_SHA256,
+  signRequest,
+  type SignOptions,
+  type SignedRequest,
+  type TuyaConfig,
+  type TuyaRegion,
+} from "./tuya-sign";
 
-/* ------------------------------------------------------------------------ */
-/* Public types                                                             */
-/* ------------------------------------------------------------------------ */
-
-export type TuyaRegion = "us" | "eu" | "cn" | "in";
-
-export interface TuyaConfig {
-  accessId: string;
-  accessSecret: string;
-  apiBase: string;
-  region: TuyaRegion;
-}
+// Re-export so callers (TuyaSettings.tsx, app/ac/page.tsx) keep importing
+// from "lib/cloud/tuya" without caring which file a symbol now lives in.
+export type { TuyaRegion, TuyaConfig, SignOptions, SignedRequest } from "./tuya-sign";
+export { EMPTY_BODY_SHA256 };
 
 export const TUYA_REGIONS: Record<
   TuyaRegion,
@@ -78,204 +78,9 @@ export type TuyaResult<T> =
 /* Constants                                                                */
 /* ------------------------------------------------------------------------ */
 
-/** SHA-256 of the empty string — Tuya requires this literal hash when a
- *  request has no body (any GET, or a POST with an empty body). */
-const EMPTY_BODY_SHA256 =
-  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-
 // Refresh ~5 min before the Tuya-reported expiry. Buffer absorbs both
 // network latency and POS clock drift between the device and the cloud.
 const REFRESH_LEAD_MS = 5 * 60 * 1000;
-
-/* ------------------------------------------------------------------------ */
-/* Byte + crypto helpers (no external deps)                                 */
-/* ------------------------------------------------------------------------ */
-
-const utf8 = (s: string): Uint8Array => new TextEncoder().encode(s);
-
-/**
- * Web Crypto's TS 5.6 typings narrow `BufferSource` to ArrayBufferView
- * over an `ArrayBuffer` specifically; `TextEncoder.encode()` returns
- * `Uint8Array<ArrayBufferLike>` (a `SharedArrayBuffer`-compatible union)
- * which fails assignment semantics on the stricter surface.
- *
- * `.slice()` always returns a brand-new `ArrayBuffer` (`SharedArrayBuffer`
- * has no `.slice`) — this gives us a guaranteed-non-shared, non-shared
- * sized buffer that satisfies `BufferSource`. Doing it once here means
- * the call sites below can pass the bytes through with no casts.
- */
-function copyAsArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  // Runtime is always a plain ArrayBuffer here (TextEncoder.encode() and
-  // sql.js/crypto byte arrays never wrap a SharedArrayBuffer) — the cast
-  // just resolves a TS 5.6 typings gap where `.buffer` widens to
-  // `ArrayBufferLike` and `.slice()` doesn't re-narrow it back down.
-  return bytes.buffer.slice(
-    bytes.byteOffset,
-    bytes.byteOffset + bytes.byteLength,
-  ) as ArrayBuffer;
-}
-
-function bytesToHexUpper(buf: ArrayBuffer): string {
-  const u8 = new Uint8Array(buf);
-  let out = "";
-  for (let i = 0; i < u8.length; i++) {
-    // padStart is critical — mishaped "a" instead of "0a" fails Tuya's
-    // signature check without an obvious error.
-    out += u8[i].toString(16).padStart(2, "0");
-  }
-  return out.toUpperCase();
-}
-
-async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", copyAsArrayBuffer(bytes));
-  return bytesToHexUpper(buf);
-}
-
-async function hmacSha256Hex(
-  message: string,
-  secretBytes: Uint8Array,
-): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    copyAsArrayBuffer(secretBytes),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    copyAsArrayBuffer(utf8(message)),
-  );
-  return bytesToHexUpper(sig);
-}
-
-function pickNonce(): string {
-  // crypto.randomUUID is fully available in modern WebViews + Chromium 92+.
-  // Fallback is a 75-bit entropy string if for some reason it's missing.
-  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
-  return (
-    Math.random().toString(36).slice(2) +
-    Date.now().toString(36) +
-    Math.random().toString(36).slice(2)
-  );
-}
-
-/**
- * Sort query string parameters alphabetically by key (Tuya requirement
- * for the canonical `Url` line in the string-to-sign). URLSearchParams
- * already decodes both sides; we re-encode with encodeURIComponent to
- * normalise any odd whitespace (`+` vs `%20`) that can sneak in.
- */
-function canonicalQuery(q: Record<string, string>): string {
-  const entries = Object.entries(q).sort(([a], [b]) => a.localeCompare(b));
-  return entries
-    .map(
-      ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-    )
-    .join("&");
-}
-
-/* ------------------------------------------------------------------------ */
-/* Signer                                                                   */
-/* ------------------------------------------------------------------------ */
-
-interface SignOptions {
-  method: "GET" | "POST";
-  path: string;
-  query?: Record<string, string>;
-  body?: unknown;
-  /** Provided = "service-management" call, NOT a token-grant call. */
-  accessToken?: string;
-}
-
-interface SignedRequest {
-  method: "GET" | "POST";
-  url: string;
-  headers: Record<string, string>;
-  body?: string;
-}
-
-/**
- * Sign a Tuya OpenAPI request and yield the ready-to-fetch descriptor.
- *
- *  stringToSign = METHOD + "\n" + Content-SHA256 + "\n" + Headers + "\n" + Url
- *  Headers      = only the headers involved in signing (client_id, t, nonce,
- *                 access_token if set), lowercased keys, alphabetical order,
- *                 joined as `key:value\n` blocks (terminating newline is part
- *                 of the spec — kept even if no headers).
- *  Url          = path + (sortedQueryParams ? "?" + sortedQueryParams : "")
- *
- *  For TOKEN endpoints (no accessToken): HMAC input =
- *      client_id + t + nonce + stringToSign
- *  For SERVICE-MGMT (accessToken present): HMAC input =
- *      client_id + access_token + t + nonce + stringToSign
- *
- *  Result hex is uppercase (lowercase on Tuya's side is rejected silently).
- */
-async function signRequest(
-  config: TuyaConfig,
-  opts: SignOptions,
-): Promise<SignedRequest> {
-  const method = opts.method.toUpperCase();
-  const queryStr = canonicalQuery(opts.query ?? {});
-  const url = opts.path + (queryStr ? `?${queryStr}` : "");
-
-  const bodyText =
-    opts.body !== undefined && opts.body !== null
-      ? JSON.stringify(opts.body)
-      : "";
-  const bodyHash = bodyText ? await sha256Hex(utf8(bodyText)) : EMPTY_BODY_SHA256;
-
-  const t = Date.now().toString();
-  const nonce = pickNonce();
-
-  // Headers involved in the signature (only these appear in the `Headers`
-  // block of stringToSign). Always lowercase key — sort by that.
-  const signingHeaders: Record<string, string> = {
-    client_id: config.accessId,
-    t,
-    nonce,
-  };
-  if (opts.accessToken) {
-    signingHeaders.access_token = opts.accessToken;
-  }
-  const headerKeys = Object.keys(signingHeaders).sort();
-  const headersLine =
-    headerKeys.map((k) => `${k}:${signingHeaders[k]}`).join("\n") + "\n";
-
-  const stringToSign = `${method}\n${bodyHash}\n${headersLine}${url}`;
-
-  // HMAC input order matters — exactly as documented.
-  const signInput =
-    config.accessId +
-    (opts.accessToken ?? "") +
-    t +
-    nonce +
-    stringToSign;
-  const sign = await hmacSha256Hex(signInput, utf8(config.accessSecret));
-
-  const reqHeaders: Record<string, string> = {
-    client_id: config.accessId,
-    sign,
-    sign_method: "HMAC-SHA256",
-    t,
-    nonce,
-  };
-  if (bodyText) {
-    reqHeaders["Content-Type"] = "application/json";
-  }
-  if (opts.accessToken) {
-    reqHeaders.access_token = opts.accessToken;
-  }
-
-  return {
-    method: opts.method,
-    url: config.apiBase + url,
-    headers: reqHeaders,
-    body: bodyText || undefined,
-  };
-}
 
 /* ------------------------------------------------------------------------ */
 /* HTTP transport                                                           */

@@ -84,3 +84,59 @@ test("merge playstation table 2 into table 1", async ({ page }) => {
   await login(page);
   await runMergeFlow(page, "playstation");
 });
+
+/**
+ * Cross-area merge: snooker (hourly) → cards (product-only).
+ *
+ * The mergeSessions function must convert the donor's accrued time cost
+ * into a synthetic line item ("وقت سنوكر (X د)") that lands on the
+ * absorbing session — otherwise staff lose billable time.
+ *
+ * We open a snooker table, wait 70s so elapsedMinutes >= 1 (rate=10/hr,
+ * clamp to 2dp: 1/60*10 ≈ 0.17 SAR → non-zero), then merge into a
+ * cards table and verify the time item appears.
+ */
+test("merge snooker table into cards table preserves accrued time as a line item", async ({ page }) => {
+  test.setTimeout(240_000); // 4 min — the 70s real wait is inside
+  await login(page);
+
+  // Open snooker table 7 (tables 1-2 used by sibling tests)
+  await openTable(page, "snooker", 7);
+
+  // Wait for real elapsed time so mergeSessions produces a non-zero
+  // synthetic time-cost line item.  70s → elapsedMinutes=1 → 0.17 SAR.
+  await page.waitForTimeout(70_000);
+
+  // Navigate to floor, open cards table 5 (cards has 6 tables max)
+  await goToFloor(page);
+  await openTable(page, "cards", 5);
+
+  // Click merge button
+  const mergeBtn = page.locator('button:has-text("دمج مع طاولة أخرى")');
+  await expect(mergeBtn).toBeVisible({ timeout: 10_000 });
+  await mergeBtn.click();
+
+  // The donor picker now lists sessions across ALL areas, each row
+  // labelled with area name + table number.  Pick the snooker donor.
+  const snookerDonor = page.locator(
+    '[role="dialog"] button:has-text("Snooker"):has-text("7")',
+  );
+  await expect(snookerDonor).toBeVisible({ timeout: 10_000 });
+  await snookerDonor.click();
+
+  // Confirm merge
+  await page
+    .locator('[role="dialog"] button:has-text("تأكيد الدمج")')
+    .click();
+  await page.waitForSelector('[role="dialog"]', {
+    state: "detached",
+    timeout: 10_000,
+  });
+
+  // Assert: the resulting session shows a line item whose name contains
+  // "وقت" and "Snooker" — proving the accrued time was preserved as a
+  // synthetic line item.
+  await expect(
+    page.getByText(/وقت.*Snooker/).first(),
+  ).toBeVisible({ timeout: 10_000 });
+});
