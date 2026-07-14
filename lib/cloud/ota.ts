@@ -17,6 +17,7 @@
  */
 
 import { CapacitorUpdater } from "@capgo/capacitor-updater";
+import { isNewerVersion } from "./ota-version";
 
 export interface OtaConfig {
   supabaseUrl: string;
@@ -34,6 +35,19 @@ export type CheckResult =
   | { status: "updated"; version: string; bundleId: string }
   | { status: "error"; message: string };
 
+/**
+ * Surface-area wrapper around the @capgo/capacitor-updater plugin so tests
+ * can inject a fake without pulling in the native module (which throws
+ * outside a Capacitor runtime). Wraps the two plugin calls this module
+ * makes (`current` reads the live bundle version, `download` pulls a new
+ * bundle and validates the caller-supplied checksum against the bytes
+ * downloaded — a mismatch raises, which we surface as a download error).
+ */
+export interface UpdaterClient {
+  current(): Promise<{ bundle: { version: string } }>;
+  download(opts: { url: string; version: string; checksum: string }): Promise<{ id: string }>;
+}
+
 const OTA_TIMEOUT_MS = 30_000;
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
@@ -46,34 +60,22 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
   }
 }
 
-function manifestUrl(config: OtaConfig): string {
+/** Builds the public Storage URL for the update manifest — exported so the
+ *  URL shape itself is testable without touching the network. */
+export function manifestUrl(config: OtaConfig): string {
   return `${config.supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/${config.bucket}/app-updates/latest.json`;
 }
 
-/**
- * Compares two version strings segment-by-segment as numbers (handles
- * "1.2.3"-style semver). Falls back to a plain string inequality check if
- * either side has a non-numeric segment (e.g. a build script ever switches
- * to timestamp-style versions like "20260714120000") — either way, `b` only
- * counts as newer than `a` when it's unambiguously greater.
- */
-function isNewerVersion(current: string, candidate: string): boolean {
-  const a = current.split(".");
-  const b = candidate.split(".");
-  const numericA = a.map(Number);
-  const numericB = b.map(Number);
-  if (numericA.every((n) => !Number.isNaN(n)) && numericB.every((n) => !Number.isNaN(n))) {
-    const len = Math.max(numericA.length, numericB.length);
-    for (let i = 0; i < len; i++) {
-      const x = numericA[i] ?? 0;
-      const y = numericB[i] ?? 0;
-      if (y > x) return true;
-      if (y < x) return false;
-    }
-    return false;
-  }
-  return candidate > current;
-}
+const defaultClient: UpdaterClient = {
+  current: async () => {
+    const { bundle } = await CapacitorUpdater.current();
+    return { bundle };
+  },
+  download: (opts) => CapacitorUpdater.download(opts),
+};
+
+const defaultFetcher = (url: string): Promise<Response> =>
+  fetchWithTimeout(url, OTA_TIMEOUT_MS);
 
 /**
  * Applies a previously-downloaded bundle (destroys the current JS context
@@ -91,10 +93,22 @@ export async function applyUpdate(bundleId: string): Promise<void> {
  * tampered download throws instead of silently installing) and returns
  * "updated" with the new bundle already downloaded (but not yet applied
  * — see OtaUpdater.tsx for why).
+ *
+ * `client` and `fetcher` are injected so tests can cover every branch
+ * without loading the native Capacitor plugin. The runtime callers pass
+ * nothing and get the real CapacitorUpdater-backed default client.
  */
-export async function checkForUpdate(config: OtaConfig): Promise<CheckResult> {
+export async function checkForUpdate(
+  config: OtaConfig,
+  deps: {
+    client?: UpdaterClient;
+    fetcher?: (url: string) => Promise<Response>;
+  } = {}
+): Promise<CheckResult> {
+  const client = deps.client ?? defaultClient;
+  const fetcher = deps.fetcher ?? defaultFetcher;
   try {
-    const res = await fetchWithTimeout(manifestUrl(config), OTA_TIMEOUT_MS);
+    const res = await fetcher(manifestUrl(config));
     if (!res.ok) {
       return { status: "error", message: `HTTP ${res.status}` };
     }
@@ -103,12 +117,12 @@ export async function checkForUpdate(config: OtaConfig): Promise<CheckResult> {
       return { status: "error", message: "بيان التحديث غير صالح." };
     }
 
-    const { bundle: current } = await CapacitorUpdater.current();
+    const { bundle: current } = await client.current();
     if (!isNewerVersion(current.version, manifest.version)) {
       return { status: "up-to-date" };
     }
 
-    const downloaded = await CapacitorUpdater.download({
+    const downloaded = await client.download({
       url: manifest.url,
       version: manifest.version,
       checksum: manifest.sha256,

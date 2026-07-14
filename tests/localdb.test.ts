@@ -314,6 +314,60 @@ describe("localdb merge + transfer", () => {
     assert.ok(!merged.items.some((i) => i.name.startsWith("وقت")));
   });
 
+  it("mergeSessions adds positive timeAdjustmentSeconds to the synthetic time item", () => {
+    const donor = localdb.createSession("snooker", 64); // hourlyRate 10
+    const target = localdb.createSession("cards", 65);
+    localdb.addSessionItem(donor.id, "prod-coffee", 1);
+
+    // 30 minutes natural elapsed, +600s adjustment = 40 minutes total
+    const openedAt = new Date(Date.now() - 30 * 60_000).toISOString();
+    testDb.run("UPDATE sessions SET opened_at = ?, time_adjustment_seconds = ? WHERE id = ?", [
+      openedAt, 600, donor.id,
+    ]);
+
+    const merged = localdb.mergeSessions(target.id, donor.id);
+    const timeItem = merged.items.find((i) => i.name.startsWith("وقت"));
+    assert.ok(timeItem);
+    assert.equal(timeItem!.name, "وقت Snooker (40 د)");
+    // (40/60) * 10 ≈ 6.67
+    assert.equal(timeItem!.price, 6.67);
+  });
+
+  it("mergeSessions negative timeAdjustmentSeconds reduces elapsed time (still positive)", () => {
+    const donor = localdb.createSession("snooker", 66); // hourlyRate 10
+    const target = localdb.createSession("cards", 67);
+    localdb.addSessionItem(donor.id, "prod-coffee", 1);
+
+    // 60 minutes natural elapsed, -1200s adjustment = 40 minutes
+    const openedAt = new Date(Date.now() - 60 * 60_000).toISOString();
+    testDb.run("UPDATE sessions SET opened_at = ?, time_adjustment_seconds = ? WHERE id = ?", [
+      openedAt, -1200, donor.id,
+    ]);
+
+    const merged = localdb.mergeSessions(target.id, donor.id);
+    const timeItem = merged.items.find((i) => i.name.startsWith("وقت"));
+    assert.ok(timeItem);
+    assert.equal(timeItem!.name, "وقت Snooker (40 د)");
+    assert.equal(timeItem!.price, 6.67);
+  });
+
+  it("mergeSessions large negative timeAdjustmentSeconds clamps elapsed to zero (no time item)", () => {
+    const donor = localdb.createSession("snooker", 68); // hourlyRate 10
+    const target = localdb.createSession("cards", 69);
+    localdb.addSessionItem(donor.id, "prod-coffee", 1);
+
+    // 10 minutes natural elapsed, -3600s adjustment → Math.max(0, …) = 0
+    const openedAt = new Date(Date.now() - 10 * 60_000).toISOString();
+    testDb.run("UPDATE sessions SET opened_at = ?, time_adjustment_seconds = ? WHERE id = ?", [
+      openedAt, -3600, donor.id,
+    ]);
+
+    const merged = localdb.mergeSessions(target.id, donor.id);
+    // Only the product item, no synthetic time item
+    assert.equal(merged.items.length, 1);
+    assert.ok(!merged.items.some((i) => i.name.startsWith("وقت")));
+  });
+
   it("transferSession moves an open session to a different table", () => {
     const s = localdb.createSession("snooker", 55);
     const transferred = localdb.transferSession(s.id, 56);
