@@ -1,6 +1,19 @@
 ext {
-    minSdkVersion = 22
-    compileSdkVersion = 34
+    // @capgo/capacitor-updater transitively pulls in
+    // com.google.android.gms:play-services-tasks:18.4.1, whose manifest
+    // hard-requires minSdk 23+ (manifest merger fails otherwise — this
+    // isn't optional/tunable). Android 5.x (API 21-22) is being dropped;
+    // by 2026 that's negligible real-world device share.
+    minSdkVersion = 23
+    // @capgo/capacitor-updater pulls in androidx.work:work-runtime:2.10.5,
+    // whose AAR metadata hard-requires compiling against API 35+ (this is
+    // the library's own requirement, unrelated to AGP's separately-printed
+    // "recommended max for AGP 8.2.1 is 34" warning — that warning doesn't
+    // block the build; the version-35 AAR check does). Only compileSdk
+    // needs to move — it's a compile-time API surface, not a runtime
+    // behavior opt-in like targetSdk, so bumping it alone is the minimal
+    // correct fix.
+    compileSdkVersion = 36
     targetSdkVersion = 34
     androidxActivityVersion = '1.8.0'
     androidxAppCompatVersion = '1.6.1'
