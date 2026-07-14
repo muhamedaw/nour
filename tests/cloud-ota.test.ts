@@ -172,16 +172,10 @@ describe("checkForUpdate — HTTP failure modes", () => {
 
 describe("checkForUpdate — malformed manifest body", () => {
   it("returns error when manifest.body is not valid JSON", async () => {
-    // The fetcher returns a 200 Response whose .json() throws — mirrors a
-    // partially-truncated upload landing on the CDN.
-    const fetcher = async () =>
-      ({
-        ok: true,
-        status: 200,
-        json: async () => {
-          throw new SyntaxError("Unexpected token < in JSON at position 0");
-        },
-      } as Response);
+    // The fetcher returns a 200 Response whose body is genuinely malformed
+    // JSON — a real Response's own .json() throws on it exactly like a
+    // partially-truncated upload landing on the CDN would.
+    const fetcher = staticFetcher(new Response("<html>not json</html>", { status: 200 }));
 
     const result = await checkForUpdate(BASE_CONFIG, { fetcher, client: fakeClient() });
     assert.equal(result.status, "error");
