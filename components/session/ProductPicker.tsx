@@ -177,14 +177,6 @@ export default function ProductPicker({
                     {fmtSAR(p.price)}
                   </span>
                 </div>
-                {p.imageDataUrl && (
-                  <img
-                    src={p.imageDataUrl}
-                    alt=""
-                    className="w-full h-20 object-contain bg-espresso-900 rounded-xl border border-espresso-800"
-                    loading="lazy"
-                  />
-                )}
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   {isHighlight && (
                     <span className="px-2 py-0.5 rounded-full bg-rust-600 text-espresso-50 text-xs font-extrabold uppercase tracking-widest">
