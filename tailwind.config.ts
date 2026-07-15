@@ -7,27 +7,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Whole app runs 4% *smaller* than Tailwind's defaults (was 20%
-      // smaller; bumped +1.2x here per legibility feedback — still reads
-      // slightly tighter than stock Tailwind, no longer oversized-feeling
-      // at arm's length but small text was hard to read). Overriding
-      // these keys here cascades to every text-* class already used
-      // throughout the app instead of editing every component.
-      fontSize: {
-        xs: "0.72rem",
-        sm: "0.84rem",
-        base: "0.96rem",
-        lg: "1.08rem",
-        xl: "1.2rem",
-        "2xl": "1.44rem",
-        "3xl": "1.8rem",
-        "4xl": "2.16rem",
-        "5xl": "2.88rem",
-        "6xl": "3.6rem",
-        "7xl": "4.32rem",
-        "8xl": "5.76rem",
-        "9xl": "7.68rem",
-      },
       colors: {
         // Warm dark-roast neutral ramp — replaces Tailwind's cold `neutral`.
         // 950 = deepest background, 50 = cream primary text.

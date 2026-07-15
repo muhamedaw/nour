@@ -8,17 +8,24 @@
  *  The app is designed at the Tailwind `lg` breakpoint (1024px). On a
  *  tablet (≥1024px CSS px, portrait or landscape) this is a no-op and
  *  renders 1:1. On a phone (360–430px) the whole UI is uniformly scaled
- *  down via CSS `transform: scale(--app-scale)` so every component keeps
- *  its original pixel sizes — no reflow, no per-component redesign,
- *  text/buttons/numbers stay exactly as designed, just smaller-on-screen.
+ *  down via CSS `zoom: --app-scale` so every component keeps its original
+ *  pixel sizes — no reflow, no per-component redesign, text/buttons/
+ *  numbers stay exactly as designed, just smaller-on-screen.
  *
  *  `--app-base-w` is set by an inline script in <head> (see app/layout.tsx)
  *  to 1024px and `--app-scale` to `min(1, innerWidth/1024)`. Tablet → 1,
  *  375px phone → 0.366, 414px phone → 0.404.
  *
- *  The wrapper is `margin-inline: auto` + `transform-origin: top center`
- *  so the scaled content stays horizontally and vertically centered in
- *  any viewport. `body { overflow-x: hidden }` blocks horizontal pan.
+ *  Uses `zoom`, not `transform: scale()`. `transform` is paint-only — it
+ *  does not shrink the element's contribution to its ancestor's
+ *  `scrollHeight`, so `body` sized its scrollable area to `.app-shell`'s
+ *  PRE-scale height while the paint was scaled down, leaving a growing
+ *  gap of empty scrollable space past the last real item on every page.
+ *  `zoom` affects actual layout box size, so `scrollHeight` matches what's
+ *  painted. It also doesn't create a new containing block for `position:
+ *  fixed` descendants the way `transform` does, so it doesn't need a
+ *  `transform-origin` (no origin concept for zoom) — body's existing
+ *  `flex items-center` still centers it correctly on its own.
  * ------------------------------------------------------------------ */
 :root {
   --app-base-w: 1024px;
@@ -26,14 +33,12 @@
 }
 /* `body` is a flex column with `align-items: center` (see app/layout.tsx)
    so this element is horizontally centered EVEN when it overflows the
-   viewport (margin-inline: auto would otherwise resolve to 0 margins and
-   anchor the element to the left edge). `flex-shrink: 0` stops flex from
-   squishing the 1024px box before the scale transform applies. */
+   viewport. `flex-shrink: 0` stops flex from squishing the 1024px box
+   before the zoom applies. */
 .app-shell {
   width: var(--app-base-w);
   flex-shrink: 0;
-  transform: scale(var(--app-scale));
-  transform-origin: top center;
+  zoom: var(--app-scale);
 }
 
 /* `min-h-screen` (Tailwind's `min-height: 100vh`) resolves against the
