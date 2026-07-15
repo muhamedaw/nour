@@ -13,8 +13,13 @@
  *  numbers stay exactly as designed, just smaller-on-screen.
  *
  *  `--app-base-w` is set by an inline script in <head> (see app/layout.tsx)
- *  to 1024px and `--app-scale` to `min(1, innerWidth/1024)`. Tablet → 1,
- *  375px phone → 0.366, 414px phone → 0.404.
+ *  to 1024px and `--app-scale` to `max(0.65, min(1, innerWidth/1024))`.
+ *  Tablet → 1, phones below ~665px CSS width all floor at 0.65 (raw
+ *  ratio would otherwise go as low as ~0.35-0.40, too small to read on
+ *  a real device — see SCALE_RUNTIME in app/layout.tsx). The floor
+ *  means `.app-shell` deliberately overflows viewport width on narrow
+ *  phones; `body`'s `overflow-x: auto` makes that overflow reachable
+ *  via horizontal scroll instead of clipping it.
  *
  *  Uses `zoom`, not `transform: scale()`. `transform` is paint-only — it
  *  does not shrink the element's contribution to its ancestor's
