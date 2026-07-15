@@ -5,39 +5,23 @@
  * (BillConfirmModal, HighlightAssignModal, TimeAdjustModal, MergeModal,
  * TransferModal, TelegramSetupGuide).
  *
- * `.app-shell` (app/globals.css) is `transform: scale(var(--app-scale))`,
- * which makes it the CSS containing block AND stacking context for any
- * `position: fixed` descendant that isn't portaled out of it. A dialog
- * rendered inline inside `.app-shell` collapses to `.app-shell`'s own box
- * instead of the true viewport, and its z-index only competes against
- * siblings inside that same stacking context — it can never out-rank a
- * portaled sibling like BillSummaryBar.tsx/OtaUpdater.tsx, no matter how
- * high the z-index is set. This mirrors those two components' own
- * createPortal-to-document.body pattern, extended with a second scale
- * layer since a full-screen dimming backdrop can't be scaled as a single
- * unit the way a small bottom bar can (see the two-layer note below).
+ * `.app-shell` (app/globals.css) creates a new stacking context, and a
+ * dialog rendered inline inside it would have its z-index competing only
+ * against siblings inside that same context — it could never out-rank a
+ * portaled sibling like BillSummaryBar.tsx/OtaUpdater.tsx no matter how
+ * high the z-index is set. This portals straight to document.body
+ * instead, same pattern as those two components.
  *
  * Two layers:
- *   1. Outer — true-viewport-sized `fixed inset-0` backdrop (NOT scaled).
- *      Owns dim/blur/print/animation classes and role="dialog" wiring.
- *      Scaling this too would shrink the dim layer itself, leaving
- *      visible undimmed real-screen margins on phones — wrong for a
- *      full-screen overlay (unlike BillSummaryBar's small bottom bar,
- *      where scaling the whole box is fine).
- *   2. Canvas — a width:1024px design-space box, transform:scale, exactly
- *      like .app-shell itself, so the dialog card's existing Tailwind
- *      classes (sized for the 1024px canvas like the rest of the app)
- *      render at the correct visual size relative to everything else.
- *
- * transform never changes flex layout — flexbox positions/sizes an
- * element using its PRE-transform box, and transform-origin only picks
- * the pivot point for the paint-time shrink. So the outer layer centers
- * the canvas's full pre-transform box in the real viewport first; then as
- * long as the canvas's transform-origin stays matched to whichever edge
- * the outer flex anchored it to (bottom for "sheet" mode on phones,
- * center for "center" mode / md+), the visual result stays correctly
- * positioned after the shrink — see .modal-portal-canvas /
- * .modal-portal-canvas--sheet in app/globals.css.
+ *   1. Outer — true-viewport-sized `fixed inset-0` backdrop. Owns
+ *      dim/blur/print/animation classes, role="dialog" wiring, and the
+ *      align="sheet" (bottom-anchored on phone, centered at md+) vs
+ *      align="center" (always centered) justify-content.
+ *   2. Canvas — `.modal-portal-canvas` (app/globals.css): real viewport
+ *      width up to the 1024px design ceiling, mirroring `.app-shell`'s
+ *      own responsive-width pattern, so each dialog's own
+ *      `w-full md:max-w-*` inner card sizes correctly against the real
+ *      screen instead of a fixed design-space box.
  *
  * SSR/hydration: document.body only exists post-mount, so — same as
  * BillSummaryBar — the first render returns null and the portal is
@@ -75,7 +59,7 @@ export interface ModalPortalProps {
 export default function ModalPortal({
   align,
   backdropClassName,
-  paddingClassName = "p-0 md:p-4",
+  paddingClassName = "p-3 md:p-4",
   ariaLabelledBy,
   ariaDescribedBy,
   onBackdropClick,
@@ -86,7 +70,6 @@ export default function ModalPortal({
   if (!mounted) return null;
 
   const outerJustify = align === "sheet" ? "justify-end md:justify-center" : "justify-center";
-  const canvasVariant = align === "sheet" ? "modal-portal-canvas--sheet" : "";
 
   return createPortal(
     <div
@@ -99,8 +82,7 @@ export default function ModalPortal({
       onClick={onBackdropClick}
     >
       <div
-        className={`modal-portal-canvas ${canvasVariant} flex justify-center flex-shrink-0 ${paddingClassName}`}
-        style={{ width: "var(--app-base-w)", transform: "scale(var(--app-scale))" }}
+        className={`modal-portal-canvas flex justify-center flex-shrink-0 ${paddingClassName}`}
         onClick={onBackdropClick}
       >
         {children}

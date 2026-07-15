@@ -24,8 +24,8 @@
  *  for horizontal scrolling, which read as unstable/wobbly compared to
  *  a page that's simply laid out to fit in the first place. `--app-scale`
  *  is kept below at a permanent `1` (a harmless no-op) only because
- *  components/ModalPortal.tsx, BillSummaryBar.tsx, and OtaUpdater.tsx
- *  still reference it in their own portal-positioning transforms.
+ *  BillSummaryBar.tsx and OtaUpdater.tsx still reference it in their own
+ *  portal-positioning transforms.
  * ------------------------------------------------------------------ */
 :root {
   --app-base-w: 1024px;
@@ -36,20 +36,16 @@
   max-width: var(--app-base-w);
 }
 
-/* ModalPortal scale-canvas (components/ModalPortal.tsx) — transform
-   pivot for its two alignment modes. Harmless with --app-scale fixed at
-   1 (see the .app-shell comment above); kept so a future reintroduction
-   of per-viewport scaling wouldn't need to rediscover this. Default
-   pivot is the box's own center (always-centered dialogs shrink
-   symmetrically); the --sheet variant is for dialogs that are a bottom
-   sheet on phones (items-end) and centered at md+ (md:items-center). */
+/* ModalPortal canvas (components/ModalPortal.tsx) — mirrors .app-shell's
+   responsive-width pattern above: real viewport width up to the 1024px
+   design ceiling, so each dialog's own w-full/max-w-* inner card sizes
+   against the real screen instead of a fixed 1024px box. (Previously
+   hardcoded width: var(--app-base-w) with a compensating transform:
+   scale() that stopped compensating for anything once --app-scale was
+   fixed at 1 — every dialog rendered ~1024px wide on phones.) */
 .modal-portal-canvas {
-  transform-origin: center center;
-}
-@media (max-width: 767.98px) {
-  .modal-portal-canvas--sheet {
-    transform-origin: bottom center;
-  }
+  width: 100%;
+  max-width: var(--app-base-w);
 }
 
 /* ------------------------------------------------------------------ *

@@ -76,12 +76,12 @@ export default function BillSummaryBar({
             />
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <div className="text-left">
             <div className="text-xs uppercase tracking-widest text-espresso-300">
               إجمالي
             </div>
-            <div className="font-mono font-black text-3xl md:text-4xl text-espresso-50 tabular-nums">
+            <div className="font-mono font-black text-4xl sm:text-5xl md:text-6xl text-espresso-50 tabular-nums whitespace-nowrap">
               {fmtSAR(breakdown.total)}
             </div>
           </div>
