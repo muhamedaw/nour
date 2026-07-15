@@ -187,7 +187,10 @@ export default function ProductOnlySessionView({
   }, [sessionId, items, breakdown, router]);
 
   return (
-    <div className="pb-40" dir="rtl">
+    <div
+      style={{ paddingBottom: "var(--bill-bar-h, 10rem)" }}
+      dir="rtl"
+    >
       <SessionHeader
         area={area}
         tableNumber={tableNumber}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { fmtSAR } from "@/components/domain";
 import type { BillBreakdown } from "./bill";
@@ -18,14 +18,16 @@ export interface BillSummaryBarProps {
  *  • Items count and product total (left side).
  *  • Final total on the right with a huge "إغلاق وحساب الفاتورة" CTA.
  *
- * Rendered through a React Portal into `document.body` so it lives outside
- * `.app-shell`'s `transform: scale(var(--app-scale))` context (any CSS
- * transform on an ancestor creates a new containing block for `position:
- * fixed` descendants, pinning the bar to the scaled box bottom instead of
- * to the real viewport).  Once outside, the same `--app-scale` is applied
- * directly on the portaled root with `transform-origin: bottom center` so
- * the bar still matches the visual sizing of everything else and stays
- * glued to the bottom edge of the screen (not the top of the page).
+ * Rendered through a React Portal into `document.body` so it sits as a
+ * direct child of the document root (escapes any ancestor stacking/
+ * transform context that would otherwise capture `position: fixed`).
+ *
+ * The footer's real rendered height is written to `--bill-bar-h` on
+ * `document.documentElement` via a ResizeObserver below.  Session views
+ * reserve exactly that much bottom padding (with a static `10rem`
+ * fallback matching the previous `pb-40` while the first measurement is
+ * pending), so the last product row is always visible above the bar
+ * regardless of how many stat pills wrap.
  *
  * SSR/hydration: `document.body` only exists after mount, so the first
  * render returns `null` (server + first client render agree) and the
@@ -42,23 +44,43 @@ export default function BillSummaryBar({
   busy,
 }: BillSummaryBarProps) {
   const [mounted, setMounted] = useState(false);
+  const footerRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  /**
+   * Publish the footer's actual height to a CSS custom property so the
+   * session views can pad under it exactly.  ResizeObserver fires on
+   * mount (initial size) and every time content wraps to a different
+   * line count.
+   */
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const apply = (h: number) => {
+      root.style.setProperty("--bill-bar-h", `${h}px`);
+    };
+    apply(el.offsetHeight);
+    const ro = new ResizeObserver((entries) => {
+      const height = entries[0]?.contentRect.height ?? el.offsetHeight;
+      apply(height);
+    });
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--bill-bar-h");
+    };
+  }, [mounted]);
 
   if (!mounted) return null;
 
   return createPortal(
     <footer
+      ref={footerRef}
       className="fixed inset-x-0 bottom-0 z-30 px-4 md:px-6 pb-4 pt-3 bg-gradient-to-t from-espresso-950 via-espresso-950/95 to-transparent"
       dir="rtl"
-      style={{
-        // Re-apply the phone-fit scale that .app-shell normally provides.
-        // Reading the same CSS variable keeps the bar visually consistent
-        // with the rest of the UI without hardcoding any breakpoint.
-        transform: "scale(var(--app-scale))",
-        transformOrigin: "bottom center",
-      }}
     >
       <div className="mx-auto max-w-7xl rounded-3xl bg-espresso-900 border border-espresso-800 shadow-2xl shadow-black/40 p-4 md:p-5 flex flex-wrap items-center gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 flex-1">

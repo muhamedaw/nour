@@ -145,7 +145,7 @@ export default function ProductPicker({
         <ul
           className="grid gap-3 md:gap-4"
           style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
           }}
         >
           {visibleProducts.map((p) => {
@@ -157,15 +157,15 @@ export default function ProductPicker({
             // espresso/copper normal card.
             const cardClass = isHighlight
               ? [
-                  "rounded-2xl border-4 p-4 flex flex-col gap-3 ring-2 ring-rust-400/70",
+                  "rounded-2xl border-4 p-3 flex flex-col gap-3 ring-2 ring-rust-400/70",
                   "shadow-[0_0_0_2px_rgba(214,102,70,0.25)]",
                   q > 0
                     ? "bg-rust-700/80 border-rust-300"
                     : "bg-rust-700/40 border-rust-500/80",
                 ].join(" ")
               : q > 0
-                ? "rounded-2xl border-2 p-4 flex flex-col gap-3 bg-espresso-800 border-copper-500/60"
-                : "rounded-2xl border-2 p-4 flex flex-col gap-3 bg-espresso-900 border-espresso-800";
+                ? "rounded-2xl border-2 p-3 flex flex-col gap-3 bg-espresso-800 border-copper-500/60"
+                : "rounded-2xl border-2 p-3 flex flex-col gap-3 bg-espresso-900 border-espresso-800";
 
             return (
               <li key={p.id} className={cardClass}>
@@ -199,7 +199,7 @@ export default function ProductPicker({
                     disabled={q === 0}
                     aria-label={`إنقاص ${p.name}`}
                     className={[
-                      "w-16 h-16 rounded-2xl text-4xl font-black shrink-0",
+                      "w-12 h-12 rounded-2xl text-2xl font-black shrink-0",
                       "transition active:scale-95",
                       q === 0
                         ? "bg-espresso-800 text-espresso-600 cursor-not-allowed"
@@ -209,7 +209,7 @@ export default function ProductPicker({
                     −
                   </button>
                   {p.imageDataUrl ? (
-                    <div className="flex-1 flex items-center justify-center relative h-16">
+                    <div className="flex-1 flex items-center justify-center relative h-12">
                       <img
                         src={p.imageDataUrl}
                         alt=""
@@ -238,7 +238,7 @@ export default function ProductPicker({
                     onClick={() => inc(p)}
                     aria-label={`زيادة ${p.name}`}
                     className={[
-                      "w-16 h-16 rounded-2xl text-4xl font-black shrink-0",
+                      "w-12 h-12 rounded-2xl text-2xl font-black shrink-0",
                       "transition active:scale-95",
                       isHighlight
                         ? "bg-rust-500 hover:bg-rust-400 text-espresso-50"

@@ -32,7 +32,7 @@ export default function NavBar() {
       className="sticky top-0 z-40 bg-espresso-900/95 backdrop-blur border-b border-espresso-700"
       aria-label="Top navigation"
     >
-      <ul className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center gap-2 md:gap-4 overflow-x-auto">
+      <ul className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap items-center gap-2 md:gap-4">
         {LINKS.map((link) => {
           const active = isActive(link.href);
           return (

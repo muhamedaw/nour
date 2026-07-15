@@ -48,6 +48,14 @@
   max-width: var(--app-base-w);
 }
 
+/* Horizontal-scroll guardrail: belt + suspenders alongside the same
+   protection added to <body> via Tailwind in app/layout.tsx.  Catches any
+   stray descendant that would otherwise push the document wider than the
+   viewport and force the page to pan left/right. */
+html {
+  overflow-x: hidden;
+}
+
 /* ------------------------------------------------------------------ *
  *  Atmosphere — a warm, tactile dark-roast surface instead of a flat
  *  fill. Two low-opacity radial glows (top-right copper, bottom-left
