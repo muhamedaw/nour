@@ -47,8 +47,15 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Pinch-zoom re-enabled — the phone-fit `--app-scale` shrink (see
+  // SCALE_RUNTIME below) proportionally shrinks EVERYTHING on a real
+  // phone, including text, since the whole 1024px tablet-first design
+  // is uniformly scaled down to fit a ~375-412px real viewport (~0.35-
+  // 0.40x). No font-size value can fix that on its own — it's always
+  // multiplied by the same tiny factor. Locking users out of pinch-zoom
+  // on top of that left them with no way to read small text at all.
+  maximumScale: 5,
+  userScalable: true,
 };
 
 /**
