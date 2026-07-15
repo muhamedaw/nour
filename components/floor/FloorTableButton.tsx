@@ -50,7 +50,7 @@ export default function FloorTableButton({
       }
       className={[
         "group relative flex flex-col items-center justify-center",
-        "min-h-[120px] rounded-3xl px-4 py-3",
+        "min-h-[76px] sm:min-h-[100px] md:min-h-[120px] rounded-2xl sm:rounded-3xl px-2 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3",
         "transition-all duration-200 ease-out active:scale-[0.97] tap-highlight-transparent",
         "border-2 select-none focus-visible:ring-4 focus-visible:ring-copper-400/70",
         busy
@@ -58,24 +58,24 @@ export default function FloorTableButton({
           : "bg-espresso-900 border-espresso-700 hover:border-copper-500 hover:bg-espresso-800 text-espresso-50",
       ].join(" ")}
     >
-      <span className="flex items-center gap-2 text-xs uppercase tracking-widest opacity-80">
+      <span className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs uppercase tracking-widest opacity-80">
         {busy && (
           <span
             aria-hidden
-            className="inline-block w-2.5 h-2.5 rounded-full bg-espresso-50 animate-pulse"
+            className="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-espresso-50 animate-pulse"
           />
         )}
         طاولة
       </span>
-      <span className="font-mono font-black text-5xl md:text-6xl mt-1 leading-none">
+      <span className="font-mono font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 leading-none">
         {tableNumber}
       </span>
       {busy ? (
-        <span className="mt-2 text-sm font-medium opacity-90 line-clamp-1">
+        <span className="mt-1 sm:mt-2 text-[10px] sm:text-sm font-medium opacity-90 line-clamp-1">
           {label?.trim() ? label : since ?? "—"}
         </span>
       ) : (
-        <span className="mt-2 text-sm font-semibold text-copper-400 group-hover:text-copper-300 transition-colors duration-200">
+        <span className="mt-1 sm:mt-2 text-[10px] sm:text-sm font-semibold text-copper-400 group-hover:text-copper-300 transition-colors duration-200">
           افتح جلسة
         </span>
       )}

@@ -3,72 +3,46 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ *
- *  Phone-fit scale wrapper.
+ *  Responsive app shell.
  *
- *  The app is designed at the Tailwind `lg` breakpoint (1024px). On a
- *  tablet (≥1024px CSS px, portrait or landscape) this is a no-op and
- *  renders 1:1. On a phone (360–430px) the whole UI is uniformly scaled
- *  down via CSS `zoom: --app-scale` so every component keeps its original
- *  pixel sizes — no reflow, no per-component redesign, text/buttons/
- *  numbers stay exactly as designed, just smaller-on-screen.
+ *  The app is designed at the Tailwind `lg` breakpoint (1024px) and used
+ *  as a `max-width` ceiling on tablet/desktop. On a phone, `.app-shell`
+ *  simply takes the real viewport width (`width: 100%`) — no scaling,
+ *  no shrinking, every component renders at its own natural CSS size.
+ *  Legibility and "does it fit" are handled the normal, native way: real
+ *  Tailwind breakpoints on individual components (e.g. the floor grid's
+ *  `grid-cols-4 sm:grid-cols-5 ...`), not a uniform zoom applied to the
+ *  whole page.
  *
- *  `--app-base-w` is set by an inline script in <head> (see app/layout.tsx)
- *  to 1024px and `--app-scale` to `max(0.65, min(1, innerWidth/1024))`.
- *  Tablet → 1, phones below ~665px CSS width all floor at 0.65 (raw
- *  ratio would otherwise go as low as ~0.35-0.40, too small to read on
- *  a real device — see SCALE_RUNTIME in app/layout.tsx). The floor
- *  means `.app-shell` deliberately overflows viewport width on narrow
- *  phones; `body`'s `overflow-x: auto` makes that overflow reachable
- *  via horizontal scroll instead of clipping it.
- *
- *  Uses `zoom`, not `transform: scale()`. `transform` is paint-only — it
- *  does not shrink the element's contribution to its ancestor's
- *  `scrollHeight`, so `body` sized its scrollable area to `.app-shell`'s
- *  PRE-scale height while the paint was scaled down, leaving a growing
- *  gap of empty scrollable space past the last real item on every page.
- *  `zoom` affects actual layout box size, so `scrollHeight` matches what's
- *  painted. It also doesn't create a new containing block for `position:
- *  fixed` descendants the way `transform` does, so it doesn't need a
- *  `transform-origin` (no origin concept for zoom) — body's existing
- *  `flex items-center` still centers it correctly on its own.
+ *  This replaces an earlier "phone-fit scale" approach (uniform
+ *  `zoom`/`transform: scale()` on `.app-shell`, driven by a JS-computed
+ *  `--app-scale` custom property) that shrank the ENTIRE 1024px design
+ *  down to fit a phone's width, including text — no font-size value
+ *  could escape that multiplier, so text read as too small on a real
+ *  device no matter how it was tuned. Raising the scale's floor to
+ *  compensate then required trading away "everything fits on screen"
+ *  for horizontal scrolling, which read as unstable/wobbly compared to
+ *  a page that's simply laid out to fit in the first place. `--app-scale`
+ *  is kept below at a permanent `1` (a harmless no-op) only because
+ *  components/ModalPortal.tsx, BillSummaryBar.tsx, and OtaUpdater.tsx
+ *  still reference it in their own portal-positioning transforms.
  * ------------------------------------------------------------------ */
 :root {
   --app-base-w: 1024px;
   --app-scale: 1;
 }
-/* `body` is a flex column with `align-items: center` (see app/layout.tsx)
-   so this element is horizontally centered EVEN when it overflows the
-   viewport. `flex-shrink: 0` stops flex from squishing the 1024px box
-   before the zoom applies. */
 .app-shell {
-  width: var(--app-base-w);
-  flex-shrink: 0;
-  zoom: var(--app-scale);
+  width: 100%;
+  max-width: var(--app-base-w);
 }
 
-/* `min-h-screen` (Tailwind's `min-height: 100vh`) resolves against the
-   REAL device viewport regardless of any ancestor's size — a normal-flow
-   child using it needs the same compensation applied directly to itself
-   so it still measures out to exactly one real viewport tall after the
-   shell's transform shrinks it back down. Scoped to `.min-h-screen`
-   specifically (not a blanket rule on `.app-shell` itself) — only
-   AuthGate's loading/locked/reauth states and SplashIntro use this class;
-   forcing it onto `.app-shell` unconditionally used to inflate EVERY
-   page's scrollable height by ~1/--app-scale (~2.5-2.9x on phones),
-   which read as "the page scrolls forever into a black void". */
-.app-shell .min-h-screen {
-  min-height: calc(100vh / var(--app-scale, 1));
-}
-
-/* ModalPortal scale-canvas (components/ModalPortal.tsx) — same phone-fit
-   rescale trick as .app-shell itself, applied to a 1024px design-space box
-   portaled to document.body (same reason BillSummaryBar.tsx/OtaUpdater.tsx
-   portal their own fixed bars — see ModalPortal.tsx's header comment).
-   Default pivot is the box's own center (always-centered dialogs shrink
-   symmetrically). The --sheet variant is for dialogs that are a bottom
-   sheet on phones (items-end) and centered at md+ (md:items-center):
-   below the md breakpoint the pivot must be the BOTTOM edge so the sheet
-   stays flush with the real screen bottom as it shrinks. */
+/* ModalPortal scale-canvas (components/ModalPortal.tsx) — transform
+   pivot for its two alignment modes. Harmless with --app-scale fixed at
+   1 (see the .app-shell comment above); kept so a future reintroduction
+   of per-viewport scaling wouldn't need to rediscover this. Default
+   pivot is the box's own center (always-centered dialogs shrink
+   symmetrically); the --sheet variant is for dialogs that are a bottom
+   sheet on phones (items-end) and centered at md+ (md:items-center). */
 .modal-portal-canvas {
   transform-origin: center center;
 }
@@ -76,15 +50,6 @@
   .modal-portal-canvas--sheet {
     transform-origin: bottom center;
   }
-}
-
-/* max-h-[92vh] on a dialog card resolves against the TRUE device viewport
-   (vh ignores ancestor transforms) — inside a scaled canvas this collapses
-   to ~92vh * --app-scale of real screen space (~34vh on a typical phone)
-   instead of the intended 92vh. Compensate exactly like the
-   .app-shell .min-h-screen rule above does for the same underlying reason. */
-.modal-portal-canvas .max-h-\[92vh\] {
-  max-height: calc(92vh / var(--app-scale, 1));
 }
 
 /* ------------------------------------------------------------------ *

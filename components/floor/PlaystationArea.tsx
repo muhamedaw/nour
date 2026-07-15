@@ -62,12 +62,7 @@ export default function PlaystationArea() {
         areaLabel={label}
         loadStatus={loadStatus}
       />
-      <div
-        className="grid gap-3 md:gap-4"
-        style={{
-          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-        }}
-      >
+      <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
         {Array.from({ length: tableCount }, (_, i) => i + 1).map((t) => {
           const g = openByTable.get(t);
           return (
