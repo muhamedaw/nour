@@ -31,23 +31,13 @@ import { createPortal } from "react-dom";
 import { Preferences } from "@capacitor/preferences";
 import { CapacitorUpdater } from "@capgo/capacitor-updater";
 import { checkForUpdate, applyUpdate } from "@/lib/cloud/ota";
+import { SUPABASE_URL, SUPABASE_BUCKET } from "@/lib/cloud/defaults";
 
-const KEY_SUPABASE_URL = "cloud.supabaseUrl";
-const KEY_BUCKET = "cloud.bucket";
 const KEY_LAST_CHECK_AT = "ota.lastCheckAt";
 
 const HOURLY_INTERVAL_MS = 3_600_000;
 
-async function getConfig(): Promise<{ supabaseUrl: string; bucket: string } | null> {
-  const [u, b] = await Promise.all([
-    Preferences.get({ key: KEY_SUPABASE_URL }),
-    Preferences.get({ key: KEY_BUCKET }),
-  ]);
-  const supabaseUrl = u.value?.trim();
-  const bucket = b.value?.trim();
-  if (!supabaseUrl || !bucket) return null;
-  return { supabaseUrl, bucket };
-}
+const OTA_CONFIG = { supabaseUrl: SUPABASE_URL, bucket: SUPABASE_BUCKET };
 
 /** Same re-entrancy guard shape as the other two schedulers. */
 let isRunning = false;
@@ -74,9 +64,7 @@ export default function OtaUpdater(): JSX.Element | null {
       if (isRunning) return;
       isRunning = true;
       try {
-        const config = await getConfig();
-        if (!config) return; // not configured yet — nothing to check against
-        const result = await checkForUpdate(config);
+        const result = await checkForUpdate(OTA_CONFIG);
         await Preferences.set({ key: KEY_LAST_CHECK_AT, value: new Date().toISOString() });
         if (!armed) return;
         if (result.status === "updated") {

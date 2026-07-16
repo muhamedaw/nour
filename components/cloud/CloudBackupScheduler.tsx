@@ -32,11 +32,13 @@
 import { useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { getCurrentStaffPassword } from "@/lib/localdb";
-import { uploadEncryptedBackup, type CloudBackupConfig } from "@/lib/cloud/backup";
+import { uploadEncryptedBackup } from "@/lib/cloud/backup";
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  SUPABASE_BUCKET,
+} from "@/lib/cloud/defaults";
 
-const KEY_SUPABASE_URL = "cloud.supabaseUrl";
-const KEY_API_KEY = "cloud.apiKey";
-const KEY_BUCKET = "cloud.bucket";
 const KEY_LAST_BACKUP_AT = "cloud.lastBackupAt";
 const KEY_LAST_LOG = "cloud.lastLog";
 
@@ -49,18 +51,11 @@ export interface CloudBackupLogEntry {
   message: string;
 }
 
-async function getConfig(): Promise<CloudBackupConfig | null> {
-  const [u, k, b] = await Promise.all([
-    Preferences.get({ key: KEY_SUPABASE_URL }),
-    Preferences.get({ key: KEY_API_KEY }),
-    Preferences.get({ key: KEY_BUCKET }),
-  ]);
-  const supabaseUrl = u.value?.trim();
-  const apiKey = k.value?.trim();
-  const bucket = b.value?.trim();
-  if (!supabaseUrl || !apiKey || !bucket) return null;
-  return { supabaseUrl, apiKey, bucket };
-}
+const CLOUD_CONFIG = {
+  supabaseUrl: SUPABASE_URL,
+  apiKey: SUPABASE_ANON_KEY,
+  bucket: SUPABASE_BUCKET,
+};
 
 async function readLastLog(): Promise<CloudBackupLogEntry[]> {
   const r = await Preferences.get({ key: KEY_LAST_LOG });
@@ -95,13 +90,6 @@ async function tryRun(): Promise<void> {
   if (isRunning) return;
   isRunning = true;
   try {
-    const config = await getConfig();
-    if (!config) {
-      // Not configured yet — nothing to log here; CloudBackupSettings
-      // shows an empty log until the user fills in the form. Logging
-      // "not configured" every hour would just be noise.
-      return;
-    }
     const password = getCurrentStaffPassword();
     if (!password) {
       // In-memory password wiped by a cold reload — skip silently and
@@ -113,7 +101,7 @@ async function tryRun(): Promise<void> {
       });
       return;
     }
-    const result = await uploadEncryptedBackup(config, password);
+    const result = await uploadEncryptedBackup(CLOUD_CONFIG, password);
     if (result.ok) {
       await Preferences.set({ key: KEY_LAST_BACKUP_AT, value: new Date().toISOString() });
       await appendLog(await readLastLog(), {

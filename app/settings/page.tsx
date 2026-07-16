@@ -1,8 +1,8 @@
 import BackupRestore from "@/components/settings/BackupRestore";
-import CloudBackupSettings from "@/components/settings/CloudBackupSettings";
+import CloudBackupStatus from "@/components/settings/CloudBackupStatus";
 import SavedReports from "@/components/settings/SavedReports";
 import SettingsView from "@/components/settings/SettingsView";
-import TelegramSettings from "@/components/settings/TelegramSettings";
+import TelegramStatus from "@/components/settings/TelegramStatus";
 import TuyaSettings from "@/components/settings/TuyaSettings";
 
 export const metadata = {
@@ -21,9 +21,9 @@ export default function SettingsPage() {
       </header>
       <SettingsView />
       <BackupRestore />
-      <TelegramSettings />
+      <TelegramStatus />
       <TuyaSettings />
-      <CloudBackupSettings />
+      <CloudBackupStatus />
       <SavedReports />
     </main>
   );

@@ -6,9 +6,9 @@
  * UI can tell "retry automatically" apart from "needs user action" the
  * same way it already does for Telegram sends.
  *
- * Storage (Supabase URL, API key, bucket, last-upload timestamp, log) is
- * the component layer's concern — see components/cloud/CloudBackupScheduler.tsx
- * and components/settings/CloudBackupSettings.tsx.
+ * Storage (last-upload timestamp, log) is the component layer's concern —
+ * see components/cloud/CloudBackupScheduler.tsx and
+ * components/settings/CloudBackupStatus.tsx.
  *
  * Note on the Supabase anon/API key being in the bundle: this ships as a
  * static-exported APK, so the key ends up in the JS bundle like the

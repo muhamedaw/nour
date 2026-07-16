@@ -25,8 +25,8 @@
 import { useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { runDailyReport, type ReportLog } from "@/lib/telegram/reporter";
+import { TELEGRAM_BOT_TOKEN } from "@/lib/telegram/defaults";
 
-const KEY_BOT_TOKEN = "tg.botToken";
 const KEY_CHAT_ID = "tg.chatId";
 const KEY_LAST_RUN = "tg.lastRunDate";
 const KEY_LAST_LOG = "tg.lastLog";
@@ -36,14 +36,10 @@ const SCHEDULE_MINUTE = 0;
 const MAX_LOG_ENTRIES = 10;
 
 async function getConfig(): Promise<{ botToken: string; chatId: string } | null> {
-  const [t, c] = await Promise.all([
-    Preferences.get({ key: KEY_BOT_TOKEN }),
-    Preferences.get({ key: KEY_CHAT_ID }),
-  ]);
-  const botToken = t.value?.trim();
+  const c = await Preferences.get({ key: KEY_CHAT_ID });
   const chatId = c.value?.trim();
-  if (!botToken || !chatId) return null;
-  return { botToken, chatId };
+  if (!chatId) return null;
+  return { botToken: TELEGRAM_BOT_TOKEN, chatId };
 }
 
 async function readLastLog(): Promise<ReportLog[]> {

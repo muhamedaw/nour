@@ -10,10 +10,10 @@
  *   • Discover a chat ID by polling getUpdates (first-time setup)
  *   • Orchestrate the whole flow in `runDailyReport()`
  *
- * Storage (bot token, chat ID, last-run date, log) is the component
- * layer's concern — this module just consumes the { botToken, chatId }
- * pair it's handed. See components/telegram/DailyReporter.tsx and
- * components/settings/TelegramSettings.tsx.
+ * Storage (chat ID, last-run date, log) is the component layer's
+ * concern — this module just consumes the { botToken, chatId } pair
+ * it's handed. See components/telegram/DailyReporter.tsx and
+ * components/settings/TelegramStatus.tsx.
  *
  * Persistence of the report itself (CSV + JSON sidecar in
  * Documents/reports/) lives in `./report-storage`. `runDailyReport`
