@@ -54,19 +54,23 @@ export default function BillSummaryBar({
    * session views can pad under it exactly.  ResizeObserver fires on
    * mount (initial size) and every time content wraps to a different
    * line count.
+   *
+   * Always re-reads `el.offsetHeight` (the border-box, including the
+   * footer's own `pt-3 pb-4` padding) rather than the observer entry's
+   * `contentRect.height` (content-box only, excludes padding/border) —
+   * mixing the two meant every post-mount update under-reported the
+   * height by exactly the vertical padding, letting the bar creep over
+   * the last product row by that same amount.
    */
   useEffect(() => {
     const el = footerRef.current;
     if (!el) return;
     const root = document.documentElement;
-    const apply = (h: number) => {
-      root.style.setProperty("--bill-bar-h", `${h}px`);
+    const apply = () => {
+      root.style.setProperty("--bill-bar-h", `${el.offsetHeight}px`);
     };
-    apply(el.offsetHeight);
-    const ro = new ResizeObserver((entries) => {
-      const height = entries[0]?.contentRect.height ?? el.offsetHeight;
-      apply(height);
-    });
+    apply();
+    const ro = new ResizeObserver(apply);
     ro.observe(el);
     return () => {
       ro.disconnect();
