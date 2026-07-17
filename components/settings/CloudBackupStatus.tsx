@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { uploadEncryptedBackup } from "@/lib/cloud/backup";
-import { checkForUpdate } from "@/lib/cloud/ota";
+import { applyUpdate, checkForUpdate } from "@/lib/cloud/ota";
 import { getCurrentStaffPassword } from "@/lib/localdb";
 import {
   SUPABASE_URL,
@@ -22,7 +22,7 @@ const CLOUD_CONFIG = {
   bucket: SUPABASE_BUCKET,
 };
 
-type BusyKind = "backup" | "update" | null;
+type BusyKind = "backup" | "update" | "apply" | null;
 
 export default function CloudBackupStatus(): JSX.Element {
   const [lastBackupAt, setLastBackupAt] = useState<string | null>(null);
@@ -31,6 +31,7 @@ export default function CloudBackupStatus(): JSX.Element {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [appVersion, setAppVersion] = useState<string | null>(null);
+  const [pendingBundleId, setPendingBundleId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -105,8 +106,9 @@ export default function CloudBackupStatus(): JSX.Element {
       if (result.status === "up-to-date") {
         setSuccessMsg("التطبيق محدّث بالفعل.");
       } else if (result.status === "updated") {
+        setPendingBundleId(result.bundleId);
         setSuccessMsg(
-          `تم تنزيل تحديث جديد (${result.version}). يمكنك تطبيقه من الإشعار أسفل الشاشة.`,
+          `تم تنزيل تحديث جديد (${result.version}). اضغط "إعادة التشغيل الآن" لتطبيقه.`,
         );
       } else {
         setErrorMsg(`فشل التحقق: ${result.message}`);
@@ -114,6 +116,22 @@ export default function CloudBackupStatus(): JSX.Element {
     } finally {
       setBusy(null);
     }
+  }
+
+  async function applyUpdateNow(): Promise<void> {
+    if (!pendingBundleId) return;
+    setErrorMsg(null);
+    setBusy("apply");
+    try {
+      await applyUpdate(pendingBundleId);
+    } catch (e) {
+      setBusy(null);
+      setErrorMsg(
+        `فشل تطبيق التحديث: ${e instanceof Error ? e.message : "خطأ غير متوقع."}`,
+      );
+    }
+    // On success, applyUpdate() reloads the WebView — this component
+    // unmounts before we'd ever clear `busy`, so no finally/reset needed.
   }
 
   const disabled = busy !== null;
@@ -212,7 +230,7 @@ export default function CloudBackupStatus(): JSX.Element {
             الإصدار الحالي: {appVersion}
           </p>
         )}
-        <div>
+        <div className="flex flex-wrap gap-3">
           <button
             type="button"
             onClick={checkUpdateNow}
@@ -221,6 +239,16 @@ export default function CloudBackupStatus(): JSX.Element {
           >
             {busy === "update" ? "جاري التحقق…" : "تحقق من التحديثات الآن"}
           </button>
+          {pendingBundleId && (
+            <button
+              type="button"
+              onClick={applyUpdateNow}
+              disabled={disabled}
+              className="min-h-[44px] px-4 rounded-2xl bg-rust-600 hover:bg-rust-500 disabled:opacity-50 text-espresso-50 font-bold border border-rust-700 text-sm"
+            >
+              {busy === "apply" ? "جارٍ إعادة التشغيل…" : "إعادة التشغيل الآن"}
+            </button>
+          )}
         </div>
       </div>
     </section>
