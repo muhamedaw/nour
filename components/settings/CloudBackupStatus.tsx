@@ -9,6 +9,7 @@ import {
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
   SUPABASE_BUCKET,
+  SUPABASE_OTA_BUCKET,
 } from "@/lib/cloud/defaults";
 import type { CloudBackupLogEntry } from "@/components/cloud/CloudBackupScheduler";
 
@@ -99,7 +100,7 @@ export default function CloudBackupStatus(): JSX.Element {
     try {
       const result = await checkForUpdate({
         supabaseUrl: SUPABASE_URL,
-        bucket: SUPABASE_BUCKET,
+        bucket: SUPABASE_OTA_BUCKET,
       });
       if (result.status === "up-to-date") {
         setSuccessMsg("التطبيق محدّث بالفعل.");
