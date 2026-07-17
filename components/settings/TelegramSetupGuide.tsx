@@ -10,7 +10,7 @@ interface Props {
 
 /**
  * Shared id for the dialog's root element. Exported so the trigger button
- * in `TelegramSettings.tsx` can reference it via `aria-controls` without
+ * in `TelegramStatus.tsx` can reference it via `aria-controls` without
  * duplicating the string literal in two files (a silent-break hazard if
  * either side is renamed).
  */
@@ -28,7 +28,7 @@ const TIP_STYLES: Record<TipKind, string> = {
 /**
  * Modal showing a 9-step Arabic guide for creating a Telegram bot and
  * wiring it to this app. Pure presentation — all open/close state lives
- * in the parent (`TelegramSettings`).
+ * in the parent (`TelegramStatus`).
  *
  * UX:
  *   • ESC key, X button, or click on the dim overlay all close.
