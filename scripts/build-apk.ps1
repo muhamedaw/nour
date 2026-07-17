@@ -27,6 +27,13 @@
 $ProjectRoot = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Set-Location $ProjectRoot
 
+# Windows PowerShell 5.1's Invoke-WebRequest inherits .NET Framework's
+# ServicePointManager, which defaults to SSL3/TLS1.0 on some machines —
+# Supabase's endpoint requires TLS1.2+, and the mismatch doesn't fail fast,
+# it hangs the handshake indefinitely (observed: 15+ minutes, no timeout,
+# no error). Force TLS1.2 before any Invoke-WebRequest call in this script.
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 Write-Host "=== Nour POS APK Build (offline) ==="
 Write-Host "Project root: $ProjectRoot"
 Write-Host ""
@@ -75,7 +82,12 @@ if (Test-Path $EnvLocalPath) {
   }
 }
 $OtaUrl = $OtaEnv['SUPABASE_URL']
-$OtaBucket = $OtaEnv['SUPABASE_BUCKET']
+# Deliberately a SEPARATE bucket from SUPABASE_BUCKET (the private backups
+# bucket) — Supabase's unauthenticated public-read path is gated by the
+# bucket's own public flag, not per-path policies, so the app-updates
+# manifest/zip need a genuinely public bucket of their own. See the
+# SUPABASE_OTA_BUCKET doc comment in lib/cloud/defaults.ts.
+$OtaBucket = $OtaEnv['SUPABASE_OTA_BUCKET']
 $OtaServiceKey = $OtaEnv['SUPABASE_SERVICE_ROLE_KEY']
 
 if ($OtaUrl -and $OtaBucket -and $OtaServiceKey) {
@@ -96,18 +108,36 @@ if ($OtaUrl -and $OtaBucket -and $OtaServiceKey) {
     $PublicZipUrl = "$BaseUrl/storage/v1/object/public/$OtaBucket/app-updates/$Version.zip"
     $ManifestObjectUrl = "$BaseUrl/storage/v1/object/$OtaBucket/app-updates/latest.json"
 
-    $Headers = @{
-      "apikey"        = $OtaServiceKey
-      "Authorization" = "Bearer $OtaServiceKey"
-      "x-upsert"      = "true"
+    # curl.exe, not Invoke-WebRequest: Windows PowerShell 5.1's
+    # Invoke-WebRequest (.NET Framework HttpWebRequest under the hood) has
+    # been observed to hang indefinitely against this endpoint — 15-30+
+    # minutes, no error, no timeout honored even with -TimeoutSec set.
+    # curl.exe (bundled with Windows 10/11) hits the identical endpoint
+    # instantly and reliably, so it does the actual HTTP work here.
+    $zipUpload = & curl.exe -sS --max-time 30 -w "`n%{http_code}" -X PUT `
+      -H "apikey: $OtaServiceKey" -H "Authorization: Bearer $OtaServiceKey" `
+      -H "x-upsert: true" -H "Content-Type: application/zip" `
+      --data-binary "@$ZipPath" $ZipObjectUrl
+    $zipStatus = ($zipUpload | Select-Object -Last 1)
+    if ($zipStatus -notmatch '^2\d\d$') {
+      throw "zip upload failed (HTTP $zipStatus): $zipUpload"
     }
 
-    Invoke-WebRequest -Uri $ZipObjectUrl -Method Put -Headers $Headers `
-      -ContentType "application/zip" -InFile $ZipPath | Out-Null
-
-    $Manifest = @{ version = $Version; url = $PublicZipUrl; sha256 = $Sha256 } | ConvertTo-Json -Compress
-    Invoke-WebRequest -Uri $ManifestObjectUrl -Method Put -Headers $Headers `
-      -ContentType "application/json" -Body $Manifest | Out-Null
+    $ManifestPath = Join-Path $ProjectRoot "out-$Version-manifest.json"
+    @{ version = $Version; url = $PublicZipUrl; sha256 = $Sha256 } | ConvertTo-Json -Compress |
+      Set-Content -Path $ManifestPath -Encoding utf8 -NoNewline
+    try {
+      $manifestUpload = & curl.exe -sS --max-time 30 -w "`n%{http_code}" -X PUT `
+        -H "apikey: $OtaServiceKey" -H "Authorization: Bearer $OtaServiceKey" `
+        -H "x-upsert: true" -H "Content-Type: application/json" `
+        --data-binary "@$ManifestPath" $ManifestObjectUrl
+      $manifestStatus = ($manifestUpload | Select-Object -Last 1)
+      if ($manifestStatus -notmatch '^2\d\d$') {
+        throw "manifest upload failed (HTTP $manifestStatus): $manifestUpload"
+      }
+    } finally {
+      if (Test-Path $ManifestPath) { Remove-Item $ManifestPath -Force }
+    }
 
     Write-Host "  OK — published version $Version ($Sha256)"
   } catch {

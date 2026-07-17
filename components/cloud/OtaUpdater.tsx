@@ -31,13 +31,13 @@ import { createPortal } from "react-dom";
 import { Preferences } from "@capacitor/preferences";
 import { CapacitorUpdater } from "@capgo/capacitor-updater";
 import { checkForUpdate, applyUpdate } from "@/lib/cloud/ota";
-import { SUPABASE_URL, SUPABASE_BUCKET } from "@/lib/cloud/defaults";
+import { SUPABASE_URL, SUPABASE_OTA_BUCKET } from "@/lib/cloud/defaults";
 
 const KEY_LAST_CHECK_AT = "ota.lastCheckAt";
 
 const HOURLY_INTERVAL_MS = 3_600_000;
 
-const OTA_CONFIG = { supabaseUrl: SUPABASE_URL, bucket: SUPABASE_BUCKET };
+const OTA_CONFIG = { supabaseUrl: SUPABASE_URL, bucket: SUPABASE_OTA_BUCKET };
 
 /** Same re-entrancy guard shape as the other two schedulers. */
 let isRunning = false;
