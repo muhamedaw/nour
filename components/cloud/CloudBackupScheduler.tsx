@@ -31,7 +31,7 @@
 
 import { useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
-import { getCurrentStaffPassword } from "@/lib/localdb";
+import { getCurrentStaffPassword, initLocalDb } from "@/lib/localdb";
 import { uploadEncryptedBackup } from "@/lib/cloud/backup";
 import {
   SUPABASE_URL,
@@ -90,6 +90,12 @@ async function tryRun(): Promise<void> {
   if (isRunning) return;
   isRunning = true;
   try {
+    // Mounted outside <AuthGate> (see file header), so this can fire before
+    // AuthGate's own initLocalDb() call resolves. initLocalDb() is
+    // idempotent and shares a single in-flight promise across callers, so
+    // awaiting it here either returns instantly (already done) or joins
+    // that same promise — never a second, competing initialization.
+    await initLocalDb();
     const password = getCurrentStaffPassword();
     if (!password) {
       // In-memory password wiped by a cold reload — skip silently and

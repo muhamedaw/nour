@@ -26,6 +26,7 @@ import { useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { runDailyReport, type ReportLog } from "@/lib/telegram/reporter";
 import { TELEGRAM_BOT_TOKEN } from "@/lib/telegram/defaults";
+import { initLocalDb } from "@/lib/localdb";
 
 const KEY_CHAT_ID = "tg.chatId";
 const KEY_LAST_RUN = "tg.lastRunDate";
@@ -83,6 +84,12 @@ function todayDateString(now: Date = new Date()): string {
 }
 
 async function tryRun(): Promise<void> {
+  // Mounted outside <AuthGate> (see file header), so this can fire before
+  // AuthGate's own initLocalDb() call resolves. initLocalDb() is idempotent
+  // and shares a single in-flight promise across callers, so awaiting it
+  // here either returns instantly (already done) or joins that same
+  // promise — never a second, competing initialization.
+  await initLocalDb();
   const config = await getConfig();
   let result: { status: "sent" | "skipped" | "failed"; message: string; date: string };
   if (!config) {
