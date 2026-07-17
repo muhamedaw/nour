@@ -2,6 +2,9 @@ import SnookerArea from "@/components/floor/SnookerArea";
 import CardsArea from "@/components/floor/CardsArea";
 import PlaystationArea from "@/components/floor/PlaystationArea";
 
+// OTA test marker — no behavior change, forces a fresh build/version for
+// verifying the update-check pipeline end-to-end on a real device.
+
 export default function Home() {
   return (
     <main className="p-4 md:p-6 max-w-7xl mx-auto flex flex-col gap-6">
