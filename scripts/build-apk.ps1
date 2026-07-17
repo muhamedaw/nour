@@ -100,7 +100,43 @@ if ($OtaUrl -and $OtaBucket -and $OtaServiceKey) {
 
   try {
     if (Test-Path $ZipPath) { Remove-Item $ZipPath -Force }
-    Compress-Archive -Path "$OutDir\*" -DestinationPath $ZipPath -Force
+    # NOT Compress-Archive: Windows PowerShell 5.1's .NET Framework
+    # System.IO.Compression path writes entry names with backslashes
+    # (`404\index.html`) instead of the ZIP-spec-mandated forward slash
+    # (`404/index.html`). @capgo/capacitor-updater's Android unzip code
+    # explicitly detects and rejects backslash entry names ("Windows path
+    # not supported"), which surfaced to users as a generic "Failed to
+    # download" error with no indication the zip itself was malformed.
+    # Building the archive manually with ZipArchive lets us control each
+    # entry's name directly and force forward slashes regardless of host OS.
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zipStream = [System.IO.File]::Open($ZipPath, [System.IO.FileMode]::Create)
+    try {
+      $archive = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
+      try {
+        $sourceFiles = Get-ChildItem -Path $OutDir -Recurse -File
+        foreach ($sourceFile in $sourceFiles) {
+          $relativePath = $sourceFile.FullName.Substring($OutDir.Length + 1).Replace('\', '/')
+          $entry = $archive.CreateEntry($relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
+          $entryStream = $entry.Open()
+          try {
+            $fileStream = [System.IO.File]::OpenRead($sourceFile.FullName)
+            try {
+              $fileStream.CopyTo($entryStream)
+            } finally {
+              $fileStream.Dispose()
+            }
+          } finally {
+            $entryStream.Dispose()
+          }
+        }
+      } finally {
+        $archive.Dispose()
+      }
+    } finally {
+      $zipStream.Dispose()
+    }
     $Sha256 = (Get-FileHash -Path $ZipPath -Algorithm SHA256).Hash.ToLower()
 
     $BaseUrl = $OtaUrl.TrimEnd('/')
